@@ -20,6 +20,11 @@ variable "tags" {
   default = []
 }
 
+variable "identifier" {
+  type = string
+  default = ""
+}
+
 variable "message" {
   type = string
   default = "@slack-figure-alerts {{#is_alert}}@opsgenie{{/is_alert}} {{#is_recovery}}@opsgenie{{/is_recovery}}"
