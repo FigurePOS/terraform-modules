@@ -4,7 +4,7 @@ resource "datadog_monitor" "ecs_cpu_monitor" {
   count = var.env == "production" ? 1 : 0
   type = "metric alert"
   message = var.message
-  query = "avg(${var.interval}):avg:aws.ecs.service.cpuutilization{servicename:${var.service_name},env:${var.env}} > ${var.cpu_critical}"
+  query = "avg(${var.interval}):median_3(avg:aws.ecs.service.cpuutilization{servicename:${var.service_name},env:${var.env}}) > ${var.cpu_critical}"
   monitor_thresholds {
     warning = var.cpu_warning
     critical = var.cpu_critical
