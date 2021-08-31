@@ -11,7 +11,7 @@ resource "datadog_monitor" "apm_monitor_error_rate" {
   count = var.env == "production" ? 1 : 0
   type = "metric alert"
   message = var.message
-  query = "avg(${var.interval}):(${local.metric_errors} / ${local.metric_hits}) > ${var.error_rate_target}"
+  query = "avg(${var.interval}):(${local.metric_errors} / ${local.metric_hits}) > ${var.error_rate_target / 100}"
   tags = var.tags
   locked = true
 }
