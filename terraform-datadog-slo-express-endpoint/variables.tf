@@ -21,6 +21,7 @@ variable "resource_name_readable" {
 
 variable "interval" {
   type = string
+  default = "last_10m"
 }
 
 variable "error_rate_target" {

@@ -1,8 +1,8 @@
 
 locals {
   monitor_dimensions = "env:${var.env},resource_name:${lower(var.resource_name)},service:${var.service}"
-  metric_errors = "sum:trace.express.request.errors{${local.monitor_dimensions}}.as_count()"
-  metric_hits = "sum:trace.express.request.hits{${local.monitor_dimensions}}.as_count()"
+  metric_errors = "sum:trace.express.request.errors{${local.monitor_dimensions}}.as_rate().rollup(sum,60)"
+  metric_hits = "sum:trace.express.request.hits{${local.monitor_dimensions}}.as_rate().rollup(sum,60)"
   metric_latency = "${var.latency_percentile}:trace.express.request{${local.monitor_dimensions}}"
 }
 
@@ -11,7 +11,7 @@ resource "datadog_monitor" "apm_monitor_error_rate" {
   count = var.env == "production" ? 1 : 0
   type = "metric alert"
   message = var.message
-  query = "avg(${var.interval}):(${local.metric_errors} / ${local.metric_hits}) > ${var.error_rate_target / 100}"
+  query = "min(${var.interval}):(100 * ${local.metric_errors} / ${local.metric_hits}) > ${var.error_rate_target}"
   tags = var.tags
   locked = true
 }
@@ -35,7 +35,7 @@ resource "datadog_monitor" "apm_monitor_latency" {
   count = var.env == "production" ? 1 : 0
   type = "metric alert"
   message = var.message
-  query = "avg(${var.interval}):${local.metric_latency} > ${var.latency_target}"
+  query = "min(${var.interval}):${local.metric_latency} > ${var.latency_target}"
   tags = var.tags
   locked = true
 }
