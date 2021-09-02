@@ -30,6 +30,7 @@ variable "error_rate_target" {
 
 variable "latency_percentile" {
   type = string
+  default = "p99"
 }
 
 variable "latency_target" {
