@@ -6,7 +6,7 @@ resource "datadog_monitor" "sqs_number_of_messages_monitor" {
   tags = var.tags
   type = "metric alert"
   message = var.message
-  query = "max(last_5m):avg:aws.sqs.approximate_number_of_messages_visible{queuename:${lower(var.queue_name)},env:${var.env}} > ${var.queue_messages_critical}"
+  query = "min(last_5m):avg:aws.sqs.approximate_number_of_messages_visible{queuename:${lower(var.queue_name)},env:${var.env}} > ${var.queue_messages_critical}"
   monitor_thresholds {
     warning = var.queue_messages_warning
     critical = var.queue_messages_critical
