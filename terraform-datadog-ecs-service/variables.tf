@@ -43,5 +43,5 @@ variable "memory_critical" {
 
 variable "interval" {
   type = string
-  default = "last_15m"
+  default = "last_10m"
 }
