@@ -52,5 +52,5 @@ variable "dead_letter_queue_messages_critical" {
 
 variable "dead_letter_queue_renotify_interval" {
   type = number
-  default = 3600 * 24
+  default = 24 * 60
 }
