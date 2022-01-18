@@ -24,7 +24,11 @@ resource "datadog_service_level_objective" "apm_slo_error_rate" {
     datadog_monitor.apm_monitor_error_rate[0].id
   ]
   thresholds {
-    timeframe = "7d"
+    timeframe = "30d"
+    target = var.slo_error_rate_target
+  }
+  thresholds {
+    timeframe = "90d"
     target = var.slo_error_rate_target
   }
   tags = var.tags
@@ -48,7 +52,11 @@ resource "datadog_service_level_objective" "apm_slo_latency" {
     datadog_monitor.apm_monitor_latency[0].id
   ]
   thresholds {
-    timeframe = "7d"
+    timeframe = "30d"
+    target = var.slo_latency_target
+  }
+  thresholds {
+    timeframe = "90d"
     target = var.slo_latency_target
   }
   tags = var.tags
