@@ -42,6 +42,7 @@ resource "datadog_monitor" "apm_monitor_latency" {
   query = "min(${var.interval}):${local.metric_latency} > ${var.latency_target}"
   tags = var.tags
   locked = true
+  notify_no_data = var.notify_on_missing_data
 }
 
 resource "datadog_service_level_objective" "apm_slo_latency" {

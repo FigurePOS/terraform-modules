@@ -50,3 +50,8 @@ variable "message" {
   type = string
   default = "@slack-figure-alerts"
 }
+
+variable "notify_on_missing_data" {
+  type = bool
+  default = false
+}
