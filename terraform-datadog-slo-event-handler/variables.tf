@@ -15,10 +15,6 @@ variable "service_name_readable" {
   type = string
 }
 
-variable "resource_name_readable" {
-  type = string
-}
-
 variable "interval" {
   type = string
   default = "last_10m"

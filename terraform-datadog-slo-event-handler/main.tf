@@ -5,7 +5,7 @@ locals {
 }
 
 resource "datadog_monitor" "apm_monitor_latency" {
-  name = "${var.service_name_readable} – APM - ${var.resource_name_readable} – Latency (${var.latency_percentile}) is over ${var.latency_target}s"
+  name = "${var.service_name_readable} – APM - ${var.resource_name} – Latency (${var.latency_percentile}) is over ${var.latency_target}s"
   count = var.env == "production" ? 1 : 0
   type = "metric alert"
   message = var.message
@@ -16,7 +16,7 @@ resource "datadog_monitor" "apm_monitor_latency" {
 }
 
 resource "datadog_service_level_objective" "apm_slo_latency" {
-  name = "${var.service_name_readable} – APM - ${var.resource_name_readable} – Latency"
+  name = "${var.service_name_readable} – APM - ${var.resource_name} – Latency"
   count = var.env == "production" ? 1 : 0
   type = "monitor"
   monitor_ids = [
