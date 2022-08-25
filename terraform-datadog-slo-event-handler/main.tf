@@ -9,7 +9,7 @@ resource "datadog_monitor" "apm_monitor_latency" {
   count = var.env == "production" ? 1 : 0
   type = "metric alert"
   message = var.message
-  query = "min(${var.interval}):${local.metric_latency} > ${var.latency_target}"
+  query = "${var.eval_fn}(${var.interval}):${local.metric_latency} > ${var.latency_target}"
   tags = var.tags
   locked = true
   notify_no_data = var.notify_on_missing_data

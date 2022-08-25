@@ -24,6 +24,11 @@ variable "interval" {
   default = "last_10m"
 }
 
+variable "eval_fn" {
+  type = string
+  default = "min"
+}
+
 variable "error_rate_target" {
   type = number
 }

@@ -11,7 +11,7 @@ resource "datadog_monitor" "apm_monitor_error_rate" {
   count = var.env == "production" ? 1 : 0
   type = "metric alert"
   message = var.message
-  query = "min(${var.interval}):(100 * ${local.metric_errors} / ${local.metric_hits}) > ${var.error_rate_target}"
+  query = "${var.eval_fn}(${var.interval}):(100 * ${local.metric_errors} / ${local.metric_hits}) > ${var.error_rate_target}"
   tags = var.tags
   locked = true
 }
@@ -39,7 +39,7 @@ resource "datadog_monitor" "apm_monitor_latency" {
   count = var.env == "production" ? 1 : 0
   type = "metric alert"
   message = var.message
-  query = "min(${var.interval}):${local.metric_latency} > ${var.latency_target}"
+  query = "${var.eval_fn}(${var.interval}):${local.metric_latency} > ${var.latency_target}"
   tags = var.tags
   locked = true
   notify_no_data = var.notify_on_missing_data

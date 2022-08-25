@@ -20,6 +20,11 @@ variable "interval" {
   default = "last_10m"
 }
 
+variable "eval_fn" {
+  type = string
+  default = "min"
+}
+
 variable "latency_percentile" {
   type = string
   default = "p99"
