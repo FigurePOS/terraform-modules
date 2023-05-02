@@ -7,7 +7,7 @@ resource "datadog_monitor" "monitor" {
   message = var.monitor_message
   query = "${var.monitor_eval_fn}(${var.monitor_eval_interval}):${var.monitor_query} > ${var.monitor_threshold}"
   monitor_thresholds {
-    warning = floor(var.monitor_threshold / 2)
+    warning = var.monitor_threshold / 2
     critical = var.monitor_threshold
   }
 }
