@@ -1,5 +1,6 @@
 .idea
 *.iml
+*.code-workspace
 
 .terraform
 *.lock.hcl
