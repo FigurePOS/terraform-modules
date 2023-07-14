@@ -1,0 +1,100 @@
+version: 2.1
+
+slack_notification: &slack_notification
+  branch_pattern: master
+  event: fail
+  custom: |
+    {
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":interrobang::bangbang: *terraform-modules*: Execution of job `${CIRCLE_JOB}` failed (${CIRCLE_SHA1:0:7}) :interrobang::bangbang:"
+          }
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "View Job"
+              },
+              "url": "${CIRCLE_BUILD_URL}"
+            }
+          ]
+        }
+      ]
+    }
+
+orbs:
+  slack: circleci/slack@4.12.5
+
+workflows:
+  terraform:
+    jobs:
+      - terraform_validate:
+          context:
+            - node
+
+jobs:
+  
+  terraform_validate:
+    docker:
+      - image: figurepos/aws-node-terraform:node20
+    steps:
+      - checkout
+      - run:
+          name: "validate terraform-datadog-ecs-service"
+          command: |
+            cd terraform-datadog-ecs-service
+            terraform init
+            terraform validate
+            checkov -d .
+      - run:
+          name: "validate terraform-datadog-metric-slo"
+          command: |
+            cd terraform-datadog-metric-slo
+            terraform init
+            terraform validate
+            checkov -d .
+      - run:
+          name: "validate terraform-datadog-slo-event-handler"
+          command: |
+            cd terraform-datadog-slo-event-handler
+            terraform init
+            terraform validate
+            checkov -d .
+      - run:
+          name: "validate terraform-datadog-slo-express-endpoint"
+          command: |
+            cd terraform-datadog-slo-express-endpoint
+            terraform init
+            terraform validate
+            checkov -d .
+      - run:
+          name: "validate terraform-datadog-slo-graphql-endpoint"
+          command: |
+            cd terraform-datadog-slo-graphql-endpoint
+            terraform init
+            terraform validate
+            checkov -d .
+      - run:
+          name: "validate terraform-datadog-sqs"
+          command: |
+            cd terraform-datadog-sqs
+            terraform init
+            terraform validate
+            checkov -d .
+      - run:
+          name: "validate terraform-ecs-fargate-autoscaling-basic"
+          command: |
+            cd terraform-ecs-fargate-autoscaling-basic
+            terraform init
+            terraform validate
+            checkov -d .
+      - slack/notify:
+          *slack_notification
+  
