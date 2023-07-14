@@ -1,5 +1,5 @@
 locals {
-  identifierLabel = var.identifier ? "(${var.identifier})" : ""
+  identifierLabel = var.identifier != "" ? "(${var.identifier})" : ""
 }
 
 resource "datadog_monitor" "sqs_number_of_messages_monitor" {
