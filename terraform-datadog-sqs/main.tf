@@ -1,6 +1,9 @@
+locals {
+  identifierLabel = var.identifier ? "(${var.identifier})" : ""
+}
 
 resource "datadog_monitor" "sqs_number_of_messages_monitor" {
-  name = trimspace("${var.service_name_readable} – SQS - Number of messages %{if var.identifier != ""}(${var.identifier})%{else}%{endif}")
+  name = trimspace("${var.service_name_readable} – SQS - Number of messages ${local.identifierLabel}")
   count = var.env == "production" ? 1 : 0
   locked = true
   tags = var.tags
@@ -14,7 +17,7 @@ resource "datadog_monitor" "sqs_number_of_messages_monitor" {
 }
 
 resource "datadog_monitor" "sqs_number_of_messages_dead_letter_monitor" {
-  name = trimspace("${var.service_name_readable} – SQS - Number of messages in dead letter %{if var.identifier != ""}(${var.identifier})%{else}%{endif}")
+  name = trimspace("${var.service_name_readable} – SQS - Number of messages in dead letter ${local.identifierLabel}")
   count = var.env == "production" ? 1 : 0
   locked = true
   tags = var.tags
