@@ -88,16 +88,13 @@ resource "aws_alb_listener_rule" "ecs_alb_listener_rule" {
 
   condition {
     host_header {
-      values = [
-        var.load_balancer_listener_host_header,
-        var.load_balancer_listener_host_header_2,
-      ]
+      values = var.load_balancer_listener_rule_host_headers
     }
   }
 
   condition {
     path_pattern {
-      values = [var.load_balancer_path_pattern]
+      values = var.load_balancer_listener_rule_path_patterns
     }
   }
 
