@@ -95,6 +95,13 @@ jobs:
             terraform init
             terraform validate
             checkov -d .
+      - run:
+          name: "validate terraform-ecs-fargate-service"
+          command: |
+            cd terraform-ecs-fargate-service
+            terraform init
+            terraform validate
+            checkov -d .
       - slack/notify:
           *slack_notification
   
