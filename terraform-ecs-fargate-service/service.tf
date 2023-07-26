@@ -80,6 +80,7 @@ resource "aws_alb_target_group" "ecs_service_target_group" {
 
 resource "aws_alb_listener_rule" "ecs_alb_listener_rule" {
   listener_arn = var.load_balancer_listener_arn
+  priority = var.load_balancer_listener_rule_priority
 
   action {
     type = "forward"
@@ -96,11 +97,5 @@ resource "aws_alb_listener_rule" "ecs_alb_listener_rule" {
     path_pattern {
       values = var.load_balancer_listener_rule_path_patterns
     }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      priority
-    ]
   }
 }
