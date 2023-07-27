@@ -23,9 +23,6 @@ variable "task_role_arn" {
 variable "load_balancer_listener_arn" {
     type = string
 }
-variable "load_balancer_listener_rule_priority" {
-    type = number
-}
 variable "load_balancer_listener_rule_host_headers" {
     type = list(string)
 }
