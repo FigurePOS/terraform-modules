@@ -67,8 +67,8 @@ resource "aws_alb_target_group" "ecs_service_target_group" {
   deregistration_delay = 30
 
   health_check {
-    healthy_threshold = 5
-    unhealthy_threshold = 2
+    healthy_threshold = var.load_balancer_health_check_healthy_threshold
+    unhealthy_threshold = var.load_balancer_health_check_unhealthy_threshold
     interval = 30
     matcher = 200
     path = var.load_balancer_health_check_path

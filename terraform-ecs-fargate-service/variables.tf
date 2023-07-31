@@ -32,6 +32,17 @@ variable "load_balancer_listener_rule_path_patterns" {
 variable "load_balancer_health_check_path" {
     type = string
 }
+
+variable "load_balancer_health_check_healthy_threshold" {
+    type = number
+    default = 5
+}
+
+variable "load_balancer_health_check_unhealthy_threshold" {
+    type = number
+    default = 2
+}
+
 variable "ecr_repository_url" {
     type = string
 }
