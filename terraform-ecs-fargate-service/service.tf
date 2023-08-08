@@ -104,3 +104,7 @@ resource "aws_alb_listener_rule" "ecs_alb_listener_rule" {
     ]
   }
 }
+
+output "elb_target_group_arn" {
+  value = aws_alb_target_group.ecs_service_target_group.arn
+}
