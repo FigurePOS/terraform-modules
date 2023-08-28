@@ -9,6 +9,14 @@ resource "aws_appautoscaling_target" "target" {
   scalable_dimension = "ecs:service:DesiredCount"
   min_capacity = var.min_capacity
   max_capacity = var.max_capacity
+
+  lifecycle {
+    # see https://github.com/hashicorp/terraform-provider-aws/issues/31261
+    ignore_changes = [
+      tags,
+      tags_all
+    ]
+  }
 }
 
 resource "aws_appautoscaling_policy" "up" {
