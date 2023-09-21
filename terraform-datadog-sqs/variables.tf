@@ -25,6 +25,16 @@ variable "identifier" {
   default = ""
 }
 
+variable "message_slack" {
+  type = string
+  default = "@slack-figure-alerts"
+}
+
+variable "message_opsgenie" {
+  type = string
+  default = "{{#is_alert}}@opsgenie{{/is_alert}} {{#is_recovery}}@opsgenie{{/is_recovery}}"
+}
+
 variable "message" {
   type = string
   default = "@slack-figure-alerts {{#is_alert}}@opsgenie{{/is_alert}} {{#is_recovery}}@opsgenie{{/is_recovery}}"
@@ -51,6 +61,22 @@ variable "dead_letter_queue_messages_critical" {
 }
 
 variable "dead_letter_queue_renotify_interval" {
+  type = number
+  default = 24 * 60
+}
+
+
+variable "dead_letter_queue_increased_messages_warning" {
+  type = number
+  default = 0
+}
+
+variable "dead_letter_queue_increased_messages_critical" {
+  type = number
+  default = 20
+}
+
+variable "dead_letter_queue_increased_renotify_interval" {
   type = number
   default = 24 * 60
 }
