@@ -31,7 +31,6 @@ resource "datadog_monitor" "sqs_number_of_messages_dead_letter_monitor" {
   message = var.message_slack
   query   = "min(last_5m):avg:aws.sqs.approximate_number_of_messages_visible{queuename:${lower(var.dead_letter_queue_name)},env:${var.env}} > ${var.dead_letter_queue_messages_critical}"
   monitor_thresholds {
-    warning  = var.dead_letter_queue_messages_warning
     critical = var.dead_letter_queue_messages_critical
   }
   renotify_interval = var.dead_letter_queue_renotify_interval
