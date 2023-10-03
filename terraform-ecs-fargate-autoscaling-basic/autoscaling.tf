@@ -4,11 +4,11 @@ locals {
 }
 
 resource "aws_appautoscaling_target" "target" {
-  service_namespace = "ecs"
-  resource_id = local.resource_id
+  service_namespace  = "ecs"
+  resource_id        = local.resource_id
   scalable_dimension = "ecs:service:DesiredCount"
-  min_capacity = var.min_capacity
-  max_capacity = var.max_capacity
+  min_capacity       = var.min_capacity
+  max_capacity       = var.max_capacity
 
   lifecycle {
     # see https://github.com/hashicorp/terraform-provider-aws/issues/31261
@@ -20,19 +20,19 @@ resource "aws_appautoscaling_target" "target" {
 }
 
 resource "aws_appautoscaling_policy" "up" {
-  name = "${var.name_prefix}_ECS_ScaleUp"
-  service_namespace = "ecs"
-  resource_id = local.resource_id
+  name               = "${var.name_prefix}_ECS_ScaleUp"
+  service_namespace  = "ecs"
+  resource_id        = local.resource_id
   scalable_dimension = "ecs:service:DesiredCount"
 
   step_scaling_policy_configuration {
-    adjustment_type = "ChangeInCapacity"
-    cooldown = 60
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 60
     metric_aggregation_type = var.metric_aggregation_type
 
     step_adjustment {
       metric_interval_lower_bound = 0
-      scaling_adjustment = 1
+      scaling_adjustment          = 1
     }
   }
 
@@ -40,19 +40,19 @@ resource "aws_appautoscaling_policy" "up" {
 }
 
 resource "aws_appautoscaling_policy" "down" {
-  name = "${var.name_prefix}_ECS_ScaleDown"
-  service_namespace = "ecs"
-  resource_id = local.resource_id
+  name               = "${var.name_prefix}_ECS_ScaleDown"
+  service_namespace  = "ecs"
+  resource_id        = local.resource_id
   scalable_dimension = "ecs:service:DesiredCount"
 
   step_scaling_policy_configuration {
-    adjustment_type = "ChangeInCapacity"
-    cooldown = 60
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 60
     metric_aggregation_type = var.metric_aggregation_type
 
     step_adjustment {
       metric_interval_upper_bound = 0
-      scaling_adjustment = -1
+      scaling_adjustment          = -1
     }
   }
 
@@ -60,14 +60,14 @@ resource "aws_appautoscaling_policy" "down" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "service_cpu_high" {
-  alarm_name = "${var.name_prefix}_CPUUtilizationHigh"
+  alarm_name          = "${var.name_prefix}_CPUUtilizationHigh"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods = "2"
-  metric_name = "CPUUtilization"
-  namespace = "AWS/ECS"
-  period = "60"
-  statistic = "Average"
-  threshold = var.high_cpu_threshold
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = var.high_cpu_threshold
 
   dimensions = {
     ClusterName = var.ecs_cluster_name
@@ -78,14 +78,14 @@ resource "aws_cloudwatch_metric_alarm" "service_cpu_high" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "service_cpu_low" {
-  alarm_name = "${var.name_prefix}_CPUUtilizationLow"
+  alarm_name          = "${var.name_prefix}_CPUUtilizationLow"
   comparison_operator = "LessThanOrEqualToThreshold"
-  evaluation_periods = "2"
-  metric_name = "CPUUtilization"
-  namespace = "AWS/ECS"
-  period = "60"
-  statistic = "Average"
-  threshold = var.low_cpu_threshold
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = var.low_cpu_threshold
 
   dimensions = {
     ClusterName = var.ecs_cluster_name

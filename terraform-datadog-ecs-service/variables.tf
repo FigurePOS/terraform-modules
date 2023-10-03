@@ -7,41 +7,37 @@ variable "service_name" {
   type = string
 }
 
-variable "service_name_readable" {
-  type = string
-}
-
 variable "tags" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
 variable "message" {
-  type = string
+  type    = string
   default = "@slack-figure-alerts {{#is_alert}}@opsgenie{{/is_alert}} {{#is_recovery}}@opsgenie{{/is_recovery}}"
 }
 
 variable "cpu_warning" {
-  type = number
+  type    = number
   default = 80
 }
 
 variable "cpu_critical" {
-  type = number
+  type    = number
   default = 95
 }
 
 variable "memory_warning" {
-  type = number
+  type    = number
   default = 80
 }
 
 variable "memory_critical" {
-  type = number
+  type    = number
   default = 95
 }
 
 variable "interval" {
-  type = string
+  type    = string
   default = "last_10m"
 }
