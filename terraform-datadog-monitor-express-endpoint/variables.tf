@@ -3,10 +3,6 @@ variable "env" {
   type = string
 }
 
-variable "service" {
-  type = string
-}
-
 variable "resource_name" {
   type = string
 }
@@ -35,14 +31,6 @@ variable "latency_percentile" {
 }
 
 variable "latency_target" {
-  type = number
-}
-
-variable "slo_error_rate_target" {
-  type = number
-}
-
-variable "slo_latency_target" {
   type = number
 }
 
