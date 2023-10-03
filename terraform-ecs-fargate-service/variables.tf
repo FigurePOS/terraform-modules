@@ -1,58 +1,58 @@
 
 variable "env" {
-    type = string
+  type = string
 }
 variable "ecs_cluster_id" {
-    type = string
+  type = string
 }
 variable "vpc_id" {
-    type = string
+  type = string
 }
 variable "service_port" {
-    type = number
+  type = number
 }
 variable "service_name" {
-    type = string
+  type = string
 }
 variable "task_execution_role_arn" {
-    type = string
+  type = string
 }
 variable "task_role_arn" {
-    type = string
+  type = string
 }
 variable "load_balancer_listener_arn" {
-    type = string
+  type = string
 }
 variable "load_balancer_listener_rule_host_headers" {
-    type = list(string)
+  type = list(string)
 }
 variable "load_balancer_listener_rule_path_patterns" {
-    type = list(string)
+  type = list(string)
 }
 variable "load_balancer_health_check_path" {
-    type = string
+  type = string
 }
 
 variable "load_balancer_health_check_healthy_threshold" {
-    type = number
-    default = 5
+  type    = number
+  default = 5
 }
 
 variable "load_balancer_health_check_unhealthy_threshold" {
-    type = number
-    default = 2
+  type    = number
+  default = 2
 }
 
 variable "ecr_repository_url" {
-    type = string
+  type = string
 }
 variable "desired_count" {
-    type = number
-    default = 1 
+  type    = number
+  default = 1
 }
-variable "subnet_ids" { 
-    type = list(string) 
+variable "subnet_ids" {
+  type = list(string)
 }
-variable "security_group_ids" { 
-    type = list(string) 
+variable "security_group_ids" {
+  type = list(string)
 }

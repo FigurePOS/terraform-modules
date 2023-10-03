@@ -11,7 +11,7 @@ variable "resource_name" {
   type = string
 }
 
-variable "service_name_readable" {
+variable "service_name" {
   type = string
 }
 

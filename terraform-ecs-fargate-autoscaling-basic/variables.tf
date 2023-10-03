@@ -1,26 +1,26 @@
 
 variable "name_prefix" {
-    type = string
+  type = string
 }
 variable "ecs_cluster_name" {
-    type = string
+  type = string
 }
 variable "ecs_service_name" {
-    type = string
+  type = string
 }
 variable "low_cpu_threshold" {
-    type = number
+  type = number
 }
 variable "high_cpu_threshold" {
-    type = number
+  type = number
 }
 variable "min_capacity" {
-    type = number
+  type = number
 }
 variable "max_capacity" {
-    type = number
+  type = number
 }
 variable "metric_aggregation_type" {
-  type = string
+  type    = string
   default = "Average"
 }
