@@ -7,10 +7,8 @@ data "datadog_role" "admin_role" {
 }
 
 resource "datadog_monitor" "sqs_number_of_messages_monitor" {
-  name             = trimspace("${var.service_name_readable} – SQS - Total number of messages ${local.identifierLabel}")
-  count            = var.env == "production" ? 1 : 0
-  restricted_roles = [data.datadog_role.admin_role.id]
-  tags             = var.tags
+  name  = trimspace("${var.service_name} – SQS - Total number of messages ${local.identifierLabel}")
+  count = var.env == "production" ? 1 : 0
 
   type    = "metric alert"
   message = var.message
@@ -19,13 +17,14 @@ resource "datadog_monitor" "sqs_number_of_messages_monitor" {
     warning  = var.queue_messages_warning
     critical = var.queue_messages_critical
   }
+
+  restricted_roles = [data.datadog_role.admin_role.id]
+  tags             = var.tags
 }
 
 resource "datadog_monitor" "sqs_number_of_messages_dead_letter_monitor" {
-  name             = trimspace("${var.service_name_readable} – SQS - Total number of messages in dead letter ${local.identifierLabel}")
-  count            = var.env == "production" ? 1 : 0
-  restricted_roles = [data.datadog_role.admin_role.id]
-  tags             = var.tags
+  name  = trimspace("${var.service_name} – SQS - Total number of messages in dead letter ${local.identifierLabel}")
+  count = var.env == "production" ? 1 : 0
 
   type    = "metric alert"
   message = var.message_slack
@@ -34,13 +33,14 @@ resource "datadog_monitor" "sqs_number_of_messages_dead_letter_monitor" {
     critical = var.dead_letter_queue_messages_critical
   }
   renotify_interval = var.dead_letter_queue_renotify_interval
+
+  restricted_roles = [data.datadog_role.admin_role.id]
+  tags             = var.tags
 }
 
 resource "datadog_monitor" "sqs_increased_number_of_messages_dead_letter_monitor" {
-  name             = trimspace("${var.service_name_readable} – SQS - Increased number of messages in dead letter ${local.identifierLabel}")
-  count            = var.env == "production" ? 1 : 0
-  restricted_roles = [data.datadog_role.admin_role.id]
-  tags             = var.tags
+  name  = trimspace("${var.service_name} – SQS - Increased number of messages in dead letter ${local.identifierLabel}")
+  count = var.env == "production" ? 1 : 0
 
   type    = "metric alert"
   message = var.message_opsgenie
@@ -50,4 +50,7 @@ resource "datadog_monitor" "sqs_increased_number_of_messages_dead_letter_monitor
     critical = var.dead_letter_queue_increased_messages_critical
   }
   renotify_interval = var.dead_letter_queue_increased_renotify_interval
+
+  restricted_roles = [data.datadog_role.admin_role.id]
+  tags             = var.tags
 }
