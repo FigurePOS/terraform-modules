@@ -3,10 +3,6 @@ variable "env" {
   type = string
 }
 
-variable "service" {
-  type = string
-}
-
 variable "resource_name" {
   type = string
 }
@@ -25,24 +21,12 @@ variable "eval_fn" {
   default = "min"
 }
 
-variable "error_rate_target" {
-  type = number
-}
-
 variable "latency_percentile" {
   type = string
   default = "p99"
 }
 
 variable "latency_target" {
-  type = number
-}
-
-variable "slo_error_rate_target" {
-  type = number
-}
-
-variable "slo_latency_target" {
   type = number
 }
 

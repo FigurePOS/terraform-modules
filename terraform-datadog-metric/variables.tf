@@ -37,10 +37,3 @@ variable "critical_threshold" {
   type = number
 }
 
-variable "slo_name" {
-  type = string
-}
-
-variable "slo_thresholds" {
-  type = list(object({ timeframe : string, target : number }))
-}

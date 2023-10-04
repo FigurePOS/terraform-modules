@@ -1,4 +1,5 @@
 locals {
+  count           = var.env == "production" ? 1 : 0
   identifierLabel = var.identifier != "" ? "(${var.identifier})" : ""
 }
 
@@ -7,9 +8,9 @@ data "datadog_role" "admin_role" {
 }
 
 resource "datadog_monitor" "sqs_number_of_messages_monitor" {
-  name  = trimspace("${var.service_name} – SQS - Total number of messages ${local.identifierLabel}")
-  count = var.env == "production" ? 1 : 0
+  count = local.count
 
+  name    = trimspace("${var.service_name} – SQS - Total number of messages ${local.identifierLabel}")
   type    = "metric alert"
   message = var.message
   query   = "min(last_5m):avg:aws.sqs.approximate_number_of_messages_visible{queuename:${lower(var.queue_name)},env:${var.env}} > ${var.queue_messages_critical}"
@@ -23,9 +24,9 @@ resource "datadog_monitor" "sqs_number_of_messages_monitor" {
 }
 
 resource "datadog_monitor" "sqs_number_of_messages_dead_letter_monitor" {
-  name  = trimspace("${var.service_name} – SQS - Total number of messages in dead letter ${local.identifierLabel}")
-  count = var.env == "production" ? 1 : 0
+  count = local.count
 
+  name    = trimspace("${var.service_name} – SQS - Total number of messages in dead letter ${local.identifierLabel}")
   type    = "metric alert"
   message = var.message_slack
   query   = "min(last_5m):avg:aws.sqs.approximate_number_of_messages_visible{queuename:${lower(var.dead_letter_queue_name)},env:${var.env}} > ${var.dead_letter_queue_messages_critical}"
@@ -39,9 +40,9 @@ resource "datadog_monitor" "sqs_number_of_messages_dead_letter_monitor" {
 }
 
 resource "datadog_monitor" "sqs_increased_number_of_messages_dead_letter_monitor" {
-  name  = trimspace("${var.service_name} – SQS - Increased number of messages in dead letter ${local.identifierLabel}")
-  count = var.env == "production" ? 1 : 0
+  count = local.count
 
+  name    = trimspace("${var.service_name} – SQS - Increased number of messages in dead letter ${local.identifierLabel}")
   type    = "metric alert"
   message = var.message_opsgenie
   # the query means positive change in amount of messages in last five minutes
