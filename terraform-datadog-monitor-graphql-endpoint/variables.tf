@@ -25,16 +25,16 @@ variable "eval_fn" {
   default = "min"
 }
 
+variable "error_rate_target" {
+  type = number
+}
+
 variable "latency_percentile" {
   type = string
   default = "p99"
 }
 
 variable "latency_target" {
-  type = number
-}
-
-variable "slo_latency_target" {
   type = number
 }
 

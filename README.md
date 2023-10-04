@@ -5,24 +5,28 @@
 Creates Datadog monitors for CPU and Memory utilization of ECS Service.
 
 
+## terraform-datadog-metric
+
+Creates Datadog metric monitor.
+
+
 ## terraform-datadog-metric-slo
 
 Creates Datadog metric monitor and SLO.
 
+## terraform-datadog-monitor-event-handler
 
-## terraform-datadog-slo-event-handler
-
-Creates Datadog metric monitor and SLO for event handlers.
-
-
-## terraform-datadog-slo-express-endpoint
-
-Creates Datadog metric monitor and SLO for Rest API endpoints.
+Creates Datadog latency monitor for event handlers.
 
 
-## terraform-datadog-slo-graphql-endpoint
+## terraform-datadog-monitor-express-endpoint
 
-Creates Datadog metric monitor and SLO for GraphQL endpoints.
+Creates Datadog latency and error rate monitor for Rest API endpoints.
+
+
+## terraform-datadog-monitor-graphql-endpoint
+
+Creates Datadog latency and error rate monitor for GraphQL endpoints.
 
 
 ## terraform-datadog-sqs

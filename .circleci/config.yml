@@ -40,7 +40,7 @@ workflows:
             - node
 
 jobs:
-  
+
   terraform_validate:
     docker:
       - image: figurepos/aws-node-terraform:node20
@@ -54,6 +54,13 @@ jobs:
             terraform validate
             checkov -d .
       - run:
+          name: "validate terraform-datadog-metric"
+          command: |
+            cd terraform-datadog-metric
+            terraform init
+            terraform validate
+            checkov -d .
+      - run:
           name: "validate terraform-datadog-metric-slo"
           command: |
             cd terraform-datadog-metric-slo
@@ -61,23 +68,23 @@ jobs:
             terraform validate
             checkov -d .
       - run:
-          name: "validate terraform-datadog-slo-event-handler"
+          name: "validate terraform-datadog-monitor-event-handler"
           command: |
-            cd terraform-datadog-slo-event-handler
+            cd terraform-datadog-monitor-event-handler
             terraform init
             terraform validate
             checkov -d .
       - run:
-          name: "validate terraform-datadog-slo-express-endpoint"
+          name: "validate terraform-datadog-monitor-express-endpoint"
           command: |
-            cd terraform-datadog-slo-express-endpoint
+            cd terraform-datadog-monitor-express-endpoint
             terraform init
             terraform validate
             checkov -d .
       - run:
-          name: "validate terraform-datadog-slo-graphql-endpoint"
+          name: "validate terraform-datadog-monitor-graphql-endpoint"
           command: |
-            cd terraform-datadog-slo-graphql-endpoint
+            cd terraform-datadog-monitor-graphql-endpoint
             terraform init
             terraform validate
             checkov -d .
@@ -104,4 +111,3 @@ jobs:
             checkov -d .
       - slack/notify:
           *slack_notification
-  
