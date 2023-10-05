@@ -14,7 +14,7 @@ data "datadog_role" "admin_role" {
 resource "datadog_monitor" "apm_monitor_error_rate" {
   count = local.count
 
-  name    = "${var.service_name} – APM - ${var.resource_name} – Error rate"
+  name    = "${var.service_name} – APM - ${var.resource_name_readable} – Error rate"
   type    = "metric alert"
   message = var.message
   query   = "${var.eval_fn}(${var.interval}):(100 * ${local.metric_errors} / ${local.metric_hits}) > ${var.error_rate_target}"
@@ -26,7 +26,7 @@ resource "datadog_monitor" "apm_monitor_error_rate" {
 resource "datadog_monitor" "apm_monitor_latency" {
   count = local.count
 
-  name           = "${var.service_name} – APM - ${var.resource_name} – Latency"
+  name           = "${var.service_name} – APM - ${var.resource_name_readable} – Latency"
   type           = "metric alert"
   message        = var.message
   query          = "${var.eval_fn}(${var.interval}):${local.metric_latency} > ${var.latency_target}"
