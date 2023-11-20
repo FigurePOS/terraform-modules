@@ -50,6 +50,11 @@ variable "queue_messages_critical" {
   default = 100
 }
 
+variable "queue_rollup" {
+  type = number
+  default = 300
+}
+
 variable "dead_letter_queue_messages_critical" {
   type    = number
   default = 50
@@ -68,4 +73,9 @@ variable "dead_letter_queue_increased_messages_critical" {
 variable "dead_letter_queue_increased_renotify_interval" {
   type    = number
   default = 24 * 60
+}
+
+variable "dead_letter_queue_rollup" {
+  type = number
+  default = 300
 }
