@@ -1,36 +1,7 @@
 version: 2.1
 
-slack_notification: &slack_notification
-  branch_pattern: master
-  event: fail
-  custom: |
-    {
-      "blocks": [
-        {
-          "type": "section",
-          "text": {
-            "type": "mrkdwn",
-            "text": ":interrobang::bangbang: *terraform-modules*: Execution of job `${CIRCLE_JOB}` failed (${CIRCLE_SHA1:0:7}) :interrobang::bangbang:"
-          }
-        },
-        {
-          "type": "actions",
-          "elements": [
-            {
-              "type": "button",
-              "text": {
-                "type": "plain_text",
-                "text": "View Job"
-              },
-              "url": "${CIRCLE_BUILD_URL}"
-            }
-          ]
-        }
-      ]
-    }
-
 orbs:
-  slack: circleci/slack@4.12.5
+  node-ecs: figure/node-ecs@2.5.0
 
 workflows:
   terraform:
@@ -42,8 +13,7 @@ workflows:
 jobs:
 
   terraform_validate:
-    docker:
-      - image: figurepos/aws-node-terraform:node20
+    executor: node-ecs/small
     steps:
       - checkout
       - run:
@@ -109,5 +79,5 @@ jobs:
             terraform init
             terraform validate
             checkov -d .
-      - slack/notify:
-          *slack_notification
+      - node-ecs/slack_notify_fail_master:
+          service_name: terraform-modules
