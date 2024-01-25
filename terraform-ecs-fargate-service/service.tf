@@ -44,6 +44,11 @@ resource "aws_ecs_service" "ecs_service" {
     security_groups = var.security_group_ids
   }
 
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+
   load_balancer {
     target_group_arn = aws_alb_target_group.ecs_service_target_group.arn
     container_name   = var.service_name
