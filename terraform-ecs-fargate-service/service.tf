@@ -103,7 +103,7 @@ resource "aws_ecs_task_definition" "service" {
       "mountPoints": [],
       "volumesFrom": [],
     }, var.service_custom_definition),
-    { #checkov:skip=CKV_AWS_336: Ensure ECS containers are limited to read-only access to root filesystems - not possible for datadog-agent
+    {
       "name" : "datadog-agent",
       "image" : "public.ecr.aws/datadog/agent:latest",
       "cpu" : 10,
@@ -154,6 +154,7 @@ resource "aws_ecs_task_definition" "service" {
           "valueFrom" : "secret.datadog.ecs_agent_api_key"
         }
       ],
+      ## "readonlyRootFilesystem" : true, # so far not possible for datadog-agent
       "mountPoints": [],
       "portMappings": [],
       "volumesFrom": [],

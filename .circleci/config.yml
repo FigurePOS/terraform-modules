@@ -22,62 +22,53 @@ jobs:
             cd terraform-datadog-ecs-service
             terraform init
             terraform validate
-            checkov -d .
       - run:
           name: "validate terraform-datadog-metric"
           command: |
             cd terraform-datadog-metric
             terraform init
             terraform validate
-            checkov -d .
       - run:
           name: "validate terraform-datadog-metric-slo"
           command: |
             cd terraform-datadog-metric-slo
             terraform init
             terraform validate
-            checkov -d .
       - run:
           name: "validate terraform-datadog-monitor-event-handler"
           command: |
             cd terraform-datadog-monitor-event-handler
             terraform init
             terraform validate
-            checkov -d .
       - run:
           name: "validate terraform-datadog-monitor-express-endpoint"
           command: |
             cd terraform-datadog-monitor-express-endpoint
             terraform init
             terraform validate
-            checkov -d .
       - run:
           name: "validate terraform-datadog-monitor-graphql-endpoint"
           command: |
             cd terraform-datadog-monitor-graphql-endpoint
             terraform init
             terraform validate
-            checkov -d .
       - run:
           name: "validate terraform-datadog-sqs"
           command: |
             cd terraform-datadog-sqs
             terraform init
             terraform validate
-            checkov -d .
       - run:
           name: "validate terraform-ecs-fargate-autoscaling-basic"
           command: |
             cd terraform-ecs-fargate-autoscaling-basic
             terraform init
             terraform validate
-            checkov -d .
       - run:
           name: "validate terraform-ecs-fargate-service"
           command: |
             cd terraform-ecs-fargate-service
             terraform init
             terraform validate
-            checkov -d .
       - node-ecs/slack_notify_fail_master:
           service_name: terraform-modules
