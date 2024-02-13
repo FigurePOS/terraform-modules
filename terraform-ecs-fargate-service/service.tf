@@ -7,6 +7,7 @@ resource "aws_ecs_task_definition" "service" {
   network_mode             = "awsvpc"
   cpu                      = var.task_cpu
   memory                   = var.task_memory
+
   container_definitions = jsonencode([
     merge({
       "name" : var.service_name,
@@ -15,9 +16,9 @@ resource "aws_ecs_task_definition" "service" {
       "essential" : true,
       "portMappings" : [
         {
-          "containerPort": var.service_port,
-          "hostPort": var.service_port,
-          "protocol": "tcp"
+          "containerPort" : var.service_port,
+          "hostPort" : var.service_port,
+          "protocol" : "tcp"
         }
       ],
       "logConfiguration" : {
@@ -42,8 +43,8 @@ resource "aws_ecs_task_definition" "service" {
       },
       "environment" : setunion([
         {
-          "name": "AWS_REGION",
-          "value": "${var.aws_region}"
+          "name" : "AWS_REGION",
+          "value" : "${var.aws_region}"
         },
         {
           "name" : "DD_DBM_PROPAGATION_MODE",
@@ -100,8 +101,8 @@ resource "aws_ecs_task_definition" "service" {
       ], var.service_envs),
       "secrets" : var.service_secrets,
       "readonlyRootFilesystem" : true,
-      "mountPoints": [],
-      "volumesFrom": [],
+      "mountPoints" : [],
+      "volumesFrom" : [],
     }, var.service_custom_definition),
     {
       "name" : "datadog-agent",
@@ -155,9 +156,9 @@ resource "aws_ecs_task_definition" "service" {
         }
       ],
       ## "readonlyRootFilesystem" : true, # so far not possible for datadog-agent
-      "mountPoints": [],
-      "portMappings": [],
-      "volumesFrom": [],
+      "mountPoints" : [],
+      "portMappings" : [],
+      "volumesFrom" : [],
     }
   ])
 }
