@@ -29,11 +29,7 @@ resource "aws_ecs_task_definition" "service" {
           "awslogs-stream-prefix" : "${var.service_name}"
         }
       },
-      "entryPoint" : [
-        "sh",
-        "-c",
-        "exec node --enable-source-maps ${var.entry_point}"
-      ],
+      "entryPoint" : local.entry_point,
       "dockerLabels" : {
         "com.datadoghq.tags.env" : "${var.env}",
         "com.datadoghq.tags.service" : "${var.service_name}",

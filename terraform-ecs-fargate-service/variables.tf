@@ -22,7 +22,12 @@ variable "ecs_cluster_id" {
 
 variable "entry_point" {
   type    = string
-  default = "build/index.js"
+  default = ""
+}
+
+variable "entry_point_node_script" {
+  type    = string
+  default = ""
 }
 
 variable "env" {
@@ -119,4 +124,5 @@ variable "vpc_id" {
 
 locals {
   lb_listener_rule_host_header = var.lb_listener_rule_host_header[var.env]
+  entry_point                  = var.entry_point != "" ? ["sh", "-c", var.entry_point] : (var.entry_point_node_script != "" ? ["sh", "-c", "exec node --enable-source-maps ${var.entry_point_node_script}"] : [])
 }
