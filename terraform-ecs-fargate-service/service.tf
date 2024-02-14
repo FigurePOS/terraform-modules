@@ -83,10 +83,6 @@ resource "aws_ecs_task_definition" "service" {
           "value" : "${var.env}"
         },
         {
-          "name" : "PATH_PREFIX",
-          "value" : "/${var.service_name}"
-        },
-        {
           "name" : "PORT",
           "value" : "${var.service_port}"
         },
@@ -157,6 +153,11 @@ resource "aws_ecs_task_definition" "service" {
       "volumesFrom" : [],
     }
   ])
+
+  tags = {
+    "Environment" = var.env
+    "Service"     = var.service_name
+  }
 }
 
 resource "aws_ecs_service" "service" {
@@ -184,6 +185,11 @@ resource "aws_ecs_service" "service" {
     container_name   = var.service_name
     container_port   = var.service_port
   }
+
+  tags = {
+    "Environment" = var.env
+    "Service"     = var.service_name
+  }
 }
 
 resource "aws_alb_target_group" "service" {
@@ -203,6 +209,11 @@ resource "aws_alb_target_group" "service" {
     port                = "traffic-port"
     protocol            = "HTTP"
     timeout             = 5
+  }
+
+  tags = {
+    "Environment" = var.env
+    "Service"     = var.service_name
   }
 }
 
@@ -230,5 +241,10 @@ resource "aws_alb_listener_rule" "service" {
     ignore_changes = [
       priority
     ]
+  }
+
+  tags = {
+    "Environment" = var.env
+    "Service"     = var.service_name
   }
 }
