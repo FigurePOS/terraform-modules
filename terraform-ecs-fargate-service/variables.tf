@@ -16,13 +16,19 @@ variable "ecr_repository_url" {
   type = string
 }
 
-variable "ecs_cluster_id" {
+variable "ecs_cluster_name" {
   type = string
+  default = "fgr-ecs-cluster"
 }
 
 variable "entry_point" {
   type    = string
-  default = "build/index.js"
+  default = ""
+}
+
+variable "entry_point_node_script" {
+  type    = string
+  default = ""
 }
 
 variable "env" {
@@ -63,8 +69,9 @@ variable "lb_listener_rule_path_pattern" {
   type = list(string)
 }
 
-variable "security_group_ids" {
-  type = list(string)
+variable "lb_name" {
+  type = string
+  default = "fgr-ecs-load-balancer"
 }
 
 variable "service_custom_definition" {
@@ -91,10 +98,6 @@ variable "service_secrets" {
   default = []
 }
 
-variable "subnet_ids" {
-  type = list(string)
-}
-
 variable "task_cpu" {
   type    = number
   default = 256
@@ -112,11 +115,8 @@ variable "task_role_arn" {
   type = string
 }
 
-variable "vpc_id" {
-  type = string
-}
-
 
 locals {
   lb_listener_rule_host_header = var.lb_listener_rule_host_header[var.env]
+  entry_point                  = var.entry_point != "" ? ["sh", "-c", var.entry_point] : (var.entry_point_node_script != "" ? ["sh", "-c", "exec node --enable-source-maps ${var.entry_point_node_script}"] : [])
 }

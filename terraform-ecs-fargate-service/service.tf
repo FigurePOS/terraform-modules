@@ -29,11 +29,7 @@ resource "aws_ecs_task_definition" "service" {
           "awslogs-stream-prefix" : "${var.service_name}"
         }
       },
-      "entryPoint" : [
-        "sh",
-        "-c",
-        "exec node --enable-source-maps ${var.entry_point}"
-      ],
+      "entryPoint" : local.entry_point,
       "dockerLabels" : {
         "com.datadoghq.tags.env" : "${var.env}",
         "com.datadoghq.tags.service" : "${var.service_name}",
@@ -165,7 +161,7 @@ resource "aws_ecs_task_definition" "service" {
 
 resource "aws_ecs_service" "service" {
   name            = var.service_name
-  cluster         = var.ecs_cluster_id
+  cluster         = data.aws_ecs_cluster.main.id
   launch_type     = "FARGATE"
   task_definition = aws_ecs_task_definition.service.arn
   propagate_tags  = "SERVICE"
@@ -179,8 +175,8 @@ resource "aws_ecs_service" "service" {
   }
 
   network_configuration {
-    subnets         = var.subnet_ids
-    security_groups = var.security_group_ids
+    subnets         = data.aws_subnets.private.ids
+    security_groups = [data.aws_security_group.cluster.id]
   }
 
   load_balancer {
@@ -194,7 +190,7 @@ resource "aws_alb_target_group" "service" {
   name                 = substr(var.service_name, 0, 32)
   port                 = 80
   protocol             = "HTTP"
-  vpc_id               = var.vpc_id
+  vpc_id               = data.aws_vpc.main.id
   target_type          = "ip"
   deregistration_delay = 30
 
@@ -208,15 +204,6 @@ resource "aws_alb_target_group" "service" {
     protocol            = "HTTP"
     timeout             = 5
   }
-}
-
-data "aws_lb" "main" {
-  name = "fgr-ecs-load-balancer"
-}
-
-data "aws_lb_listener" "https" {
-  load_balancer_arn = data.aws_lb.main.arn
-  port              = 443
 }
 
 resource "aws_alb_listener_rule" "service" {
