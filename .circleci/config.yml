@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  node-ecs: figure/node-ecs@2.5.0
+  node-ecs: figure/node-ecs@3.0.0
 
 workflows:
   terraform:
