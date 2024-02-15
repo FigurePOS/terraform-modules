@@ -1,8 +1,8 @@
 
 resource "aws_ecs_task_definition" "service" {
   family                   = var.service_name
-  execution_role_arn       = var.task_execution_role_arn
-  task_role_arn            = var.task_role_arn
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = var.task_cpu
@@ -107,6 +107,16 @@ resource "aws_ecs_task_definition" "service" {
         "com.datadoghq.ad.check_names" : "[\"${var.service_name}\"]",
         "com.datadoghq.ad.init_configs" : "[{}]"
       },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "agent health"
+        ],
+        "retries": 5,
+        "timeout": 5,
+        "interval": 10,
+        "startPeriod": 15
+      }
       "environment" : [
         {
           "name" : "DD_APM_ENABLED",
@@ -158,6 +168,8 @@ resource "aws_ecs_task_definition" "service" {
     "Environment" = var.env
     "Service"     = var.service_name
   }
+
+  skip_destroy = true
 }
 
 resource "aws_ecs_service" "service" {
@@ -166,6 +178,8 @@ resource "aws_ecs_service" "service" {
   launch_type     = "FARGATE"
   task_definition = aws_ecs_task_definition.service.arn
   propagate_tags  = "SERVICE"
+
+  enable_execute_command = true
 
   desired_count                     = var.desired_count
   health_check_grace_period_seconds = 30
