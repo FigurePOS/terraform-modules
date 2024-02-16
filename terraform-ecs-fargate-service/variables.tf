@@ -1,3 +1,7 @@
+variable "aws_account_id" {
+  type = string
+}
+
 variable "aws_region" {
   type    = string
   default = "us-east-1"
@@ -17,7 +21,7 @@ variable "ecr_repository_url" {
 }
 
 variable "ecs_cluster_name" {
-  type = string
+  type    = string
   default = "fgr-ecs-cluster"
 }
 
@@ -70,7 +74,7 @@ variable "lb_listener_rule_path_pattern" {
 }
 
 variable "lb_name" {
-  type = string
+  type    = string
   default = "fgr-ecs-load-balancer"
 }
 
@@ -108,11 +112,14 @@ variable "task_memory" {
   default = 512
 }
 
-variable "task_execution_role_arn" {
-  type = string
+variable "task_execution_policy" {
+  type    = any
+  default = null
 }
-variable "task_role_arn" {
-  type = string
+
+variable "task_policy" {
+  type    = any
+  default = null
 }
 
 
