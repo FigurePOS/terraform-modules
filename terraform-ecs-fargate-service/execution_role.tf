@@ -23,45 +23,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_service" {
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_default" {
   role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = aws_iam_policy.ecs_task_execution_role_default.arn
-}
-
-resource "aws_iam_policy" "ecs_task_execution_role_default" {
-  name   = "${var.service_name}__ecs_execution_default"
-  policy = data.aws_iam_policy_document.ecs_task_execution_role_default.json
-}
-
-data "aws_iam_policy_document" "ecs_task_execution_role_default" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "kms:Decrypt",
-    ]
-    resources = [
-      "arn:aws:kms:${var.aws_region}:${var.aws_account_id}:alias/aws/ssm",
-    ]
-  }
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "ssm:GetParameters",
-      "ssm:DescribeParameters",
-    ]
-    resources = [
-      "arn:aws:ssm:${var.aws_region}:${var.aws_account_id}:parameter/*",
-    ]
-  }
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "logs:*",
-    ]
-    resources = [
-      "arn:aws:logs:${var.aws_region}:${var.aws_account_id}:*",
-    ]
-  }
+  policy_arn = data.aws_iam_policy.ecs_task_execution_default.arn
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_custom" {
