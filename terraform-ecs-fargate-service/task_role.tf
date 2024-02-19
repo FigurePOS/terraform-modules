@@ -18,40 +18,7 @@ data "aws_iam_policy_document" "ecs_task_role_assume_policy" {
 
 resource "aws_iam_role_policy_attachment" "ecs_task_role_default" {
   role       = aws_iam_role.ecs_task_role.name
-  policy_arn = aws_iam_policy.ecs_task_role_default.arn
-}
-
-resource "aws_iam_policy" "ecs_task_role_default" {
-  name   = "${var.service_name}__ecs_task_default"
-  policy = data.aws_iam_policy_document.ecs_task_role_default.json
-}
-
-
-data "aws_iam_policy_document" "ecs_task_role_default" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "kms:Decrypt",
-      "kms:Encrypt",
-      "kms:Generate*",
-    ]
-    resources = [
-      "arn:aws:kms:${var.aws_region}:${var.aws_account_id}:key/*",
-    ]
-  }
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "ssmmessages:CreateControlChannel",
-      "ssmmessages:CreateDataChannel",
-      "ssmmessages:OpenControlChannel",
-      "ssmmessages:OpenDataChannel",
-    ]
-    resources = [
-      "*",
-    ]
-  }
+  policy_arn = data.aws_iam_policy.ecs_task_default.arn
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_task_role_custom" {
