@@ -1,4 +1,3 @@
-
 resource "aws_alb_target_group" "service" {
   name                 = substr(var.service_name, 0, 32)
   port                 = 80
@@ -54,4 +53,13 @@ resource "aws_alb_listener_rule" "service" {
     "Environment" = var.env
     "Service"     = var.service_name
   }
+}
+
+
+output "lb_listener_arn" {
+  value = data.aws_lb_listener.https.arn
+}
+
+output "lb_target_group_arn" {
+  value = aws_alb_target_group.service.arn
 }
