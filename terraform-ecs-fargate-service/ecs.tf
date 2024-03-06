@@ -95,6 +95,7 @@ resource "aws_ecs_task_definition" "service" {
       "readonlyRootFilesystem" : true,
       "mountPoints" : [],
       "volumesFrom" : [],
+      "systemControls" : [],
     }, var.service_custom_definition),
     {
       "name" : "datadog-agent",
@@ -161,6 +162,7 @@ resource "aws_ecs_task_definition" "service" {
       "mountPoints" : [],
       "portMappings" : [],
       "volumesFrom" : [],
+      "systemControls" : [],
     }
   ])
 
