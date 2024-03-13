@@ -184,7 +184,7 @@ resource "aws_ecs_service" "service" {
   enable_execute_command = true
 
   desired_count                     = var.desired_count
-  health_check_grace_period_seconds = 30
+  health_check_grace_period_seconds = var.health_check_grace_period_seconds
 
   deployment_circuit_breaker {
     enable   = true
