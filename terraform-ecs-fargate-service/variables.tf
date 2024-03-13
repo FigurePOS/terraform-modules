@@ -47,6 +47,11 @@ variable "git_repository" {
   type = string
 }
 
+variable "health_check_grace_period_seconds" {
+  type    = number
+  default = 30
+}
+
 variable "lb_health_check_healthy_threshold" {
   type    = number
   default = 3
