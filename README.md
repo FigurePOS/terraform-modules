@@ -1,9 +1,14 @@
 # Figure terraform modules
 
-## terraform-datadog-ecs-service
+## ecs-autoscaling-cpu
 
+Creates autoscaling policy for ECS task based on CPU utilization.
+
+
+## ecs-service
+
+Creates ECS Fargate service and load balancer. 
 Creates Datadog monitors for CPU and Memory utilization of ECS Service.
-
 
 ## terraform-datadog-metric
 
@@ -32,13 +37,3 @@ Creates Datadog latency and error rate monitor for GraphQL endpoints.
 ## terraform-datadog-sqs
 
 Creates Datadog metric monitors for number of messages in SQS queue and its DLQ.
-
-
-## terraform-ecs-fargate-autoscaling-basic
-
-Creates autoscaling policy for ECS task based on CPU utilization.
-
-
-## terraform-ecs-fargate-service
-
-Creates ECS Fargate service and load balancer.
