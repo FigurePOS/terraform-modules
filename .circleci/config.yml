@@ -17,9 +17,15 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "validate terraform-datadog-ecs-service"
+          name: "validate ecs-autoscaling-cpu"
           command: |
-            cd terraform-datadog-ecs-service
+            cd ecs-autoscaling-cpu
+            terraform init
+            terraform validate
+      - run:
+          name: "validate ecs-service"
+          command: |
+            cd ecs-service
             terraform init
             terraform validate
       - run:
@@ -56,18 +62,6 @@ jobs:
           name: "validate terraform-datadog-sqs"
           command: |
             cd terraform-datadog-sqs
-            terraform init
-            terraform validate
-      - run:
-          name: "validate terraform-ecs-fargate-autoscaling-basic"
-          command: |
-            cd terraform-ecs-fargate-autoscaling-basic
-            terraform init
-            terraform validate
-      - run:
-          name: "validate terraform-ecs-fargate-service"
-          command: |
-            cd terraform-ecs-fargate-service
             terraform init
             terraform validate
       - node-ecs/slack_notify_fail_master:
