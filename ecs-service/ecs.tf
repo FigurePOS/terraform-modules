@@ -100,7 +100,7 @@ resource "aws_ecs_task_definition" "service" {
     {
       "name" : "datadog-agent",
       "image" : "public.ecr.aws/datadog/agent:latest",
-      "cpu" : 10,
+      "cpu" : 50,
       "memoryReservation" : 256,
       "essential" : true,
       "dockerLabels" : {

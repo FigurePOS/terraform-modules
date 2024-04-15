@@ -7,6 +7,26 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "dd_monitor_cpu_warning" {
+  type    = number
+  default = 80
+}
+
+variable "dd_monitor_cpu_critical" {
+  type    = number
+  default = 95
+}
+
+variable "dd_monitor_memory_warning" {
+  type    = number
+  default = 80
+}
+
+variable "dd_monitor_memory_critical" {
+  type    = number
+  default = 95
+}
+
 variable "deployment_tag" {
   type = string
 }
