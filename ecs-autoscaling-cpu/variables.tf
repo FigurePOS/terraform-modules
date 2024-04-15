@@ -8,11 +8,13 @@ variable "ecs_service_name" {
 }
 
 variable "low_cpu_threshold" {
-  type = number
+  type    = number
+  default = 50
 }
 
 variable "high_cpu_threshold" {
-  type = number
+  type    = number
+  default = 75
 }
 
 variable "min_capacity" {
