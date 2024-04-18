@@ -14,7 +14,7 @@ resource "datadog_monitor" "ecs_cpu_monitor" {
   name    = "${var.service_name} – ecs – cpu utilization"
   type    = "metric alert"
   message = local.message
-  query   = "avg(last_5m):aws.ecs.service.cpuutilization{servicename:${var.service_name},env:${var.env}} > ${var.dd_monitor_cpu_critical}"
+  query   = "avg(last_5m):aws.ecs.service.cpuutilization{servicename:${var.service_name},env:${var.env}}.rollup(avg, 300) > ${var.dd_monitor_cpu_critical}"
   monitor_thresholds {
     warning  = var.dd_monitor_cpu_warning
     critical = var.dd_monitor_cpu_critical
@@ -30,7 +30,7 @@ resource "datadog_monitor" "ecs_memory_monitor" {
   name    = "${var.service_name} – ecs – memory utilization"
   type    = "metric alert"
   message = local.message
-  query   = "avg(last_5m):aws.ecs.service.memory_utilization{servicename:${var.service_name},env:${var.env}} > ${var.dd_monitor_memory_critical}"
+  query   = "avg(last_5m):aws.ecs.service.memory_utilization{servicename:${var.service_name},env:${var.env}}.rollup(avg, 300) > ${var.dd_monitor_memory_critical}"
   monitor_thresholds {
     warning  = var.dd_monitor_memory_warning
     critical = var.dd_monitor_memory_critical
