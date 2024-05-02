@@ -7,6 +7,11 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "dd_agent_version" {
+  type    = string
+  default = "latest"
+}
+
 variable "dd_monitor_cpu_warning" {
   type    = number
   default = 80

@@ -99,7 +99,7 @@ resource "aws_ecs_task_definition" "service" {
     }, var.service_custom_definition),
     {
       "name" : "datadog-agent",
-      "image" : "public.ecr.aws/datadog/agent:latest",
+      "image" : "public.ecr.aws/datadog/agent:${var.dd_agent_version}",
       "cpu" : 50,
       "memoryReservation" : 256,
       "essential" : true,
