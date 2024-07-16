@@ -7,6 +7,20 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "capacity" {
+  type = map(map(number))
+  default = {
+    reserved = {
+      base   = 1
+      weight = 1
+    }
+    spot  = {
+      base   = 0
+      weight = 0
+    }
+  }
+}
+
 variable "dd_agent_version" {
   type    = string
   default = "latest"
