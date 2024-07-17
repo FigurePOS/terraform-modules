@@ -202,6 +202,24 @@ resource "aws_ecs_service" "service" {
     container_port   = var.service_port
   }
 
+  dynamic "capacity_provider_strategy" {
+    for_each = var.capacity["reserved"]["weight"] > 0 ? [1] : []
+    content {
+      capacity_provider = "FARGATE"
+      base              = var.capacity["reserved"]["base"]
+      weight            = var.capacity["reserved"]["weight"]
+    }
+  }
+
+  dynamic "capacity_provider_strategy" {
+    for_each = var.capacity["spot"]["weight"] > 0 ? [1] : []
+    content {
+      capacity_provider = "FARGATE_SPOT"
+      base              = var.capacity["spot"]["base"]
+      weight            = var.capacity["spot"]["weight"]
+    }
+  }
+
   tags = {
     "Environment" = var.env
     "Service"     = var.service_name
