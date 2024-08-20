@@ -10,7 +10,7 @@ variable "aws_region" {
 variable "capacity" {
   type = map(map(number))
   default = {
-    reserved = {
+    ondemand = {
       base   = 1
       weight = 1
     }
