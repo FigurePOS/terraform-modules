@@ -203,11 +203,11 @@ resource "aws_ecs_service" "service" {
   }
 
   dynamic "capacity_provider_strategy" {
-    for_each = var.capacity["reserved"]["weight"] > 0 ? [1] : []
+    for_each = var.capacity["ondemand"]["weight"] > 0 ? [1] : []
     content {
       capacity_provider = "FARGATE"
-      base              = var.capacity["reserved"]["base"]
-      weight            = var.capacity["reserved"]["weight"]
+      base              = var.capacity["ondemand"]["base"]
+      weight            = var.capacity["ondemand"]["weight"]
     }
   }
 
