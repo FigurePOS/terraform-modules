@@ -108,15 +108,15 @@ resource "aws_ecs_task_definition" "service" {
         "com.datadoghq.ad.check_names" : "[\"${var.service_name}\"]",
         "com.datadoghq.ad.init_configs" : "[{}]"
       },
-      "healthCheck": {
-        "command": [
+      "healthCheck" : {
+        "command" : [
           "CMD-SHELL",
           "agent health"
         ],
-        "retries": 5,
-        "timeout": 5,
-        "interval": 10,
-        "startPeriod": 15
+        "retries" : 5,
+        "timeout" : 5,
+        "interval" : 10,
+        "startPeriod" : 15
       }
       "environment" : [
         {
@@ -177,7 +177,6 @@ resource "aws_ecs_task_definition" "service" {
 resource "aws_ecs_service" "service" {
   name            = var.service_name
   cluster         = data.aws_ecs_cluster.main.id
-  launch_type     = "FARGATE"
   task_definition = aws_ecs_task_definition.service.arn
   propagate_tags  = "SERVICE"
 
@@ -202,22 +201,16 @@ resource "aws_ecs_service" "service" {
     container_port   = var.service_port
   }
 
-  dynamic "capacity_provider_strategy" {
-    for_each = var.capacity_provider_strategy["ondemand"]["weight"] > 0 ? [1] : []
-    content {
-      capacity_provider = "FARGATE"
-      base              = var.capacity_provider_strategy["ondemand"]["base"]
-      weight            = var.capacity_provider_strategy["ondemand"]["weight"]
-    }
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE"
+    base              = var.capacity_provider_strategy["ondemand"]["base"]
+    weight            = var.capacity_provider_strategy["ondemand"]["weight"]
   }
 
-  dynamic "capacity_provider_strategy" {
-    for_each = var.capacity_provider_strategy["spot"]["weight"] > 0 ? [1] : []
-    content {
-      capacity_provider = "FARGATE_SPOT"
-      base              = var.capacity_provider_strategy["spot"]["base"]
-      weight            = var.capacity_provider_strategy["spot"]["weight"]
-    }
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"
+    base              = var.capacity_provider_strategy["spot"]["base"]
+    weight            = var.capacity_provider_strategy["spot"]["weight"]
   }
 
   tags = {
