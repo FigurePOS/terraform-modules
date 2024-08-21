@@ -203,20 +203,20 @@ resource "aws_ecs_service" "service" {
   }
 
   dynamic "capacity_provider_strategy" {
-    for_each = var.capacity["ondemand"]["weight"] > 0 ? [1] : []
+    for_each = var.capacity_provider_strategy["ondemand"]["weight"] > 0 ? [1] : []
     content {
       capacity_provider = "FARGATE"
-      base              = var.capacity["ondemand"]["base"]
-      weight            = var.capacity["ondemand"]["weight"]
+      base              = var.capacity_provider_strategy["ondemand"]["base"]
+      weight            = var.capacity_provider_strategy["ondemand"]["weight"]
     }
   }
 
   dynamic "capacity_provider_strategy" {
-    for_each = var.capacity["spot"]["weight"] > 0 ? [1] : []
+    for_each = var.capacity_provider_strategy["spot"]["weight"] > 0 ? [1] : []
     content {
       capacity_provider = "FARGATE_SPOT"
-      base              = var.capacity["spot"]["base"]
-      weight            = var.capacity["spot"]["weight"]
+      base              = var.capacity_provider_strategy["spot"]["base"]
+      weight            = var.capacity_provider_strategy["spot"]["weight"]
     }
   }
 

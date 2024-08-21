@@ -7,7 +7,7 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
-variable "capacity" {
+variable "capacity_provider_strategy" {
   type = map(map(number))
   default = {
     ondemand = {
