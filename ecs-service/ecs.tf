@@ -181,6 +181,7 @@ resource "aws_ecs_service" "service" {
   propagate_tags  = "SERVICE"
 
   enable_execute_command = true
+  force_new_deployment   = true
 
   desired_count                     = var.desired_count
   health_check_grace_period_seconds = var.health_check_grace_period_seconds
