@@ -25,21 +25,6 @@ variable "identifier" {
   default = ""
 }
 
-variable "message_slack" {
-  type    = string
-  default = "@slack-figure-alerts"
-}
-
-variable "message_opsgenie" {
-  type    = string
-  default = "{{#is_alert}}@opsgenie{{/is_alert}} {{#is_recovery}}@opsgenie{{/is_recovery}}"
-}
-
-variable "message" {
-  type    = string
-  default = "@slack-figure-alerts {{#is_alert}}@opsgenie{{/is_alert}} {{#is_recovery}}@opsgenie{{/is_recovery}}"
-}
-
 variable "queue_messages_warning" {
   type    = number
   default = 25

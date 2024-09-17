@@ -3,8 +3,10 @@ data "datadog_role" "admin_role" {
 }
 
 locals {
+  oncall_handle        = "@webhook-rootly"
   slack_warning_handle = "@slack-platform-warnings"
-  message = "{{#is_warning}}${local.slack_warning_handle}{{/is_warning}} {{#is_warning_recovery}}${local.slack_warning_handle}{{/is_warning_recovery}} {{#is_alert}}@opsgenie ${local.slack_warning_handle}{{/is_alert}} {{#is_alert_recovery}}@opsgenie ${local.slack_warning_handle}{{/is_alert_recovery}}"
+
+  message = "{{#is_warning}}${local.slack_warning_handle}{{/is_warning}} {{#is_warning_recovery}}${local.slack_warning_handle}{{/is_warning_recovery}} {{#is_alert}}${local.oncall_handle} ${local.slack_warning_handle}{{/is_alert}} {{#is_alert_recovery}}${local.oncall_handle} ${local.slack_warning_handle}{{/is_alert_recovery}}"
   tags    = ["service:${var.service_name}"]
 }
 
