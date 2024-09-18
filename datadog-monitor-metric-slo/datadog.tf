@@ -1,5 +1,5 @@
 module "dd_monitor" {
-  source = "../terraform-datadog-metric"
+  source = "../datadog-monitor-metric"
 
   env  = var.env
   tags = var.tags

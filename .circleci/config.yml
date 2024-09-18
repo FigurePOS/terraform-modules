@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  node-ecs: figure/node-ecs@3.0.0
+  node-ecs: figure/node-ecs@3.2.1
 
 workflows:
   terraform:
@@ -17,6 +17,36 @@ jobs:
     steps:
       - checkout
       - run:
+          name: "validate datadog-monitor-express-endpoint"
+          command: |
+            cd datadog-monitor-express-endpoint
+            terraform init
+            terraform validate
+      - run:
+          name: "validate datadog-monitor-latency"
+          command: |
+            cd datadog-monitor-latency
+            terraform init
+            terraform validate
+      - run:
+          name: "validate datadog-monitor-metric"
+          command: |
+            cd datadog-monitor-metric
+            terraform init
+            terraform validate
+      - run:
+          name: "validate datadog-monitor-metric-slo"
+          command: |
+            cd datadog-monitor-metric-slo
+            terraform init
+            terraform validate
+      - run:
+          name: "validate datadog-sqs"
+          command: |
+            cd datadog-sqs
+            terraform init
+            terraform validate
+      - run:
           name: "validate ecs-autoscaling-cpu"
           command: |
             cd ecs-autoscaling-cpu
@@ -26,42 +56,6 @@ jobs:
           name: "validate ecs-service"
           command: |
             cd ecs-service
-            terraform init
-            terraform validate
-      - run:
-          name: "validate terraform-datadog-metric"
-          command: |
-            cd terraform-datadog-metric
-            terraform init
-            terraform validate
-      - run:
-          name: "validate terraform-datadog-metric-slo"
-          command: |
-            cd terraform-datadog-metric-slo
-            terraform init
-            terraform validate
-      - run:
-          name: "validate terraform-datadog-monitor-event-handler"
-          command: |
-            cd terraform-datadog-monitor-event-handler
-            terraform init
-            terraform validate
-      - run:
-          name: "validate terraform-datadog-monitor-express-endpoint"
-          command: |
-            cd terraform-datadog-monitor-express-endpoint
-            terraform init
-            terraform validate
-      - run:
-          name: "validate terraform-datadog-monitor-graphql-endpoint"
-          command: |
-            cd terraform-datadog-monitor-graphql-endpoint
-            terraform init
-            terraform validate
-      - run:
-          name: "validate datadog-sqs"
-          command: |
-            cd datadog-sqs
             terraform init
             terraform validate
       - node-ecs/slack_notify_fail_master:
