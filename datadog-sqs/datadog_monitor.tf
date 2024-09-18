@@ -15,7 +15,7 @@ resource "datadog_monitor" "sqs_number_of_messages_monitor" {
 
   name    = trimspace("${var.service_name} – SQS - Total number of messages ${local.identifierLabel}")
   type    = "metric alert"
-  message = "{{#is_alert}}${local.oncall_handle} ${local.slack_warning_handle}{{/is_alert}} {{#is_alert_recovery}}${local.oncall_handle} ${local.slack_warning_handle}{{/is_alert_recovery}} ${var.total_number_message}"
+  message = "${local.oncall_handle} ${local.slack_warning_handle} ${var.total_number_message}"
   query   = "avg(last_1h):aws.sqs.approximate_number_of_messages_visible{queuename:${lower(var.queue_name)},env:${var.env}}.rollup(min, ${var.queue_rollup}) > ${var.queue_messages_critical}"
   monitor_thresholds {
     warning  = var.queue_messages_warning
@@ -31,7 +31,7 @@ resource "datadog_monitor" "sqs_number_of_messages_dead_letter_monitor" {
 
   name    = trimspace("${var.service_name} – SQS - Total number of messages in dead letter ${local.identifierLabel}")
   type    = "metric alert"
-  message = "{{#is_alert}}${local.slack_warning_handle}{{/is_alert}} {{#is_alert_recovery}}${local.slack_warning_handle}{{/is_alert_recovery}}"
+  message = "${local.slack_warning_handle}"
   query   = "avg(last_1h):aws.sqs.approximate_number_of_messages_visible{queuename:${lower(var.dead_letter_queue_name)},env:${var.env}}.rollup(min, ${var.dead_letter_queue_rollup}) > ${var.dead_letter_queue_messages_critical}"
   monitor_thresholds {
     critical = var.dead_letter_queue_messages_critical
@@ -47,7 +47,7 @@ resource "datadog_monitor" "sqs_increased_number_of_messages_dead_letter_monitor
 
   name    = trimspace("${var.service_name} – SQS - Increased number of messages in dead letter ${local.identifierLabel}")
   type    = "metric alert"
-  message = "{{#is_alert}}${local.oncall_handle}{{/is_alert}} {{#is_alert_recovery}}${local.oncall_handle}{{/is_alert_recovery}}"
+  message = "${local.oncall_handle}"
   # the query means positive change in amount of messages in last X seconds
   query = "avg(last_1h):monotonic_diff(aws.sqs.approximate_number_of_messages_visible{queuename:${lower(var.dead_letter_queue_name)},env:${var.env}}.rollup(avg, ${var.dead_letter_queue_rollup})) > ${var.dead_letter_queue_increased_messages_critical}"
   monitor_thresholds {

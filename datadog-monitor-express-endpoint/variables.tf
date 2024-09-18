@@ -44,7 +44,7 @@ variable "tags" {
 
 variable "message" {
   type = string
-  default = "{{#is_alert}}@slack-platform-warnings{{/is_alert}} {{#is_alert_recovery}}@slack-platform-warnings{{/is_alert_recovery}}"
+  default = "@slack-platform-warnings"
 }
 
 variable "notify_on_missing_data" {
