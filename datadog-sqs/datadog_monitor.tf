@@ -15,7 +15,7 @@ resource "datadog_monitor" "sqs_number_of_messages_monitor" {
 
   name    = trimspace("${var.service_name} – SQS - Total number of messages ${local.identifierLabel}")
   type    = "metric alert"
-  message = "{{#is_alert}}${local.oncall_handle} ${local.slack_warning_handle}{{/is_alert}} {{#is_alert_recovery}}${local.oncall_handle} ${local.slack_warning_handle}{{/is_alert_recovery}}"
+  message = "{{#is_alert}}${local.oncall_handle} ${local.slack_warning_handle}{{/is_alert}} {{#is_alert_recovery}}${local.oncall_handle} ${local.slack_warning_handle}{{/is_alert_recovery}} ${var.total_number_message}"
   query   = "avg(last_1h):aws.sqs.approximate_number_of_messages_visible{queuename:${lower(var.queue_name)},env:${var.env}}.rollup(min, ${var.queue_rollup}) > ${var.queue_messages_critical}"
   monitor_thresholds {
     warning  = var.queue_messages_warning

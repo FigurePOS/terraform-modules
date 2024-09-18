@@ -25,6 +25,11 @@ variable "identifier" {
   default = ""
 }
 
+variable "total_number_message" {
+  type    = string
+  default = ""
+}
+
 variable "queue_messages_warning" {
   type    = number
   default = 25
