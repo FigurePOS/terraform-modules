@@ -59,9 +59,9 @@ jobs:
             terraform init
             terraform validate
       - run:
-          name: "validate terraform-datadog-sqs"
+          name: "validate datadog-sqs"
           command: |
-            cd terraform-datadog-sqs
+            cd datadog-sqs
             terraform init
             terraform validate
       - node-ecs/slack_notify_fail_master:
