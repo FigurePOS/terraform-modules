@@ -1,23 +1,23 @@
-output "normal_queue_name" {
-  value = aws_sqs_queue.normal.name
+output "queue_name" {
+  value = aws_sqs_queue.queue.name
 }
 
-output "normal_queue_arn" {
-  value = aws_sqs_queue.normal.arn
+output "queue_arn" {
+  value = aws_sqs_queue.queue.arn
 }
 
-output "normal_queue_url" {
-  value = aws_sqs_queue.normal.url
+output "queue_url" {
+  value = aws_sqs_queue.queue.url
 }
 
-output "ddl_queue_name" {
-  value = aws_sqs_queue.ddl.name
+output "dlq_name" {
+  value = aws_sqs_queue.dlq.name
 }
 
-output "ddl_queue_arn" {
-  value = aws_sqs_queue.ddl.arn
+output "dlq_arn" {
+  value = aws_sqs_queue.dlq.arn
 }
 
-output "ddl_queue_url" {
-  value = aws_sqs_queue.ddl.url
+output "dlq_url" {
+  value = aws_sqs_queue.dlq.url
 }

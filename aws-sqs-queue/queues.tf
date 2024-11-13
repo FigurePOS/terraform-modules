@@ -1,4 +1,4 @@
-resource "aws_sqs_queue" "normal" {
+resource "aws_sqs_queue" "queue" {
   name                      = "${var.service_name}_Queue${var.fifo_queue ? ".fifo" : ""}"
   message_retention_seconds = var.message_retention_seconds
   fifo_queue                = var.fifo_queue
@@ -10,12 +10,12 @@ resource "aws_sqs_queue" "normal" {
   kms_data_key_reuse_period_seconds = 300
 
   redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.ddl.arn
+    deadLetterTargetArn = aws_sqs_queue.dlq.arn
     maxReceiveCount     = var.redrive_policy_count
   })
 }
 
-resource "aws_sqs_queue" "ddl" {
+resource "aws_sqs_queue" "dlq" {
   name                      = "${var.service_name}_DeadLetterQueue${var.fifo_queue ? ".fifo" : ""}"
   message_retention_seconds = var.message_retention_seconds_ddl
   fifo_queue                = var.fifo_queue
