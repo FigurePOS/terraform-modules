@@ -4,6 +4,10 @@
 
 Creates DynamoDB table.
 
+## aws-sqs-queue
+
+Creates SQS queue with its DeadLetterQueue.
+
 ## datadog-monitor-express-endpoint
 
 Creates Datadog latency and error rate monitor for Rest API endpoints.
