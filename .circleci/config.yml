@@ -17,6 +17,12 @@ jobs:
     steps:
       - checkout
       - run:
+          name: "validate aws-dynamodb-table"
+          command: |
+            cd aws-dynamodb-table
+            terraform init
+            terraform validate
+      - run:
           name: "validate datadog-monitor-express-endpoint"
           command: |
             cd datadog-monitor-express-endpoint
