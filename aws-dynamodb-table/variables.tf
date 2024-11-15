@@ -23,7 +23,7 @@ variable "stream_enabled" {
 variable "stream_view_type" {
   type        = string
   description = "The type of data from the stream to write to the stream."
-  default     = "NEW_IMAGE"
+  default     = null
 }
 
 variable "attributes" {
