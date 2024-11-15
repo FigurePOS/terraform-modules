@@ -14,6 +14,18 @@ variable "range_key" {
   default     = ""
 }
 
+variable "stream_enabled" {
+  type        = bool
+  description = "Enable the stream for the DynamoDB table."
+  default     = false
+}
+
+variable "stream_view_type" {
+  type        = string
+  description = "The type of data from the stream to write to the stream."
+  default     = "NEW_IMAGE"
+}
+
 variable "attributes" {
   type = list(object({
     name = string
@@ -30,6 +42,7 @@ variable "global_secondary_indexes" {
     projection_type = string
     read_capacity   = optional(number)
     write_capacity  = optional(number)
+    non_key_attributes = optional(list(string))
   }))
   description = "List of global secondary indexes to create on the DynamoDB table"
   default     = []
