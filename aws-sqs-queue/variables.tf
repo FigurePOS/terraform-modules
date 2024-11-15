@@ -38,9 +38,3 @@ variable "fifo_throughput_limit" {
   description = "The throughput limit for the FIFO queue."
   default     = "perQueue"
 }
-
-variable "kms_master_key_id" {
-  type        = string
-  description = "The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK."
-  default     = null
-}
