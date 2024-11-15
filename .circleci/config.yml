@@ -23,6 +23,12 @@ jobs:
             terraform init
             terraform validate
       - run:
+          name: "validate aws-sqs-queue"
+          command: |
+            cd aws-sqs-queue
+            terraform init
+            terraform validate
+      - run:
           name: "validate datadog-monitor-express-endpoint"
           command: |
             cd datadog-monitor-express-endpoint
