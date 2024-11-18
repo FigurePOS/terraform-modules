@@ -1,0 +1,62 @@
+name: Integration
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: "validate aws-dynamodb-table"
+        run: |
+          cd aws-dynamodb-table
+          terraform init
+          terraform validate
+      - name: "validate aws-sqs-queue"
+        run: |
+          cd aws-sqs-queue
+          terraform init
+          terraform validate
+      - name: "validate datadog-monitor-express-endpoint"
+        run: |
+          cd datadog-monitor-express-endpoint
+          terraform init
+          terraform validate
+      - name: "validate datadog-monitor-latency"
+        run: |
+          cd datadog-monitor-latency
+          terraform init
+          terraform validate
+      - name: "validate datadog-monitor-metric"
+        run: |
+          cd datadog-monitor-metric
+          terraform init
+          terraform validate
+      - name: "validate datadog-monitor-metric-slo"
+        run: |
+          cd datadog-monitor-metric-slo
+          terraform init
+          terraform validate
+      - name: "validate datadog-sqs"
+        run: |
+          cd datadog-sqs
+          terraform init
+          terraform validate
+      - name: "validate ecs-autoscaling-cpu"
+        run: |
+          cd ecs-autoscaling-cpu
+          terraform init
+          terraform validate
+      - name: "validate ecs-service"
+        run: |
+          cd ecs-service
+          terraform init
+          terraform validate
