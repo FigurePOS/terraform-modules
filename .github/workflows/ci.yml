@@ -15,6 +15,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: "validate aws-ecs-autoscaling"
+        run: |
+          cd aws-ecs-autoscaling
+          terraform init
+          terraform validate
       - name: "validate aws-dynamodb-table"
         run: |
           cd aws-dynamodb-table

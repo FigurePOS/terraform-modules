@@ -4,6 +4,10 @@
 
 Creates DynamoDB table.
 
+## aws-ecs-autoscaling
+
+Creates target tracking autoscaling policy for ECS.
+
 ## aws-sqs-queue
 
 Creates SQS queue with its DeadLetterQueue.
