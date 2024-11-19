@@ -1,7 +1,7 @@
 variable "aws_region" {
-  type = string
+  type        = string
   description = "The AWS region to create the resources in."
-  default = "us-east-1"
+  default     = "us-east-1"
 }
 
 variable "service_name" {
@@ -82,4 +82,10 @@ variable "queue_messages_critical" {
   type        = number
   description = "The number of messages in the queue to trigger a critical alert."
   default     = 100
+}
+
+variable "dlq_messages_critical" {
+  type        = number
+  description = "The number of messages in the dead letter queue to trigger a critical alert."
+  default     = 50
 }
