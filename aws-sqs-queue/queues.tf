@@ -3,8 +3,8 @@ resource "aws_sqs_queue" "queue" {
   message_retention_seconds = var.message_retention_seconds
   fifo_queue                = var.fifo_queue
 
-  deduplication_scope   = var.deduplication_scope
-  fifo_throughput_limit = var.fifo_throughput_limit
+  deduplication_scope   = var.fifo_queue ? var.deduplication_scope : null
+  fifo_throughput_limit = var.fifo_queue ? var.fifo_throughput_limit : null
 
   kms_master_key_id                 = data.aws_kms_key.sqs_encryption_key.id
   kms_data_key_reuse_period_seconds = 300
@@ -34,4 +34,5 @@ module "dd_sqs_input_queue" {
   identifier              = var.datadog_identifier
   queue_messages_warning  = var.queue_messages_warning
   queue_messages_critical = var.queue_messages_critical
+  dead_letter_queue_messages_critical = var.dlq_messages_critical
 }

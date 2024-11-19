@@ -83,3 +83,9 @@ variable "queue_messages_critical" {
   description = "The number of messages in the queue to trigger a critical alert."
   default     = 100
 }
+
+variable "dlq_messages_critical" {
+    type        = number
+    description = "The number of messages in the dead letter queue to trigger a critical alert."
+    default     = 50
+}
