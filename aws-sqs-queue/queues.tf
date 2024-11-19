@@ -25,14 +25,14 @@ resource "aws_sqs_queue" "dlq" {
 }
 
 module "dd_sqs_input_queue" {
-  source                  = "./../datadog-sqs"
-  env                     = var.env
-  tags                    = var.datadog_tags
-  service_name            = var.service_name
-  queue_name              = aws_sqs_queue.queue.name
-  dead_letter_queue_name  = aws_sqs_queue.dlq.name
-  identifier              = var.datadog_identifier
-  queue_messages_warning  = var.queue_messages_warning
-  queue_messages_critical = var.queue_messages_critical
+  source                              = "./../datadog-sqs"
+  env                                 = var.env
+  tags                                = var.datadog_tags
+  service_name                        = var.service_name
+  queue_name                          = aws_sqs_queue.queue.name
+  dead_letter_queue_name              = aws_sqs_queue.dlq.name
+  identifier                          = var.datadog_identifier
+  queue_messages_warning              = var.queue_messages_warning
+  queue_messages_critical             = var.queue_messages_critical
   dead_letter_queue_messages_critical = var.dlq_messages_critical
 }
