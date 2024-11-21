@@ -15,7 +15,7 @@ variable "cpu_target_value" {
 
 variable "sqs_queue_params" {
   type = object({
-    queue_name = string
+    queue_name            = string
     messages_target_value = string
   })
   description = "SQS queue parameters for scaling."
