@@ -13,15 +13,13 @@ variable "cpu_target_value" {
   default     = 70
 }
 
-variable "sqs_messages_target_value" {
-  type        = number
-  description = "The target number of messages in the SQS queue for scaling."
-  default     = 100
-}
-
-variable "sqs_queue_name" {
-  type        = string
-  description = "The name of the SQS queue to monitor for scaling."
+variable "sqs_queue_params" {
+  type = object({
+    queue_name = string
+    messages_target_value = string
+  })
+  description = "SQS queue parameters for scaling."
+  default     = null
 }
 
 variable "min_capacity" {

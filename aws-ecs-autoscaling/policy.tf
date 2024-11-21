@@ -24,6 +24,8 @@ resource "aws_appautoscaling_policy" "target_tracking" {
 }
 
 resource "aws_appautoscaling_policy" "sqs_backlog_policy" {
+  count = var.sqs_queue_params != null ? 1 : 0
+
   name               = "${var.ecs_service_name}-sqs-backlog-scaling-policy"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.this.resource_id
@@ -31,7 +33,7 @@ resource "aws_appautoscaling_policy" "sqs_backlog_policy" {
   service_namespace  = aws_appautoscaling_target.this.service_namespace
 
   target_tracking_scaling_policy_configuration {
-    target_value       = var.sqs_messages_target_value
+    target_value       = var.sqs_queue_params.messages_target_value
     scale_in_cooldown  = var.scale_in_cooldown
     scale_out_cooldown = var.scale_out_cooldown
 
@@ -47,7 +49,7 @@ resource "aws_appautoscaling_policy" "sqs_backlog_policy" {
 
             dimensions {
               name  = "QueueName"
-              value = var.sqs_queue_name
+              value = var.sqs_queue_params.queue_name
             }
           }
 
