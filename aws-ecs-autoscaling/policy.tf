@@ -17,6 +17,8 @@ resource "aws_appautoscaling_policy" "target_tracking" {
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
-    target_value = var.cpu_target_value
+    target_value       = var.cpu_target_value
+    scale_in_cooldown  = var.scale_in_cooldown
+    scale_out_cooldown = var.scale_out_cooldown
   }
 }
