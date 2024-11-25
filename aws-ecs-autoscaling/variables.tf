@@ -10,7 +10,7 @@ variable "ecs_service_name" {
 variable "cpu_target_value" {
   type        = number
   description = "The target average CPU utilization percentage for scaling."
-  default     = 70
+  default     = 75
 }
 
 variable "sqs_queue_params" {
