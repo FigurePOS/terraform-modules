@@ -65,3 +65,10 @@ jobs:
           cd ecs-service
           terraform init
           terraform validate
+      - name: Run Checkov action
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          quiet: true
+          framework: terraform
