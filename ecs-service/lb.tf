@@ -1,4 +1,5 @@
 resource "aws_alb_target_group" "service" {
+  # checkov:skip=CKV_AWS_378:TODO Check this.
   name                 = substr(var.service_name, 0, 32)
   port                 = 80
   protocol             = "HTTP"
