@@ -72,4 +72,4 @@ jobs:
           directory: .
           quiet: true
           framework: terraform
-          skip_check: AVD-AWS-0017,AVD-AWS-0025
+          skip_check: CKV_AWS_119,CKV_AWS_158
