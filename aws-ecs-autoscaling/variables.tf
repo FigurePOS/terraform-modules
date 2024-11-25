@@ -33,13 +33,13 @@ variable "max_capacity" {
 variable "scale_in_cooldown" {
   type        = number
   description = "The amount of time, in seconds, after a scale in activity completes before another scale in activity can start."
-  default     = 150
+  default     = 300
 }
 
 variable "scale_out_cooldown" {
   type        = number
   description = "The amount of time, in seconds, after a scale out activity completes before another scale out activity can start."
-  default     = 300
+  default     = 150
 }
 
 locals {
