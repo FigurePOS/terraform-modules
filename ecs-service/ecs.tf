@@ -1,5 +1,5 @@
-
 resource "aws_ecs_task_definition" "service" {
+  # checkov:skip=CKV_AWS_336:This is needed for the ECS service to communicate with Datadog.
   family                   = var.service_name
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
