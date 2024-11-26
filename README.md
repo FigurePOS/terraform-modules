@@ -32,10 +32,6 @@ Creates Datadog metric monitor and SLO.
 
 Creates Datadog metric monitors for number of messages in SQS queue and its DLQ.
 
-## ecs-autoscaling-cpu
-
-Creates autoscaling policy for ECS task based on CPU utilization.
-
 ## ecs-service
 
 Creates ECS Fargate service and load balancer.
