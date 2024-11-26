@@ -6,7 +6,7 @@ resource "aws_appautoscaling_target" "this" {
   service_namespace  = "ecs"
 }
 
-resource "aws_appautoscaling_policy" "target_tracking" {
+resource "aws_appautoscaling_policy" "cpu_target_tracking" {
   name               = "${var.ecs_service_name}-cpu-target-tracking"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.this.resource_id
