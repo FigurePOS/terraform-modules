@@ -13,6 +13,12 @@ variable "cpu_target_value" {
   default     = 75
 }
 
+variable "memory_target_value" {
+  type        = number
+  description = "The target average memory utilization percentage for scaling."
+  default     = null
+}
+
 variable "sqs_queue_params" {
   type = object({
     queue_name            = string
