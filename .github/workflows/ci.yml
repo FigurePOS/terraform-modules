@@ -55,11 +55,6 @@ jobs:
           cd datadog-sqs
           terraform init
           terraform validate
-      - name: "validate ecs-autoscaling-cpu"
-        run: |
-          cd ecs-autoscaling-cpu
-          terraform init
-          terraform validate
       - name: "validate ecs-service"
         run: |
           cd ecs-service
