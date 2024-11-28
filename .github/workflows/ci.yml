@@ -30,6 +30,11 @@ jobs:
           cd aws-sqs-queue
           terraform init
           terraform validate
+      - name: "validate aws-s3-bucket"
+        run: |
+          cd aws-s3-bucket
+          terraform init
+          terraform validate
       - name: "validate datadog-monitor-express-endpoint"
         run: |
           cd datadog-monitor-express-endpoint

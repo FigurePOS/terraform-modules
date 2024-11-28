@@ -12,6 +12,10 @@ Creates target tracking autoscaling policy for ECS.
 
 Creates SQS queue with its DeadLetterQueue.
 
+## aws-s3-bucket
+
+Creates S3 bucket.
+
 ## datadog-monitor-express-endpoint
 
 Creates Datadog latency and error rate monitor for Rest API endpoints.
