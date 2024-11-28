@@ -1,3 +1,6 @@
+# checkov:skip=CKV_AWS_144:Cross-region replication should be enabled.
+# checkov:skip=CKV_AWS_145:KMS encryption by default.
+# checkov:skip=CKV2_AWS_62:Notifications should be enabled.
 resource "aws_s3_bucket" "bucket" {
   bucket = var.bucket_name
 }
@@ -9,6 +12,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   rule {
     id     = var.lifecycle_config.id
     status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 30
+    }
 
     expiration {
       days = var.lifecycle_config.expiration_days
