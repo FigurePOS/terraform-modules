@@ -3,6 +3,8 @@
 # checkov:skip=CKV2_AWS_62:Notifications should be enabled.
 resource "aws_s3_bucket" "bucket" {
   bucket = var.bucket_name
+
+  force_destroy = var.force_destroy
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
@@ -76,23 +78,31 @@ resource "aws_s3_bucket_public_access_block" "public_access_block" {
   restrict_public_buckets = var.public_access_block.restrict_public_buckets
 }
 
-resource "aws_s3_bucket_website_configuration" "website_configuration_documents" {
-  count  = var.website_configuration_documents != null && var.website_configuration_redirect == null ? 1 : 0
+resource "aws_s3_bucket_website_configuration" "website_configuration" {
+  count = var.website_configuration_redirect != null || var.website_configuration_documents != null ? 1 : 0
   bucket = aws_s3_bucket.bucket.id
 
-  index_document {
-    suffix = var.website_configuration_documents.index
-  }
-  error_document {
-    key = var.website_configuration_documents.error
-  }
-}
+  dynamic "redirect_all_requests_to" {
+    for_each = var.website_configuration_redirect != null ? [1] : []
 
-resource "aws_s3_bucket_website_configuration" "website_configuration_redirect" {
-  count  = var.website_configuration_redirect != null && var.website_configuration_documents == null ? 1 : 0
-  bucket = aws_s3_bucket.bucket.id
+    content {
+      host_name = var.website_configuration_redirect
+    }
 
-  redirect_all_requests_to {
-    host_name = var.website_configuration_redirect
+  }
+
+  dynamic "index_document" {
+    for_each = var.website_configuration_redirect == null ? [1] : []
+
+    content {
+      suffix = var.website_configuration_documents.index
+    }
+  }
+
+  dynamic "error_document" {
+    for_each = var.website_configuration_redirect == null ? [1] : []
+    content {
+      key = var.website_configuration_documents.error
+    }
   }
 }

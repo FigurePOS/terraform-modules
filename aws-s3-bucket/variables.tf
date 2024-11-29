@@ -3,6 +3,12 @@ variable "bucket_name" {
   type        = string
 }
 
+variable "force_destroy" {
+  description = "Whether to allow the bucket to be destroyed with items in it"
+  type        = bool
+  default     = false
+}
+
 variable "lifecycle_enabled" {
   description = "Whether to enable the lifecycle configuration"
   type        = bool
