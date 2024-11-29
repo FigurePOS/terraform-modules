@@ -85,13 +85,13 @@ resource "aws_s3_bucket_cors_configuration" "cors" {
 }
 
 resource "aws_s3_bucket_acl" "acl" {
+  count = var.acl_enabled ? 1 : 0
   bucket = aws_s3_bucket.bucket.id
 
   acl = var.acl
 }
 
 resource "aws_s3_bucket_public_access_block" "public_access_block" {
-  count  = var.public_access_block != null ? 1 : 0
   bucket = aws_s3_bucket.bucket.id
 
   block_public_acls       = var.public_access_block.block_public_acls
