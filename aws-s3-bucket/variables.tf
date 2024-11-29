@@ -61,16 +61,10 @@ variable "cors_rules" {
   default = null
 }
 
-variable "acl_enabled" {
-  description = "Whether to enable ACL on the bucket"
-  type        = bool
-  default     = false
-}
-
 variable "acl" {
   description = "The ACL for the bucket"
   type        = string
-  default     = "private"
+  default     = null
 }
 
 variable "public_access_block" {

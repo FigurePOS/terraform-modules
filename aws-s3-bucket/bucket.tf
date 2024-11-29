@@ -85,7 +85,7 @@ resource "aws_s3_bucket_cors_configuration" "cors" {
 }
 
 resource "aws_s3_bucket_acl" "acl" {
-  count = var.acl_enabled ? 1 : 0
+  count = var.acl != null ? 1 : 0
   bucket = aws_s3_bucket.bucket.id
 
   acl = var.acl
