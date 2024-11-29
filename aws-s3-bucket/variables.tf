@@ -13,7 +13,7 @@ variable "lifecycle_config_rules" {
   description = "The lifecycle configuration for the bucket"
   type = list(object({
     id              = string
-    expiration_days = optional(number, null)
+    expiration_days = number
     filter = optional(object({
       prefix = optional(string, "")
       tags   = optional(map(string), {})
