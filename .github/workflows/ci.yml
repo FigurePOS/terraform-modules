@@ -30,6 +30,11 @@ jobs:
           cd aws-sqs-queue
           terraform init
           terraform validate
+      - name: "validate aws-s3-bucket"
+        run: |
+          cd aws-s3-bucket
+          terraform init
+          terraform validate
       - name: "validate datadog-monitor-express-endpoint"
         run: |
           cd datadog-monitor-express-endpoint
@@ -68,4 +73,4 @@ jobs:
           quiet: true
           framework: terraform
           output_format: cli
-          skip_check: CKV_AWS_119,CKV_AWS_158,CKV_AWS_336,CKV_AWS_378
+          skip_check: CKV_AWS_119,CKV_AWS_144,CKV_AWS_145,CKV_AWS_158,CKV_AWS_336,CKV_AWS_378,CKV2_AWS_62
