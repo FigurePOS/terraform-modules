@@ -64,18 +64,23 @@ variable "cors_rules" {
 variable "acl" {
   description = "The ACL for the bucket"
   type        = string
-  default     = "private"
+  default     = null
 }
 
 variable "public_access_block" {
   description = "The public access block configuration for the bucket"
   type = object({
-    block_public_acls       = optional(bool, false)
-    block_public_policy     = optional(bool, false)
-    ignore_public_acls      = optional(bool, false)
-    restrict_public_buckets = optional(bool, false)
+    block_public_acls       = optional(bool, true)
+    block_public_policy     = optional(bool, true)
+    ignore_public_acls      = optional(bool, true)
+    restrict_public_buckets = optional(bool, true)
   })
-  default = null
+  default = {
+    block_public_acls       = true
+    block_public_policy     = true
+    ignore_public_acls      = true
+    restrict_public_buckets = true
+  }
 }
 
 variable "website_configuration_documents" {
