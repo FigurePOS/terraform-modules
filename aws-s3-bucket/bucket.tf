@@ -31,10 +31,13 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
         days = rule.value.expiration_days
       }
 
-      filter {
-        and {
-          prefix = rule.value.filter.prefix
-          tags   = rule.value.filter.tags
+      dynamic "filter" {
+        for_each = rule.value.filter.prefix != "" || rule.value.filter.tags != null ? [1] : []
+        content {
+          and {
+            prefix = rule.value.filter.prefix
+            tags   = rule.value.filter.tags
+          }
         }
       }
     }
