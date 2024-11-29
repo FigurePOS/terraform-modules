@@ -10,19 +10,38 @@ resource "aws_s3_bucket" "bucket" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
-  count  = var.lifecycle_enabled ? 1 : 0
   bucket = aws_s3_bucket.bucket.id
 
   rule {
-    id     = var.lifecycle_config.id
+    id     = "incomplete_multipart_upload_cleanup_rule"
     status = "Enabled"
 
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
     }
+  }
 
-    expiration {
-      days = var.lifecycle_config.expiration_days
+  dynamic "rule" {
+    for_each = var.lifecycle_config_rules
+    content {
+      id     = rule.value.id
+      status = "Enabled"
+
+      expiration {
+        days = rule.value.expiration_days
+      }
+
+      filter {
+        prefix = rule.value.filter.prefix
+
+        dynamic "tag" {
+          for_each = rule.value.filter.tags != null ? [keys(rule.value.filter.tags)] : []
+          content {
+            key   = tag.value
+            value = rule.value.filter.tags[tag.value]
+          }
+        }
+      }
     }
   }
 }
@@ -52,15 +71,18 @@ resource "aws_s3_bucket_policy" "policy" {
 }
 
 resource "aws_s3_bucket_cors_configuration" "cors" {
-  count  = var.cors_rule != null ? 1 : 0
+  count  = var.cors_rules != null ? 1 : 0
   bucket = aws_s3_bucket.bucket.id
 
-  cors_rule {
-    allowed_headers = var.cors_rule.allowed_headers
-    allowed_methods = var.cors_rule.allowed_methods
-    allowed_origins = var.cors_rule.allowed_origins
-    expose_headers  = var.cors_rule.expose_headers
-    max_age_seconds = var.cors_rule.max_age_seconds
+  dynamic "cors_rule" {
+    for_each = var.cors_rules
+    content {
+      allowed_headers = cors_rule.value.allowed_headers
+      allowed_methods = cors_rule.value.allowed_methods
+      allowed_origins = cors_rule.value.allowed_origins
+      expose_headers  = cors_rule.value.expose_headers
+      max_age_seconds = cors_rule.value.max_age_seconds
+    }
   }
 }
 
@@ -81,7 +103,7 @@ resource "aws_s3_bucket_public_access_block" "public_access_block" {
 }
 
 resource "aws_s3_bucket_website_configuration" "website_configuration" {
-  count = var.website_configuration_redirect != null || var.website_configuration_documents != null ? 1 : 0
+  count  = var.website_configuration_redirect != null || var.website_configuration_documents != null ? 1 : 0
   bucket = aws_s3_bucket.bucket.id
 
   dynamic "redirect_all_requests_to" {

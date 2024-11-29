@@ -9,24 +9,17 @@ variable "force_destroy" {
   default     = false
 }
 
-variable "lifecycle_enabled" {
-  description = "Whether to enable the lifecycle configuration"
-  type        = bool
-  default     = false
-}
-
-variable "lifecycle_config" {
+variable "lifecycle_config_rules" {
   description = "The lifecycle configuration for the bucket"
-  type = object({
-    id              = optional(string, "expire-after-1y")
-    enabled         = optional(bool, true)
-    expiration_days = optional(number, 365)
-  })
-  default = {
-    id              = "expire-after-1y"
-    enabled         = true
-    expiration_days = 365
-  }
+  type = list(object({
+    id              = string
+    expiration_days = optional(number, null)
+    filter = optional(object({
+      prefix = optional(string, "")
+      tags   = optional(map(string), {})
+    }), {})
+  }))
+  default = []
 }
 
 variable "versioning_enabled" {
@@ -56,15 +49,15 @@ variable "policy" {
   default     = null
 }
 
-variable "cors_rule" {
+variable "cors_rules" {
   description = "The CORS rule for the bucket"
-  type = object({
+  type = list(object({
     allowed_headers = optional(list(string), ["*"])
     allowed_methods = list(string)
     allowed_origins = list(string)
     expose_headers  = optional(list(string), [])
     max_age_seconds = optional(number, null)
-  })
+  }))
   default = null
 }
 
