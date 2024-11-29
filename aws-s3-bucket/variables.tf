@@ -12,7 +12,7 @@ variable "force_destroy" {
 variable "lifecycle_enabled" {
   description = "Whether to enable the lifecycle configuration"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "lifecycle_config" {
@@ -98,4 +98,10 @@ variable "website_configuration_redirect" {
   description = "The website configuration for the bucket"
   type        = string
   default     = null
+}
+
+variable "tags" {
+  description = "The tags for the bucket"
+  type        = map(string)
+  default     = {}
 }
