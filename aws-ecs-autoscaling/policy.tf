@@ -33,36 +33,12 @@ resource "aws_appautoscaling_policy" "memory_target_tracking" {
   service_namespace  = aws_appautoscaling_target.this.service_namespace
 
   target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+    }
     target_value       = var.memory_target_value
     scale_in_cooldown  = var.scale_in_cooldown
     scale_out_cooldown = var.scale_out_cooldown
-
-    customized_metric_specification {
-      metrics {
-        label = "Memory Utilization of ECS Service"
-        id    = "memory_utilization"
-
-        metric_stat {
-          metric {
-            metric_name = "MemoryUtilization"
-            namespace   = "AWS/ECS"
-
-            dimensions {
-              name = "ClusterName"
-              value = var.ecs_cluster_name
-            }
-
-            dimensions {
-              name = "ServiceName"
-              value = var.ecs_service_name
-            }
-          }
-          stat = "Average"
-        }
-
-        return_data = true
-      }
-    }
   }
 }
 
