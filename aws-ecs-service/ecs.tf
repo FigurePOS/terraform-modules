@@ -11,7 +11,7 @@ resource "aws_ecs_task_definition" "service" {
   container_definitions = jsonencode([
     merge({
       "name" : var.service_name,
-      "image" : "${var.ecr_repository_url}:${var.deployment_tag}",
+      "image" : "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.ecr_repository_uri}:${var.deployment_tag}",
       "cpu" : 0,
       "essential" : true,
       "portMappings" : [
@@ -37,6 +37,16 @@ resource "aws_ecs_task_definition" "service" {
         "org.opencontainers.image.revision" : "${var.git_commit_hash}",
         "org.opencontainers.image.source" : "${var.git_repository}"
       },
+      "healthCheck" : {
+        "command" : [
+          "CMD-SHELL",
+          "node ${var.health_check_file} >> /proc/1/fd/1"
+        ],
+        "retries" : 5,
+        "timeout" : 5,
+        "interval" : 10,
+        "startPeriod" : 15
+      }
       "environment" : setunion([
         {
           "name" : "AWS_REGION",
@@ -69,6 +79,10 @@ resource "aws_ecs_task_definition" "service" {
         {
           "name" : "ENVIRONMENT",
           "value" : "${var.env}"
+        },
+        {
+          "name" : "HEALTHCHECK_PATH",
+          "value" : "${var.health_check_path}"
         },
         {
           "name" : "LOGGER_LEVEL",
@@ -117,7 +131,7 @@ resource "aws_ecs_task_definition" "service" {
         "timeout" : 5,
         "interval" : 10,
         "startPeriod" : 15
-      }
+      },
       "environment" : [
         {
           "name" : "DD_APM_ENABLED",
