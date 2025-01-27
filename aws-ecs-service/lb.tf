@@ -8,11 +8,11 @@ resource "aws_alb_target_group" "service" {
   deregistration_delay = 30
 
   health_check {
-    healthy_threshold   = var.lb_health_check_healthy_threshold
-    unhealthy_threshold = var.lb_health_check_unhealthy_threshold
-    interval            = 30
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    interval            = 15
     matcher             = 200
-    path                = var.lb_health_check_path
+    path                = var.health_check_path
     port                = "traffic-port"
     protocol            = "HTTP"
     timeout             = 5

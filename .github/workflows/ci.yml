@@ -15,14 +15,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: "validate aws-dynamodb-table"
+        run: |
+          cd aws-dynamodb-table
+          terraform init
+          terraform validate
       - name: "validate aws-ecs-autoscaling"
         run: |
           cd aws-ecs-autoscaling
           terraform init
           terraform validate
-      - name: "validate aws-dynamodb-table"
+      - name: "validate aws-ecs-service"
         run: |
-          cd aws-dynamodb-table
+          cd aws-ecs-service
           terraform init
           terraform validate
       - name: "validate aws-sqs-queue"
@@ -58,11 +63,6 @@ jobs:
       - name: "validate datadog-sqs"
         run: |
           cd datadog-sqs
-          terraform init
-          terraform validate
-      - name: "validate ecs-service"
-        run: |
-          cd ecs-service
           terraform init
           terraform validate
       - name: "scan for misconfigurations with Checkov"

@@ -55,7 +55,7 @@ variable "desired_count" {
   default = 1
 }
 
-variable "ecr_repository_url" {
+variable "ecr_repository_uri" {
   type = string
 }
 
@@ -88,21 +88,16 @@ variable "git_repository" {
 
 variable "health_check_grace_period_seconds" {
   type    = number
-  default = 30
+  default = 180
 }
 
-variable "lb_health_check_healthy_threshold" {
-  type    = number
-  default = 3
-}
-
-variable "lb_health_check_path" {
+variable "health_check_file" {
   type = string
+  default = "./scripts/healthcheck.js"
 }
 
-variable "lb_health_check_unhealthy_threshold" {
-  type    = number
-  default = 2
+variable "health_check_path" {
+  type = string
 }
 
 variable "lb_listener_rule_host_header" {
