@@ -11,7 +11,7 @@ resource "aws_ecs_task_definition" "service" {
   container_definitions = jsonencode([
     merge({
       "name" : var.service_name,
-      "image" : "${var.ecr_repository_url}:${var.deployment_tag}",
+      "image" : "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.ecr_repository_uri}:${var.deployment_tag}",
       "cpu" : 0,
       "essential" : true,
       "portMappings" : [
@@ -99,7 +99,7 @@ resource "aws_ecs_task_definition" "service" {
     }, var.service_custom_definition),
     {
       "name" : "datadog-agent",
-      "image" : "public.ecr.aws/datadog/agent:${var.dd_agent_version}",
+      "image" : "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/ecr-public/datadog/agent:${var.dd_agent_version}",
       "cpu" : 50,
       "memoryReservation" : 256,
       "essential" : true,

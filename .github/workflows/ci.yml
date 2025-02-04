@@ -25,6 +25,11 @@ jobs:
           cd aws-dynamodb-table
           terraform init
           terraform validate
+      - name: "validate aws-ecs-service"
+        run: |
+          cd aws-ecs-service
+          terraform init
+          terraform validate
       - name: "validate aws-sqs-queue"
         run: |
           cd aws-sqs-queue
@@ -58,11 +63,6 @@ jobs:
       - name: "validate datadog-sqs"
         run: |
           cd datadog-sqs
-          terraform init
-          terraform validate
-      - name: "validate ecs-service"
-        run: |
-          cd ecs-service
           terraform init
           terraform validate
       - name: "scan for misconfigurations with Checkov"
