@@ -55,7 +55,7 @@ variable "desired_count" {
   default = 1
 }
 
-variable "ecr_repository_url" {
+variable "ecr_repository_uri" {
   type = string
 }
 
