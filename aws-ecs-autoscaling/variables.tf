@@ -1,8 +1,3 @@
-variable "ecs_cluster_name" {
-  type    = string
-  default = "fgr-ecs-cluster"
-}
-
 variable "ecs_service_name" {
   type = string
 }
@@ -49,5 +44,5 @@ variable "scale_out_cooldown" {
 }
 
 locals {
-  resource_id = "service/${var.ecs_cluster_name}/${var.ecs_service_name}"
+  resource_id = "service/${data.aws_ecs_cluster.main.name}/${var.ecs_service_name}"
 }
