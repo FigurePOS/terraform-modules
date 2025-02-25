@@ -44,5 +44,6 @@ variable "scale_out_cooldown" {
 }
 
 locals {
-  resource_id = "service/${data.aws_ecs_cluster.main.name}/${var.ecs_service_name}"
+  ecs_cluster_name = "fgr-ecs-cluster"
+  resource_id      = "service/${local.ecs_cluster_name}/${var.ecs_service_name}"
 }
