@@ -1,17 +1,9 @@
 data "aws_ecs_cluster" "main" {
-  cluster_name = var.ecs_cluster_name
-}
-
-data "aws_iam_policy" "ecs_task_execution_default" {
-  name = "ecs_execution_default"
-}
-
-data "aws_iam_policy" "ecs_task_default" {
-  name = "ecs_task_default"
+  cluster_name = "fgr-ecs-cluster"
 }
 
 data "aws_lb" "main" {
-  name = var.lb_name
+  name = "fgr-ecs-load-balancer"
 }
 
 data "aws_lb_listener" "https" {
