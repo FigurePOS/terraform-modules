@@ -48,7 +48,10 @@ variable "readonly_root_filesystem" {
 }
 
 variable "service_envs" {
-  type    = list(any)
+  type = list(object({
+    name  = string
+    value = string
+  }))
   default = []
 }
 
@@ -62,7 +65,10 @@ variable "service_port" {
 }
 
 variable "service_secrets" {
-  type    = list(any)
+  type = list(object({
+    name      = string
+    valueFrom = string
+  }))
   default = []
 }
 
