@@ -4,7 +4,7 @@ locals {
     "Service"     = var.service_name
   }
 
-  default_environment = [
+  default_service_envs = [
     {
       name  = "AWS_REGION",
       value = var.aws_region
@@ -59,32 +59,32 @@ locals {
     }
   ]
 
-  default_secrets = []
-  
+  default_service_secrets = []
+
 
   # Convert default environment to a map for easier merging
-  default_env_map = { for item in local.default_environment : item.name => item.value }
+  default_service_envs_map = { for item in local.default_service_envs : item.name => item.value }
 
   # Convert service_envs to a map (if it's in the expected format)
-  service_env_map = { for item in var.service_envs : item.name => item.value if can(item.name) && can(item.value) }
+  service_envs_map = { for item in var.service_envs : item.name => item.value if can(item.name) && can(item.value) }
 
   # Merge the maps, with service_env_map taking precedence
-  merged_env_map = merge(local.default_env_map, local.service_env_map)
+  merged_service_envs_map = merge(local.default_service_envs_map, local.service_envs_map)
 
   # Convert back to the list format required by the module
-  container_environment = [for name, value in local.merged_env_map : { name = name, value = value }]
+  service_environment = [for name, value in local.merged_service_envs_map : { name = name, value = value }]
 
   # Convert default secrets to a map for easier merging
-  default_secrets_map = { for item in local.default_secrets : item.name => item.valueFrom if can(item.name) && can(item.valueFrom) }
+  default_service_secrets_map = { for item in local.default_service_secrets : item.name => item.valueFrom if can(item.name) && can(item.valueFrom) }
 
   # Convert service_secrets to a map (if it's in the expected format)
   service_secrets_map = { for item in var.service_secrets : item.name => item.valueFrom if can(item.name) && can(item.valueFrom) }
 
   # Merge the maps, with service_secrets_map taking precedence
-  merged_secrets_map = merge(local.default_secrets_map, local.service_secrets_map)
+  merged_service_secrets_map = merge(local.default_service_secrets_map, local.service_secrets_map)
 
   # Convert back to the list format required by the module
-  container_secrets = [for name, valueFrom in local.merged_secrets_map : { name = name, valueFrom = valueFrom }]
+  service_secrets = [for name, valueFrom in local.merged_service_secrets_map : { name = name, valueFrom = valueFrom }]
 }
 
 module "app_container_definition" {
@@ -97,9 +97,9 @@ module "app_container_definition" {
   essential       = true
   entrypoint      = local.entry_point
 
-  environment = local.container_environment
+  environment = local.service_environment
 
-  secrets = local.container_secrets
+  secrets = local.service_secrets
 
   port_mappings = [
     {
