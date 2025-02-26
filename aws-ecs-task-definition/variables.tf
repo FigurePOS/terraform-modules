@@ -42,10 +42,9 @@ variable "git_repository" {
   type = string
 }
 
-
-variable "service_custom_definition" {
-  type    = map(any)
-  default = {}
+variable "readonly_root_filesystem" {
+  type    = bool
+  default = true
 }
 
 variable "service_envs" {
@@ -67,7 +66,6 @@ variable "service_secrets" {
   default = []
 }
 
-
 variable "task_cpu" {
   type    = number
   default = 256
@@ -86,6 +84,11 @@ variable "task_execution_policy" {
 variable "task_policy" {
   type    = any
   default = null
+}
+
+variable "ulimits" {
+  type    = list(any)
+  default = []
 }
 
 
