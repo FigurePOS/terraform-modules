@@ -4,6 +4,90 @@ locals {
     "Service"     = var.service_name
   }
 
+  signoz_config = {
+    extensions = {
+      health_check = {}
+    }
+    receivers = {
+      awsecscontainermetrics = {
+        collection_interval = "30s"
+      }
+      otlp = {
+        protocols = {
+          grpc = {
+            endpoint = "0.0.0.0:4317"
+          }
+          http = {
+            endpoint = "0.0.0.0:4318"
+          }
+        }
+      }
+    }
+    processors = {
+      batch = {
+        timeout = "10s"
+      }
+      filter = {
+        metrics = {
+          include = {
+            match_type = "strict"
+            metric_names = [
+              "ecs.task.memory.reserved",
+              "ecs.task.memory.utilized",
+              "ecs.task.cpu.reserved",
+              "ecs.task.cpu.utilized",
+              "ecs.task.network.rate.rx",
+              "ecs.task.network.rate.tx",
+              "ecs.task.storage.read_bytes",
+              "ecs.task.storage.write_bytes",
+              "container.duration"
+            ]
+          }
+        }
+      }
+      resource = {
+        attributes = [
+          {
+            key = "environment"
+            value = var.env
+            action = "insert"
+          }
+        ]
+      }
+    }
+    exporters = {
+      otlp = {
+        endpoint = "ingest.us.signoz.cloud:443"
+        tls = {
+          insecure = false
+        }
+        headers = {
+          "signoz-access-token" = "$${SIGNOZ_ACCESS_TOKEN}"
+        }
+      }
+    }
+    service = {
+      extensions = ["health_check"]
+      pipelines = {
+        traces = {
+          receivers  = ["otlp"]
+          processors = ["batch", "resource"]
+          exporters  = ["otlp"]
+        }
+        metrics = {
+          receivers  = ["otlp"]
+          processors = ["batch", "resource"]
+          exporters  = ["otlp"]
+        }
+        "metrics/aws" = {
+          receivers  = ["awsecscontainermetrics"]
+          processors = ["filter", "resource"]
+          exporters  = ["otlp"]
+        }
+      }
+    }
+  }
+
   default_service_envs = [
     {
       name  = "AWS_REGION",
@@ -74,32 +158,12 @@ locals {
       value = "content-length,content-type"
     },
     {
-      name  = "OTEL_LOG_LEVEL",
-      value = "debug"
-    },
-    {
-      name  = "OTEL_EXPORTER_OTLP_LOGS_TEMPORALITY_PREFERENCE",
-      value = "cumulative"
-    },
-    {
-      name  = "OTEL_EXPORTER_DEBUG",
-      value = "true"
-    },
-    {
       name  = "OTEL_NODE_RESOURCE_DETECTORS",
       value = "env,host,os"
     },
     {
-      name  = "OTEL_PROPAGATORS",
-      value = "tracecontext,baggage,b3"
-    },
-    {
       name  = "OTEL_SDK_DISABLED",
       value = "false"
-    },
-    {
-      name  = "OTEL_TRACES_EXPORTER",
-      value = "otlp"
     },
     {
       name  = "PORT",
@@ -121,7 +185,7 @@ locals {
       valueFrom = "/ecs/signoz/otel-exporter-otlp-headers"
     },
   ]
-  
+
 
   # Convert default environment to a map for easier merging
   default_service_envs_map = { for item in local.default_service_envs : item.name => item.value }
@@ -190,6 +254,10 @@ module "app_container_definition" {
   readonly_root_filesystem = var.readonly_root_filesystem
 
   ulimits = var.ulimits
+
+  mount_points    = []
+  system_controls = []
+  volumes_from    = []
 }
 
 module "datadog_agent_definition" {
@@ -246,6 +314,8 @@ module "datadog_agent_definition" {
     }
   ]
 
+  port_mappings = []
+
   docker_labels = {
     "com.datadoghq.ad.instances"    = "[{\"host\": \"%%host%%\", \"port\": ${var.service_port}}]",
     "com.datadoghq.ad.check_names"  = "[\"${var.service_name}\"]",
@@ -264,10 +334,14 @@ module "datadog_agent_definition" {
   }
 
   readonly_root_filesystem = false
+
+  mount_points    = []
+  system_controls = []
+  volumes_from    = []
 }
 
 module "signoz_collector_definition" {
-  # checkov:skip=CKV_AWS_336:This is needed for the ECS service to communicate with Datadog.
+  # checkov:skip=CKV_TF_1: "Ensure Terraform module sources use a commit hash"
   source  = "cloudposse/ecs-container-definition/aws"
   version = "0.61.1"
 
@@ -282,10 +356,21 @@ module "signoz_collector_definition" {
     "--config=env:SIGNOZ_CONFIG_CONTENT"
   ]
 
+  environment = [
+    {
+      name  = "ECS_SERVICE_NAME",
+      value = var.service_name
+    },
+    {
+      name  = "SIGNOZ_CONFIG_CONTENT",
+      value = jsonencode(local.signoz_config)
+    }
+  ]
+
   secrets = [
     {
-      name      = "SIGNOZ_CONFIG_CONTENT",
-      valueFrom = "/ecs/signoz/otelcol-config.yaml"
+      name      = "SIGNOZ_ACCESS_TOKEN",
+      valueFrom = "/ecs/signoz/access-token"
     }
   ]
 
@@ -326,6 +411,10 @@ module "signoz_collector_definition" {
       awslogs-stream-prefix = "signoz",
     }
   }
+
+  mount_points    = []
+  system_controls = []
+  volumes_from    = []
 }
 
 resource "aws_ecs_task_definition" "ecs_task_definition" {
