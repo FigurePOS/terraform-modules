@@ -74,12 +74,24 @@ locals {
       value = "content-length,content-type"
     },
     {
+      name  = "OTEL_LOG_LEVEL",
+      value = "debug"
+    },
+    {
+      name  = "OTEL_EXPORTER_OTLP_LOGS_TEMPORALITY_PREFERENCE",
+      value = "cumulative"
+    },
+    {
+      name  = "OTEL_EXPORTER_DEBUG",
+      value = "true"
+    },
+    {
       name  = "OTEL_NODE_RESOURCE_DETECTORS",
       value = "env,host,os"
     },
     {
       name  = "OTEL_PROPAGATORS",
-      value = "tracecontext,baggage"
+      value = "tracecontext,baggage,b3"
     },
     {
       name  = "OTEL_SDK_DISABLED",
