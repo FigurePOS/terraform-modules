@@ -10,6 +10,14 @@ locals {
       value = var.aws_region
     },
     {
+      name  = "AWS_XRAY_DAEMON_ADDRESS",
+      value = "localhost:2000"
+    },
+    {
+      name  = "AWS_XRAY_CONTEXT_MISSING",
+      value = "LOG_ERROR"
+    },
+    {
       name  = "DD_DBM_PROPAGATION_MODE",
       value = "full"
     },
@@ -205,6 +213,63 @@ module "datadog_agent_definition" {
   readonly_root_filesystem = false
 }
 
+module "xray_daemon_definition" {
+  # checkov:skip=CKV_TF_1: "Ensure Terraform module sources use a commit hash"
+  source  = "cloudposse/ecs-container-definition/aws"
+  version = "0.61.1"
+
+  container_name  = "xray-daemon"
+  container_image = "public.ecr.aws/xray/aws-xray-daemon:latest"
+  essential       = true
+
+  container_cpu                = 32
+  container_memory_reservation = 256
+
+  command = [
+    "--region", var.aws_region,
+    "--local-mode",
+    "--log-level", "error"
+  ]
+
+  environment = [
+    {
+      name  = "AWS_REGION"
+      value = var.aws_region
+    }
+  ]
+
+  port_mappings = [
+    {
+      containerPort = 2000
+      hostPort      = 2000
+      protocol      = "udp"
+    }
+  ]
+
+  docker_labels = {
+    "com.datadoghq.ad.instances"    = "[{\"host\": \"%%host%%\", \"port\": 2000}]",
+    "com.datadoghq.ad.check_names"  = "[\"xray-daemon\"]",
+    "com.datadoghq.ad.init_configs" = "[{}]"
+  }
+
+  healthcheck = null
+
+  readonly_root_filesystem = false
+
+  log_configuration = {
+    logDriver = "awslogs",
+    options = {
+      awslogs-group         = "/figure/container/${var.service_name}",
+      awslogs-region        = var.aws_region,
+      awslogs-stream-prefix = "xray-daemon"
+    }
+  }
+
+  mount_points    = []
+  system_controls = []
+  volumes_from    = []
+}
+
 resource "aws_ecs_task_definition" "ecs_task_definition" {
   # checkov:skip=CKV_AWS_336:This is needed for the ECS service to communicate with Datadog.
   family                   = var.service_name
@@ -217,7 +282,8 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
 
   container_definitions = jsonencode([
     module.app_container_definition.json_map_object,
-    module.datadog_agent_definition.json_map_object
+    module.datadog_agent_definition.json_map_object,
+    module.xray_daemon_definition.json_map_object
   ])
 
   tags = local.common_tags
