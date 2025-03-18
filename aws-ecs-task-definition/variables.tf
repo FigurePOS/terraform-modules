@@ -42,6 +42,11 @@ variable "git_repository" {
   type = string
 }
 
+variable "ping_path" {
+  type    = string
+  default = "/ping"
+}
+
 variable "readonly_root_filesystem" {
   type    = bool
   default = true
@@ -95,6 +100,11 @@ variable "task_policy" {
 variable "ulimits" {
   type    = list(any)
   default = []
+}
+
+variable "xray_sampling_rate" {
+  type    = number
+  default = 1.0
 }
 
 
