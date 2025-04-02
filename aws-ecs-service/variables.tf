@@ -5,7 +5,7 @@ variable "capacity_provider_strategy" {
       base   = 1
       weight = 1
     }
-    spot  = {
+    spot = {
       base   = 0
       weight = 0
     }
@@ -70,6 +70,11 @@ variable "lb_listener_rule_host_header" {
 
 variable "lb_listener_rule_path_pattern" {
   type = list(string)
+}
+
+variable "register_service_connect" {
+  type    = bool
+  default = false
 }
 
 variable "service_name" {

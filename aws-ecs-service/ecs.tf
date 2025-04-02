@@ -2,10 +2,12 @@ resource "aws_ecs_service" "service" {
   name            = var.service_name
   cluster         = data.aws_ecs_cluster.main.id
   task_definition = var.task_definition_arn
-  propagate_tags  = "SERVICE"
 
-  enable_execute_command = true
-  force_new_deployment   = true
+  availability_zone_rebalancing = "ENABLED"
+  enable_ecs_managed_tags       = true
+  enable_execute_command        = true
+  force_new_deployment          = true
+  propagate_tags                = "SERVICE"
 
   desired_count                     = var.desired_count
   health_check_grace_period_seconds = var.health_check_grace_period_seconds
@@ -36,6 +38,22 @@ resource "aws_ecs_service" "service" {
     capacity_provider = "FARGATE_SPOT"
     base              = var.capacity_provider_strategy["spot"]["base"]
     weight            = var.capacity_provider_strategy["spot"]["weight"]
+  }
+
+  service_connect_configuration {
+    enabled   = true
+    namespace = data.aws_service_discovery_http_namespace.fgr-local.arn
+    dynamic "service" {
+      for_each = var.register_service_connect ? [1] : []
+      content {
+        port_name      = "http"
+        discovery_name = var.service_name
+        client_alias {
+          port     = var.service_port
+          dns_name = var.service_name
+        }
+      }
+    }
   }
 
   tags = {

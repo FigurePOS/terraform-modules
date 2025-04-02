@@ -103,6 +103,7 @@ module "app_container_definition" {
 
   port_mappings = [
     {
+      name          = "http"
       containerPort = var.service_port
       hostPort      = var.service_port
       protocol      = "tcp"
@@ -129,6 +130,10 @@ module "app_container_definition" {
   readonly_root_filesystem = var.readonly_root_filesystem
 
   ulimits = var.ulimits
+
+  mount_points    = []
+  system_controls = []
+  volumes_from    = []
 }
 
 module "datadog_agent_definition" {
@@ -203,6 +208,11 @@ module "datadog_agent_definition" {
   }
 
   readonly_root_filesystem = false
+
+  mount_points    = []
+  port_mappings   = []
+  system_controls = []
+  volumes_from    = []
 }
 
 resource "aws_ecs_task_definition" "ecs_task_definition" {

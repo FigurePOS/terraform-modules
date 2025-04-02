@@ -18,6 +18,10 @@ data "aws_security_group" "cluster" {
   }
 }
 
+data "aws_service_discovery_http_namespace" "fgr-local" {
+  name = "fgr-local"
+}
+
 data "aws_subnets" "private" {
   filter {
     name   = "vpc-id"
