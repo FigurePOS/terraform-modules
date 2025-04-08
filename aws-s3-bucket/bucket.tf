@@ -16,6 +16,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
     id     = "incomplete_multipart_upload_cleanup_rule"
     status = "Enabled"
 
+    filter {
+      prefix = ""
+    }
+
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
     }
@@ -27,18 +31,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
       id     = rule.value.id
       status = "Enabled"
 
-      expiration {
-        days = rule.value.expiration_days
+      filter {
+        prefix = rule.value.filter.prefix
       }
 
-      dynamic "filter" {
-        for_each = rule.value.filter.prefix != "" || rule.value.filter.tags != null ? [1] : []
-        content {
-          and {
-            prefix = rule.value.filter.prefix
-            tags   = rule.value.filter.tags
-          }
-        }
+      expiration {
+        days = rule.value.expiration_days
       }
     }
   }

@@ -16,7 +16,6 @@ variable "lifecycle_config_rules" {
     expiration_days = number
     filter = optional(object({
       prefix = optional(string, "")
-      tags   = optional(map(string), null)
     }), {})
   }))
   default = []
