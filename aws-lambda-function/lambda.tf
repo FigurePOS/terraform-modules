@@ -33,7 +33,7 @@ resource "null_resource" "build_lambda" {
 # Upload the Lambda package to S3
 resource "aws_s3_object" "lambda_package" {
   bucket = data.aws_s3_bucket.lambda_deployment.bucket
-  key    = "${var.function_name}/${var.git_commit_hash}-${substr(local.source_files_hash, 0, 8)}.zip"
+  key    = "${var.function_name}/${local.source_files_hash}.zip"
 
   source      = local.zip_path
   source_hash = local.source_files_hash
