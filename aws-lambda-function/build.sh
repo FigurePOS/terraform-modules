@@ -14,10 +14,10 @@ if [ -z "$LAMBDA_NAME" ] || [ -z "$SOURCE_DIR" ]; then
   exit 1
 fi
 
-# Ensure SOURCE_DIR is absolute
-if [ "${SOURCE_DIR:0:1}" != "/" ]; then
-  SOURCE_DIR="$START_DIR/$SOURCE_DIR"
-fi
+case "$SOURCE_DIR" in
+  /*) ;;  # Absolute path, do nothing
+  *) SOURCE_DIR="$START_DIR/$SOURCE_DIR" ;;  # Relative path, make it absolute
+esac
 
 OUTPUT_DIR="$START_DIR/.build"
 mkdir -p "$OUTPUT_DIR"
