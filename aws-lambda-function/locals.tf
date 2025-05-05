@@ -18,10 +18,26 @@ locals {
     DD_ENV                    = var.env
     DD_SERVICE                = var.service_name
     DD_SERVICE_MAPPING        = "lambda_sqs:${var.service_name}"
-    DD_TAGS                   = "service:${var.service_name},git.commit.sha:${var.git_commit_hash},git.repository_url:${var.git_repository_url}"
+    DD_TAGS                   = "service:${var.service_name},git.commit.sha:${local.update_commit_hash},git.repository_url:${var.git_repository_url}"
   }
 
   environment_variables = merge(local.datadog_env_vars, var.environment_variables)
   datadog_layer_arn     = "arn:aws:lambda:${data.aws_region.current.name}:464622532012:layer:Datadog-Node22-x:124"
   scheduling_enabled    = var.schedule_expression != ""
+
+  source_code_hash = filebase64sha256("${path.module}/.build/${var.function_name}.zip")
+  
+  # Extract existing git commit hash from DD_TAGS if Lambda already exists
+  existing_commit_hash = try(
+    replace(
+      regexall("git.commit.sha:([^,]+)", 
+      try(aws_lambda_function.this.environment[0].variables.DD_TAGS, "")
+      )[0],
+      "git.commit.sha:", ""
+    ),
+    var.git_commit_hash # Default to current if Lambda doesn't exist yet
+  )
+  
+  # Only update commit hash if source code has changed
+  update_commit_hash = local.source_code_hash != aws_lambda_function.this.source_code_hash ? var.git_commit_hash : local.existing_commit_hash
 }
