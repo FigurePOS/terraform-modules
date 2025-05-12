@@ -6,6 +6,6 @@ data "aws_s3_bucket" "lambda_deployment" {
   bucket = "fgr-lambda-deployment-${var.env}"
 } 
 
-data "aws_ssm_parameter" "datadog_ecs_agent_api_key" {
-  name = "/secret.datadog.ecs_agent_api_key"
+data "aws_ssm_parameter" "datadog_api_key" {
+  name = "/lambda/datadog/api_key"
 }

@@ -13,7 +13,7 @@ locals {
 
   # Environment variables for Datadog integration
   datadog_env_vars = {
-    DD_API_KEY                = data.aws_ssm_parameter.datadog_ecs_agent_api_key.value
+    DD_API_KEY                = data.aws_ssm_parameter.datadog_api_key.value
     DD_CAPTURE_LAMBDA_PAYLOAD = true
     DD_ENV                    = var.env
     DD_SERVICE                = var.service_name
