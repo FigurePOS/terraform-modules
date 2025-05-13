@@ -13,12 +13,12 @@ locals {
 
   # Environment variables for Datadog integration
   datadog_env_vars = {
-    DD_API_KEY                = data.aws_ssm_parameter.datadog_ecs_agent_api_key.value
+    DD_API_KEY                = data.aws_ssm_parameter.datadog_api_key.value
     DD_CAPTURE_LAMBDA_PAYLOAD = true
     DD_ENV                    = var.env
     DD_SERVICE                = var.service_name
-    DD_SERVICE_MAPPING        = "lambda_sqs:${var.service_name}"
-    DD_TAGS                   = "service:${var.service_name},git.commit.sha:${var.git_commit_hash},git.repository_url:${var.git_repository_url}"
+    DD_SERVICE_MAPPING        = var.dd_service_mapping
+    DD_TAGS                   = "service:${var.service_name},git.repository_url:${var.git_repository_url}"
   }
 
   environment_variables = merge(local.datadog_env_vars, var.environment_variables)

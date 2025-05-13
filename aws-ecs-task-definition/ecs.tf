@@ -186,7 +186,7 @@ module "datadog_agent_definition" {
   secrets = [
     {
       name      = "DD_API_KEY",
-      valueFrom = "secret.datadog.ecs_agent_api_key"
+      valueFrom = "/ecs/datadog/api_key"
     }
   ]
 

@@ -1,3 +1,9 @@
+variable "dd_service_mapping" {
+  description = "Datadog service mapping for DD_SERVICE_MAPPING environment variable."
+  type        = string
+  default     = ""
+} 
+
 variable "description" {
   description = "Description of the Lambda function"
   type        = string
@@ -23,11 +29,13 @@ variable "function_name" {
 variable "git_commit_hash" {
   description = "Git commit hash for tagging"
   type        = string
+  default     = ""
 }
 
 variable "git_repository_url" {
   description = "Git repository URL for tagging"
   type        = string
+  default     = ""
 }
 
 variable "handler" {
@@ -47,10 +55,22 @@ variable "memory_size" {
   default     = 128
 }
 
+variable "output_dir" {
+  description = "Directory where build artifacts will be stored (defaults to .build in Terraform root)"
+  type        = string
+  default     = ".build"
+}
+
 variable "policy_documents" {
   description = "List of IAM policy documents for the Lambda function"
   type        = list(any)
   default     = []
+}
+
+variable "reserved_concurrent_executions" {
+  description = "Amount of reserved concurrent executions for this Lambda function. A value of 0 disables Lambda from being triggered and -1 removes any concurrency limitations. Defaults to -1 if not specified."
+  type        = number
+  default     = -1
 }
 
 variable "role_name" {
@@ -86,12 +106,6 @@ variable "source_dir" {
   type        = string
 }
 
-variable "output_dir" {
-  description = "Directory where build artifacts will be stored (defaults to .build in Terraform root)"
-  type        = string
-  default     = ".build"
-}
-
 variable "tags" {
   description = "Tags to attach to resources"
   type        = map(string)
@@ -104,12 +118,6 @@ variable "timeout" {
   default     = 30
 }
 
-variable "reserved_concurrent_executions" {
-  description = "Amount of reserved concurrent executions for this Lambda function. A value of 0 disables Lambda from being triggered and -1 removes any concurrency limitations. Defaults to -1 if not specified."
-  type        = number
-  default     = -1
-}
-
 variable "vpc_security_group_ids" {
   description = "List of security group IDs for Lambda VPC configuration"
   type        = list(string)
@@ -120,4 +128,4 @@ variable "vpc_subnet_ids" {
   description = "List of subnet IDs for Lambda VPC configuration"
   type        = list(string)
   default     = []
-} 
+}
