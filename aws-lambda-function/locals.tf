@@ -17,7 +17,7 @@ locals {
     DD_CAPTURE_LAMBDA_PAYLOAD = true
     DD_ENV                    = var.env
     DD_SERVICE                = var.service_name
-    DD_SERVICE_MAPPING        = "lambda_sqs:${var.service_name}"
+    DD_SERVICE_MAPPING        = var.dd_service_mapping
     DD_TAGS                   = "service:${var.service_name},git.repository_url:${var.git_repository_url}"
   }
 
