@@ -18,7 +18,7 @@ locals {
     DD_ENV                    = var.env
     DD_SERVICE                = var.service_name
     DD_SERVICE_MAPPING        = "lambda_sqs:${var.service_name}"
-    DD_TAGS                   = "service:${var.service_name},git.commit.sha:${var.git_commit_hash},git.repository_url:${var.git_repository_url}"
+    DD_TAGS                   = "service:${var.service_name},git.repository_url:${var.git_repository_url}"
   }
 
   environment_variables = merge(local.datadog_env_vars, var.environment_variables)
