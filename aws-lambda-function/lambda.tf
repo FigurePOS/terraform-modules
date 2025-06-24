@@ -58,7 +58,7 @@ resource "aws_lambda_function" "this" {
   //checkov:skip=CKV_AWS_272: "Ensure AWS Lambda function is configured to validate code-signing"
   function_name = var.function_name
   description   = var.description
-  handler       = var.handler
+  handler       = "/opt/nodejs/node_modules/datadog-lambda-js/handler.handler"
   runtime       = var.runtime
   timeout       = var.timeout
   memory_size   = var.memory_size

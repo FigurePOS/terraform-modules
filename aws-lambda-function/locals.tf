@@ -13,15 +13,23 @@ locals {
 
   # Environment variables for Datadog integration
   datadog_env_vars = {
-    DD_API_KEY                = data.aws_ssm_parameter.datadog_api_key.value
-    DD_CAPTURE_LAMBDA_PAYLOAD = true
-    DD_ENV                    = var.env
-    DD_SERVICE                = var.service_name
-    DD_SERVICE_MAPPING        = var.dd_service_mapping
-    DD_TAGS                   = "service:${var.service_name},git.repository_url:${var.git_repository_url}"
+    DD_API_KEY_SECRET_ARN        = data.aws_secretsmanager_secret.datadog_api_key.arn
+    DD_CAPTURE_LAMBDA_PAYLOAD    = true
+    DD_ENV                       = var.env
+    DD_LAMBDA_HANDLER            = var.handler
+    DD_PROFILING_ENABLED         = false
+    DD_SERVERLESS_APPSEC_ENABLED = false
+    DD_SERVICE                   = var.service_name
+    DD_SERVICE_MAPPING           = var.dd_service_mapping
+    DD_TAGS                      = "service:${var.service_name},git.repository_url:${var.git_repository_url}"
+    DD_TRACE_ENABLED             = true
+    DD_TRACE_OTEL_ENABLED        = false
   }
 
   environment_variables = merge(local.datadog_env_vars, var.environment_variables)
-  datadog_layer_arn     = "arn:aws:lambda:${data.aws_region.current.name}:464622532012:layer:Datadog-Node22-x:124"
-  scheduling_enabled    = var.schedule_expression != ""
+
+  datadog_layer_arn           = "arn:aws:lambda:${data.aws_region.current.name}:464622532012:layer:Datadog-Node22-x:${var.datadog_layer_version}"
+  datadog_extension_layer_arn = "arn:aws:lambda:${data.aws_region.current.name}:464622532012:layer:Datadog-Extension:${var.datadog_extension_layer_version}"
+
+  scheduling_enabled = var.schedule_expression != ""
 }

@@ -1,8 +1,20 @@
+variable "datadog_extension_layer_version" {
+  description = "Datadog extension layer version"
+  type        = string
+  default     = "81"
+}
+
+variable "datadog_layer_version" {
+  description = "Datadog layer version"
+  type        = string
+  default     = "125"
+}
+
 variable "dd_service_mapping" {
   description = "Datadog service mapping for DD_SERVICE_MAPPING environment variable."
   type        = string
   default     = ""
-} 
+}
 
 variable "description" {
   description = "Description of the Lambda function"
