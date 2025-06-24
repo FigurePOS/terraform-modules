@@ -13,7 +13,7 @@ locals {
 
   # Environment variables for Datadog integration
   datadog_env_vars = {
-    DD_API_KEY_SECRET_ARN        = data.aws_ssm_parameter.datadog_api_key.arn
+    DD_API_KEY_SECRET_ARN        = data.aws_secretsmanager_secret.datadog_api_key.arn
     DD_CAPTURE_LAMBDA_PAYLOAD    = true
     DD_ENV                       = var.env
     DD_LAMBDA_HANDLER            = var.handler

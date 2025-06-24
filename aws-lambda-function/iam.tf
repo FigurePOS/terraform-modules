@@ -44,7 +44,7 @@ resource "aws_iam_policy" "lambda_policy" {
           "secretsmanager:GetSecretValue"
         ]
         Resource = [
-          data.aws_ssm_parameter.datadog_api_key.arn
+          data.aws_secretsmanager_secret.datadog_api_key.arn
         ]
       }
     ])
