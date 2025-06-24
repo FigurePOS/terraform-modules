@@ -33,17 +33,25 @@ resource "aws_iam_role_policy_attachment" "lambda_vpc" {
 
 # Custom policy for resources access
 resource "aws_iam_policy" "lambda_policy" {
-  count       = length(var.policy_documents) > 0 ? 1 : 0
   name        = "${var.function_name}-policy"
-  description = "Custom policy for ${var.function_name} Lambda function"
+  description = "Policy for ${var.function_name} Lambda function"
   policy = jsonencode({
-    Version   = "2012-10-17"
-    Statement = var.policy_documents
+    Version = "2012-10-17"
+    Statement = concat(var.policy_documents, [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Resource = [
+          data.aws_ssm_parameter.datadog_api_key.arn
+        ]
+      }
+    ])
   })
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_custom_policy" {
-  count      = length(var.policy_documents) > 0 ? 1 : 0
   role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.lambda_policy[0].arn
+  policy_arn = aws_iam_policy.lambda_policy.arn
 }
