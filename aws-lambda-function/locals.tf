@@ -17,13 +17,13 @@ locals {
     DD_CAPTURE_LAMBDA_PAYLOAD    = true
     DD_ENV                       = var.env
     DD_LAMBDA_HANDLER            = var.handler
-    DD_PROFILING_ENABLED         = "false"
-    DD_SERVERLESS_APPSEC_ENABLED = "false"
+    DD_PROFILING_ENABLED         = false
+    DD_SERVERLESS_APPSEC_ENABLED = false
     DD_SERVICE                   = var.service_name
     DD_SERVICE_MAPPING           = var.dd_service_mapping
     DD_TAGS                      = "service:${var.service_name},git.repository_url:${var.git_repository_url}"
-    DD_TRACE_ENABLED             = "true"
-    DD_TRACE_OTEL_ENABLED        = "false"
+    DD_TRACE_ENABLED             = true
+    DD_TRACE_OTEL_ENABLED        = false
   }
 
   environment_variables = merge(local.datadog_env_vars, var.environment_variables)
