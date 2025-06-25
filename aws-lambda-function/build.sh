@@ -23,10 +23,6 @@ OUTPUT_DIR="$START_DIR/.build"
 mkdir -p "$OUTPUT_DIR"
 OUTPUT_ZIP="$OUTPUT_DIR/$LAMBDA_NAME.zip"
 
-echo "Building Lambda package for $LAMBDA_NAME"
-echo "Source directory: $SOURCE_DIR"
-echo "Output ZIP: $OUTPUT_ZIP"
-
 # Check if source directory exists
 if [ ! -d "$SOURCE_DIR" ]; then
   echo "ERROR: Source directory $SOURCE_DIR does not exist"
@@ -39,10 +35,8 @@ rm -f "$OUTPUT_ZIP"
 # Navigate to source directory
 cd "$SOURCE_DIR"
 
-echo "Installing dependencies..."
-npm ci
+npm ci --quiet --no-audit
 
-echo "Building TypeScript..."
 npm run build
 
 # Find the output directory from tsconfig.json
@@ -66,10 +60,8 @@ if [ ! -d "$TS_OUT_DIR" ]; then
   exit 1
 fi
 
-echo "Creating production package..."
 # Create a temp directory - use POSIX-compliant approach
 TMP_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'lambdabuild')
-echo "Temporary build directory: $TMP_DIR"
 
 # Copy package.json and install production dependencies
 cp "$SOURCE_DIR/package.json" "$SOURCE_DIR/package-lock.json" "$TMP_DIR/"
@@ -80,14 +72,12 @@ if [ -f "$SOURCE_DIR/.npmrc" ]; then
 fi
 
 cd "$TMP_DIR"
-npm ci --omit=dev
+npm ci --omit=dev --quiet --no-audit
 
 # Copy compiled files (using absolute paths)
-echo "Copying compiled files from $TS_OUT_DIR to $TMP_DIR"
 cp -r "$TS_OUT_DIR/"* "$TMP_DIR/" || echo "WARNING: Copy failed, but continuing"
 
 # Create zip - use quiet mode to suppress verbose output
-echo "Creating zip file at $OUTPUT_ZIP"
 # Use -X to strip file attributes and -o to set identical modification time
 # This makes zip output more deterministic across environments
 zip -r -q -X -o "$OUTPUT_ZIP" .
@@ -96,4 +86,3 @@ zip -r -q -X -o "$OUTPUT_ZIP" .
 cd "$START_DIR"
 rm -rf "$TMP_DIR"
 
-echo "Build completed successfully!" 
