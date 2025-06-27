@@ -43,12 +43,6 @@ BUILD_OUT_DIR="$SOURCE_DIR/.build"
 
 mkdir -p "$BUILD_OUT_DIR"
 
-if [ ! -d "$BUILD_OUT_DIR" ]; then
-  echo "ERROR: Build output directory $BUILD_OUT_DIR was not created"
-  echo "Make sure your build script outputs to '.build' directory"
-  exit 1
-fi
-
 TMP_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'lambdabuild')
 
 cp "$SOURCE_DIR/package.json" "$SOURCE_DIR/package-lock.json" "$TMP_DIR/"
