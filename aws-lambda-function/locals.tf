@@ -1,11 +1,12 @@
 locals {
   # Calculate a hash of the source code for determining when to rebuild
-  source_files_hash = sha256(join(",", [
+  source_files_hash = sha256(join(",", compact([
     filesha256("${var.source_dir}/package.json"),
     filesha256("${var.source_dir}/package-lock.json"),
-    filesha256("${var.source_dir}/tsconfig.json"),
+    fileexists("${var.source_dir}/tsconfig.json") ? filesha256("${var.source_dir}/tsconfig.json") : "",
+    fileexists("${var.source_dir}/esbuild.config.mjs") ? filesha256("${var.source_dir}/esbuild.config.mjs") : "",
     sha256(join("", [for f in fileset("${var.source_dir}", "**/*.ts") : filesha256("${var.source_dir}/${f}")]))
-  ]))
+  ])))
   lambda_name       = basename(var.source_dir) # Extract the lambda name from the source directory path
   build_output_dir  = abspath(pathexpand(var.output_dir))
   zip_path          = "${local.build_output_dir}/${local.lambda_name}.zip"
@@ -24,6 +25,7 @@ locals {
     DD_TAGS                      = "service:${var.service_name},git.repository_url:${var.git_repository_url}"
     DD_TRACE_ENABLED             = true
     DD_TRACE_OTEL_ENABLED        = false
+    NODE_OPTIONS                 = "--enable-source-maps"
   }
 
   environment_variables = merge(local.datadog_env_vars, var.environment_variables)
