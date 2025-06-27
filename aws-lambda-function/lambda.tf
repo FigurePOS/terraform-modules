@@ -7,20 +7,7 @@ resource "null_resource" "build_lambda" {
   }
 
   provisioner "local-exec" {
-    command = <<-EOT
-      mkdir -p "${local.build_output_dir}"
-      
-      sh ${local.build_script_path} ${local.lambda_name} ${var.source_dir}
-      
-      if [ ! -f "${local.zip_path}" ]; then
-        echo "ERROR: Build script failed to create zip file at ${local.zip_path}"
-        echo "Available files in build directory:"
-        ls -la "${local.build_output_dir}/"
-        exit 1
-      fi
-      
-      echo "Build successful, zip created at ${local.zip_path} ($(echo "scale=2; $(stat -f%z "${local.zip_path}" 2>/dev/null || stat -c%s "${local.zip_path}") / 1024 / 1024" | bc) MB)"
-    EOT
+    command = "sh ${local.build_script_path} ${local.lambda_name} ${var.source_dir}"
   }
 }
 

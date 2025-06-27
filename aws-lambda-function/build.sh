@@ -35,35 +35,31 @@ rm -f "$OUTPUT_ZIP"
 # Navigate to source directory
 cd "$SOURCE_DIR"
 
+# Install dependencies
 npm ci --quiet --no-audit
 
-npm run build
-
-# Find the output directory from tsconfig.json
-if grep -q "outDir" tsconfig.json; then
-  TS_OUT_DIR=$(grep -o '"outDir":[^,}]*' tsconfig.json | cut -d'"' -f4)
-  echo "TypeScript output directory from tsconfig.json: $TS_OUT_DIR"
-else
-  TS_OUT_DIR=".build"
-  echo "No outDir in tsconfig.json, defaulting to '.build'"
-fi
-
-# Use absolute path for TS_OUT_DIR
-TS_OUT_DIR="$SOURCE_DIR/$TS_OUT_DIR"
-
-# Check if TS output directory was created
-if [ ! -d "$TS_OUT_DIR" ]; then
-  echo "ERROR: TypeScript output directory $TS_OUT_DIR was not created"
-  ls -la "$SOURCE_DIR"
-  echo "Looking for any .js files in source directory:"
-  find "$SOURCE_DIR" -name "*.js" | grep -v node_modules
+# Check if build script exists and run it
+if ! npm run build --silent; then
+  echo "ERROR: Build failed. Make sure 'npm run build' is properly configured."
   exit 1
 fi
 
-# Create a temp directory - use POSIX-compliant approach
+# Use standard .build directory for output
+BUILD_OUT_DIR="$SOURCE_DIR/.build"
+
+mkdir -p "$BUILD_OUT_DIR"
+
+# Check if build output directory was created
+if [ ! -d "$BUILD_OUT_DIR" ]; then
+  echo "ERROR: Build output directory $BUILD_OUT_DIR was not created"
+  echo "Make sure your build script outputs to '.build' directory"
+  exit 1
+fi
+
+# Create a temp directory
 TMP_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'lambdabuild')
 
-# Copy package.json and install production dependencies
+# Copy package files for dependency installation
 cp "$SOURCE_DIR/package.json" "$SOURCE_DIR/package-lock.json" "$TMP_DIR/"
 
 # Copy .npmrc if it exists (for private packages)
@@ -71,18 +67,27 @@ if [ -f "$SOURCE_DIR/.npmrc" ]; then
   cp "$SOURCE_DIR/.npmrc" "$TMP_DIR/"
 fi
 
+# Install production dependencies
 cd "$TMP_DIR"
 npm ci --omit=dev --quiet --no-audit
 
-# Copy compiled files (using absolute paths)
-cp -r "$TS_OUT_DIR/"* "$TMP_DIR/" || echo "WARNING: Copy failed, but continuing"
+# Remove AWS SDK packages (available in Lambda runtime)
+rm -rf node_modules/@aws-sdk
 
-# Create zip - use quiet mode to suppress verbose output
-# Use -X to strip file attributes and -o to set identical modification time
-# This makes zip output more deterministic across environments
+# Copy compiled files
+cp -r "$BUILD_OUT_DIR/"* "$TMP_DIR/"
+
+# Create zip
+cd "$TMP_DIR"
 zip -r -q -X -o "$OUTPUT_ZIP" .
 
 # Clean up
 cd "$START_DIR"
 rm -rf "$TMP_DIR"
 
+if [ ! -f "$OUTPUT_ZIP" ]; then
+  echo "ERROR: Build script failed to create zip file at $OUTPUT_ZIP"
+  exit 1
+fi
+
+echo "Build successful, zip created at $OUTPUT_ZIP ($(echo "scale=2; $(stat -f%z "$OUTPUT_ZIP" 2>/dev/null || stat -c%s "$OUTPUT_ZIP") / 1024 / 1024" | bc) MB)"
