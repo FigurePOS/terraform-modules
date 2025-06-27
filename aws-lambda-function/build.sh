@@ -23,65 +23,50 @@ OUTPUT_DIR="$START_DIR/.build"
 mkdir -p "$OUTPUT_DIR"
 OUTPUT_ZIP="$OUTPUT_DIR/$LAMBDA_NAME.zip"
 
-# Check if source directory exists
 if [ ! -d "$SOURCE_DIR" ]; then
   echo "ERROR: Source directory $SOURCE_DIR does not exist"
   exit 1
 fi
 
-# Clean up any existing zip
 rm -f "$OUTPUT_ZIP"
 
-# Navigate to source directory
 cd "$SOURCE_DIR"
 
-# Install dependencies
 npm ci --quiet --no-audit
 
-# Check if build script exists and run it
 if ! npm run build --silent; then
   echo "ERROR: Build failed. Make sure 'npm run build' is properly configured."
   exit 1
 fi
 
-# Use standard .build directory for output
 BUILD_OUT_DIR="$SOURCE_DIR/.build"
 
 mkdir -p "$BUILD_OUT_DIR"
 
-# Check if build output directory was created
 if [ ! -d "$BUILD_OUT_DIR" ]; then
   echo "ERROR: Build output directory $BUILD_OUT_DIR was not created"
   echo "Make sure your build script outputs to '.build' directory"
   exit 1
 fi
 
-# Create a temp directory
 TMP_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'lambdabuild')
 
-# Copy package.json and install production dependencies
 cp "$SOURCE_DIR/package.json" "$SOURCE_DIR/package-lock.json" "$TMP_DIR/"
 
-# Copy .npmrc if it exists (for private packages)
 if [ -f "$SOURCE_DIR/.npmrc" ]; then
   cp "$SOURCE_DIR/.npmrc" "$TMP_DIR/"
 fi
 
-# Install production dependencies
 cd "$TMP_DIR"
 npm ci --omit=dev --quiet --no-audit
 
-# Clean up unnecessary files
 rm -rf package.json package-lock.json .npmrc
 
-# Copy compiled files
 cp -r "$BUILD_OUT_DIR/"* "$TMP_DIR/"
 
-# Create zip
 cd "$TMP_DIR"
 zip -r -q -X -o "$OUTPUT_ZIP" .
 
-# Clean up
 cd "$START_DIR"
 rm -rf "$TMP_DIR"
 
