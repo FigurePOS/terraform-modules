@@ -59,9 +59,6 @@ fi
 # Create a temp directory
 TMP_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'lambdabuild')
 
-# Copy package files for dependency installation
-cp "$SOURCE_DIR/package.json" "$SOURCE_DIR/package-lock.json" "$TMP_DIR/"
-
 # Copy .npmrc if it exists (for private packages)
 if [ -f "$SOURCE_DIR/.npmrc" ]; then
   cp "$SOURCE_DIR/.npmrc" "$TMP_DIR/"
@@ -73,6 +70,9 @@ npm ci --omit=dev --quiet --no-audit
 
 # Remove AWS SDK packages (available in Lambda runtime)
 rm -rf node_modules/@aws-sdk
+
+# Clean up unnecessary files
+rm -rf package.json package-lock.json .npmrc
 
 # Copy compiled files
 cp -r "$BUILD_OUT_DIR/"* "$TMP_DIR/"
