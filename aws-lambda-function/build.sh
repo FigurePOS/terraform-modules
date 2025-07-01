@@ -23,50 +23,30 @@ OUTPUT_DIR="$START_DIR/.build"
 mkdir -p "$OUTPUT_DIR"
 OUTPUT_ZIP="$OUTPUT_DIR/$LAMBDA_NAME.zip"
 
-# Check if source directory exists
 if [ ! -d "$SOURCE_DIR" ]; then
   echo "ERROR: Source directory $SOURCE_DIR does not exist"
   exit 1
 fi
 
-# Clean up any existing zip
 rm -f "$OUTPUT_ZIP"
 
-# Navigate to source directory
 cd "$SOURCE_DIR"
 
 npm ci --quiet --no-audit
 
-npm run build
-
-# Find the output directory from tsconfig.json
-if grep -q "outDir" tsconfig.json; then
-  TS_OUT_DIR=$(grep -o '"outDir":[^,}]*' tsconfig.json | cut -d'"' -f4)
-  echo "TypeScript output directory from tsconfig.json: $TS_OUT_DIR"
-else
-  TS_OUT_DIR=".build"
-  echo "No outDir in tsconfig.json, defaulting to '.build'"
-fi
-
-# Use absolute path for TS_OUT_DIR
-TS_OUT_DIR="$SOURCE_DIR/$TS_OUT_DIR"
-
-# Check if TS output directory was created
-if [ ! -d "$TS_OUT_DIR" ]; then
-  echo "ERROR: TypeScript output directory $TS_OUT_DIR was not created"
-  ls -la "$SOURCE_DIR"
-  echo "Looking for any .js files in source directory:"
-  find "$SOURCE_DIR" -name "*.js" | grep -v node_modules
+if ! npm run build --silent; then
+  echo "ERROR: Build failed. Make sure 'npm run build' is properly configured."
   exit 1
 fi
 
-# Create a temp directory - use POSIX-compliant approach
+BUILD_OUT_DIR="$SOURCE_DIR/.build"
+
+mkdir -p "$BUILD_OUT_DIR"
+
 TMP_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'lambdabuild')
 
-# Copy package.json and install production dependencies
 cp "$SOURCE_DIR/package.json" "$SOURCE_DIR/package-lock.json" "$TMP_DIR/"
 
-# Copy .npmrc if it exists (for private packages)
 if [ -f "$SOURCE_DIR/.npmrc" ]; then
   cp "$SOURCE_DIR/.npmrc" "$TMP_DIR/"
 fi
@@ -74,15 +54,19 @@ fi
 cd "$TMP_DIR"
 npm ci --omit=dev --quiet --no-audit
 
-# Copy compiled files (using absolute paths)
-cp -r "$TS_OUT_DIR/"* "$TMP_DIR/" || echo "WARNING: Copy failed, but continuing"
+rm -rf package.json package-lock.json .npmrc
 
-# Create zip - use quiet mode to suppress verbose output
-# Use -X to strip file attributes and -o to set identical modification time
-# This makes zip output more deterministic across environments
+cp -r "$BUILD_OUT_DIR/"* "$TMP_DIR/"
+
+cd "$TMP_DIR"
 zip -r -q -X -o "$OUTPUT_ZIP" .
 
-# Clean up
 cd "$START_DIR"
 rm -rf "$TMP_DIR"
 
+if [ ! -f "$OUTPUT_ZIP" ]; then
+  echo "ERROR: Build script failed to create zip file at $OUTPUT_ZIP"
+  exit 1
+fi
+
+echo "Build successful, zip created at $OUTPUT_ZIP ($(echo "scale=2; $(stat -f%z "$OUTPUT_ZIP" 2>/dev/null || stat -c%s "$OUTPUT_ZIP") / 1024 / 1024" | bc) MB)"
