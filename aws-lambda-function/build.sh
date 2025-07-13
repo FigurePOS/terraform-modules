@@ -32,16 +32,21 @@ rm -f "$OUTPUT_ZIP"
 
 cd "$SOURCE_DIR"
 
-npm ci --quiet --no-audit
+npm ci --quiet --no-audit --no-fund
+
+BUILD_OUT_DIR="$SOURCE_DIR/.build"
+mkdir -p "$BUILD_OUT_DIR"
 
 if ! npm run build --silent; then
   echo "ERROR: Build failed. Make sure 'npm run build' is properly configured."
   exit 1
 fi
 
-BUILD_OUT_DIR="$SOURCE_DIR/.build"
-
-mkdir -p "$BUILD_OUT_DIR"
+if [ -z "$(ls -A "$BUILD_OUT_DIR" 2>/dev/null)" ]; then
+  echo "ERROR: Build output directory $BUILD_OUT_DIR is empty"
+  echo "Build command succeeded but did not create any output files"
+  exit 1
+fi
 
 TMP_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'lambdabuild')
 
@@ -52,7 +57,7 @@ if [ -f "$SOURCE_DIR/.npmrc" ]; then
 fi
 
 cd "$TMP_DIR"
-npm ci --omit=dev --quiet --no-audit
+npm ci --omit=dev --quiet --no-audit --no-fund
 
 rm -rf package.json package-lock.json .npmrc
 
