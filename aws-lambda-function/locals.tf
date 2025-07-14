@@ -30,8 +30,8 @@ locals {
 
   environment_variables = merge(local.datadog_env_vars, var.environment_variables)
 
-  datadog_layer_arn           = "arn:aws:lambda:${data.aws_region.current.name}:464622532012:layer:Datadog-Node22-x:${var.datadog_layer_version}"
-  datadog_extension_layer_arn = "arn:aws:lambda:${data.aws_region.current.name}:464622532012:layer:Datadog-Extension:${var.datadog_extension_layer_version}"
+  datadog_layer_arn           = "arn:aws:lambda:${data.aws_region.current.region}:464622532012:layer:Datadog-Node22-x:${var.datadog_layer_version}"
+  datadog_extension_layer_arn = "arn:aws:lambda:${data.aws_region.current.region}:464622532012:layer:Datadog-Extension:${var.datadog_extension_layer_version}"
 
   scheduling_enabled = var.schedule_expression != ""
 }
