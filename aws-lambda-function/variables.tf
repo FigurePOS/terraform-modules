@@ -1,13 +1,13 @@
 variable "datadog_extension_layer_version" {
   description = "Datadog extension layer version"
-  type        = string
-  default     = "81"
+  type        = number
+  default     = 83
 }
 
 variable "datadog_layer_version" {
   description = "Datadog layer version"
-  type        = string
-  default     = "125"
+  type        = number
+  default     = 127
 }
 
 variable "dd_service_mapping" {

@@ -53,7 +53,11 @@ resource "aws_lambda_function" "this" {
   reserved_concurrent_executions = var.reserved_concurrent_executions
 
   publish = true
-  layers  = concat([local.datadog_layer_arn, local.datadog_extension_layer_arn], var.layers)
+  layers = concat(
+    var.datadog_layer_version != 0 ? [local.datadog_layer_arn] : [],
+    var.datadog_extension_layer_version != 0 ? [local.datadog_extension_layer_arn] : [],
+    var.layers
+  )
 
   depends_on = [
     aws_cloudwatch_log_group.lambda,
