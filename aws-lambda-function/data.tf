@@ -7,5 +7,5 @@ data "aws_s3_bucket" "lambda_deployment" {
 } 
 
 data "aws_secretsmanager_secret" "datadog_api_key" {
-  name = "/lambda/datadog/api_key"
+  name = "datadog-lambda-api-key"
 }
