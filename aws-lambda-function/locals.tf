@@ -7,9 +7,8 @@ locals {
     fileexists("${var.source_dir}/esbuild.config.mjs") ? filesha256("${var.source_dir}/esbuild.config.mjs") : "",
     sha256(join("", [for f in fileset("${var.source_dir}", "**/*.ts") : filesha256("${var.source_dir}/${f}")]))
   ])))
-  lambda_name       = basename(var.source_dir) # Extract the lambda name from the source directory path
   build_output_dir  = abspath(pathexpand(var.output_dir))
-  zip_path          = "${local.build_output_dir}/${local.lambda_name}.zip"
+  zip_path          = "${local.build_output_dir}/${var.function_name}.zip"
   build_script_path = "${path.module}/build.sh"
 
   # Environment variables for Datadog integration

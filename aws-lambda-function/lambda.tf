@@ -7,7 +7,7 @@ resource "null_resource" "build_lambda" {
   }
 
   provisioner "local-exec" {
-    command = "sh ${local.build_script_path} ${local.lambda_name} ${var.source_dir}"
+    command = "sh ${local.build_script_path} ${var.function_name} ${var.source_dir}"
   }
 }
 
