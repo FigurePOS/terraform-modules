@@ -67,11 +67,6 @@ variable "memory_size" {
   default     = 128
 }
 
-variable "output_dir" {
-  description = "Directory where build artifacts will be stored (defaults to .build in Terraform root)"
-  type        = string
-  default     = ".build"
-}
 
 variable "policy_documents" {
   description = "List of IAM policy documents for the Lambda function"

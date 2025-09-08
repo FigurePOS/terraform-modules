@@ -1,0 +1,22 @@
+# Lambda build artifacts
+.build/
+*.zip
+.tmp-build-*
+
+# Terraform files (if module is used standalone)
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.tfplan
+*.tfvars
+.terraform.tfstate.lock.info
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

@@ -1,15 +1,26 @@
 locals {
   # Calculate a hash of the source code for determining when to rebuild
-  source_files_hash = sha256(join(",", compact([
-    filesha256("${var.source_dir}/package.json"),
-    filesha256("${var.source_dir}/package-lock.json"),
-    fileexists("${var.source_dir}/tsconfig.json") ? filesha256("${var.source_dir}/tsconfig.json") : "",
-    fileexists("${var.source_dir}/esbuild.config.mjs") ? filesha256("${var.source_dir}/esbuild.config.mjs") : "",
-    sha256(join("", [for f in fileset("${var.source_dir}", "**/*.ts") : filesha256("${var.source_dir}/${f}")]))
-  ])))
-  build_output_dir  = abspath(pathexpand(var.output_dir))
-  zip_path          = "${local.build_output_dir}/${var.function_name}.zip"
-  build_script_path = "${path.module}/build.sh"
+  # Only includes files that actually affect the build output
+  source_files = {
+    package_json      = fileexists("${var.source_dir}/package.json") ? file("${var.source_dir}/package.json") : ""
+    package_lock_json = fileexists("${var.source_dir}/package-lock.json") ? file("${var.source_dir}/package-lock.json") : ""
+    tsconfig          = fileexists("${var.source_dir}/tsconfig.json") ? file("${var.source_dir}/tsconfig.json") : ""
+    esbuild_config    = fileexists("${var.source_dir}/esbuild.config.mjs") ? file("${var.source_dir}/esbuild.config.mjs") : ""
+    # Sort source files for consistent hash across machines
+    source_files      = join("", [for f in sort(fileset("${var.source_dir}", "src/**/*.ts")) : file("${var.source_dir}/${f}")])
+  }
+  
+  # Create a stable hash that's consistent across machines and file systems
+  source_files_hash = sha256(jsonencode({
+    files = local.source_files
+    # Include function name to ensure different functions have different hashes
+    function_name = var.function_name
+  }))
+  
+  # Build directories - use module-relative paths for consistency across machines
+  build_dir        = "${path.module}/.build/${var.function_name}"
+  build_output_dir = "${local.build_dir}/dist"
+  zip_output_path  = "${path.module}/.build/${var.function_name}.zip"
 
   # Environment variables for Datadog integration
   datadog_env_vars = {
