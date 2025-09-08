@@ -1,13 +1,17 @@
-# Build the Lambda package
+# Build and package the Lambda
 resource "null_resource" "build_lambda" {
-  # Only rebuild when source code or build script changes
+  # Rebuild when source code or configuration changes
   triggers = {
     source_code_hash = local.source_files_hash
-    script_hash      = filesha256(local.build_script_path)
+    # Also trigger on configuration changes
+    handler         = var.handler
+    runtime         = var.runtime
+    environment     = jsonencode(var.environment_variables)
+    source_dir      = var.source_dir
   }
 
   provisioner "local-exec" {
-    command = "sh ${local.build_script_path} ${var.function_name} ${var.source_dir}"
+    command = "sh ${path.module}/build.sh ${var.function_name} ${abspath(var.source_dir)} ${abspath(local.zip_output_path)}"
   }
 }
 
@@ -16,10 +20,18 @@ resource "aws_s3_object" "lambda_package" {
   bucket = data.aws_s3_bucket.lambda_deployment.bucket
   key    = "${var.function_name}/${local.source_files_hash}.zip"
 
-  source      = local.zip_path
+  source = local.zip_output_path
+  
+  # Use the source code hash for change detection
   source_hash = local.source_files_hash
 
+  # Ensure we don't upload until the package is built
   depends_on = [null_resource.build_lambda]
+  
+  lifecycle {
+    # Replace the object if the source changes
+    create_before_destroy = true
+  }
 }
 
 # CloudWatch Log Group for Lambda
