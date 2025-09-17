@@ -110,7 +110,7 @@ module "my_sqs_queue" {
 ## Alarm Details
 
 ### Message Count Alarms
-- **Period**: 5 minutes (configurable via `cloudwatch_period_seconds`)
+- **Period**: 1 minute (configurable via `cloudwatch_period_seconds`)
 - **Evaluation**: 1 period by default (configurable via `cloudwatch_evaluation_periods`)
 - **Statistic**: Average
 - **Missing Data**: Not breaching
@@ -119,7 +119,7 @@ module "my_sqs_queue" {
 - Uses CloudWatch metric math with `RATE()` function
 - Detects increasing trend in DLQ messages
 - More sensitive than absolute count thresholds
-- Requires two consecutive 5-minute breaches (datapoints_to_alarm=2, evaluation_periods≥2)
+- Requires two consecutive 1-minute breaches (datapoints_to_alarm=2, evaluation_periods≥2)
 - By default routes to Slack only; Rootly can be enabled post‑testing
 
 ### Message Age Alarm

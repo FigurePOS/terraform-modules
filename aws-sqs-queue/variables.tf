@@ -13,7 +13,7 @@ variable "cloudwatch_evaluation_periods" {
 variable "cloudwatch_period_seconds" {
   type        = number
   description = "The period in seconds for CloudWatch metric evaluation."
-  default     = 300  # 5 minutes 
+  default     = 60  # 1 minute for fastest alerts
 }
 
 variable "datadog_identifier" {
