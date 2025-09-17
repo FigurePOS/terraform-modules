@@ -11,7 +11,7 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_critical" {
   alarm_name        = "${local.alarm_name_prefix}-dlq-messages-critical-${aws_sqs_queue.dlq.name}"
   alarm_description = "Dead letter queue ${aws_sqs_queue.dlq.name} has messages"
 
-  metric_name = "ApproximateNumberOfVisibleMessages"
+  metric_name = "ApproximateNumberOfMessagesVisible"
   namespace   = "AWS/SQS"
   statistic   = "Average"
   period      = var.cloudwatch_period_seconds
@@ -43,8 +43,9 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing" {
 
   comparison_operator = "GreaterThanThreshold"
   threshold           = var.dlq_messages_increase_threshold
-  evaluation_periods  = var.cloudwatch_evaluation_periods
-  datapoints_to_alarm = 2  # Require more datapoints to reduce false positives
+  # Require two consecutive periods breaching; ensure periods >= 2
+  evaluation_periods  = max(var.cloudwatch_evaluation_periods, 2)
+  datapoints_to_alarm = 2
   treat_missing_data  = "notBreaching"
 
   metric_query {
@@ -52,7 +53,7 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing" {
     return_data = false
 
     metric {
-      metric_name = "ApproximateNumberOfVisibleMessages"
+      metric_name = "ApproximateNumberOfMessagesVisible"
       namespace   = "AWS/SQS"
       period      = var.cloudwatch_period_seconds
       stat        = "Average"
@@ -87,7 +88,7 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_critical" {
   alarm_name        = "${local.alarm_name_prefix}-messages-critical-${var.queue_name}"
   alarm_description = "SQS queue ${var.queue_name} has high number of messages (critical)"
 
-  metric_name = "ApproximateNumberOfVisibleMessages"
+  metric_name = "ApproximateNumberOfMessagesVisible"
   namespace   = "AWS/SQS"
   statistic   = "Average"
   period      = var.cloudwatch_period_seconds
@@ -116,7 +117,7 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_warning" {
   alarm_name        = "${local.alarm_name_prefix}-messages-warning-${var.queue_name}"
   alarm_description = "SQS queue ${var.queue_name} has high number of messages (warning)"
 
-  metric_name = "ApproximateNumberOfVisibleMessages"
+  metric_name = "ApproximateNumberOfMessagesVisible"
   namespace   = "AWS/SQS"
   statistic   = "Average"
   period      = var.cloudwatch_period_seconds
