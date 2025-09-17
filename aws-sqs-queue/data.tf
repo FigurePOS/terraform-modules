@@ -3,9 +3,11 @@ data "aws_kms_key" "sqs_encryption_key" {
 }
 
 data "aws_sns_topic" "chatbot_slack" {
-  name = "cloudwatch-sqs-alarms-to-slack"
+  count = local.cloudwatch_count
+  name  = "cloudwatch-sqs-alarms-to-slack"
 }
 
 data "aws_sns_topic" "rootly_oncall" {
-  name = "alerts-to-rootly"
+  count = local.cloudwatch_count
+  name  = "alerts-to-rootly"
 }
