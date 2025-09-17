@@ -1,6 +1,6 @@
 # CloudWatch Alarms for SQS Queues
 
-This module now supports CloudWatch alarms alongside Datadog monitoring for faster alerting with reduced latency (5-10 minutes vs 15-20 minutes).
+This module adds CloudWatch alarms for faster, low-latency alerting (≈5–10 minutes) compared to Datadog delays.
 
 ## Features
 
@@ -13,7 +13,7 @@ The CloudWatch alarms provide monitoring for:
    - Critical threshold alarm when any messages appear
 3. **Dead Letter Queue Increasing Messages**
    - Alarm when messages are being added to DLQ (rate of increase)
-   - Routed to Slack and Rootly (pages Rootly OnCall)
+   - Routed to Slack by default. Rootly paging can be enabled after testing (see note below).
 4. Message Age alarm has been removed from this module
 
 ## Usage
@@ -33,8 +33,10 @@ module "my_sqs_queue" {
   enable_cloudwatch_alarms = true
 
   # SNS topics are auto-resolved by name via data sources
-  
-  # CloudWatch alarm thresholds (same as Datadog by default)
+  # - cloudwatch-sqs-alarms-to-slack (Slack via AWS Chatbot)
+  # - alerts-to-rootly (Rootly via Lambda) — optional, currently disabled in code pending testing
+
+  # CloudWatch alarm thresholds
   queue_messages_warning  = 25
   queue_messages_critical = 100
   dlq_messages_critical   = 1  # Any message in DLQ is critical
@@ -42,12 +44,8 @@ module "my_sqs_queue" {
   # Rate of increase threshold for DLQ
   dlq_messages_increase_threshold = 1  # messages per second
   
-  # Optional: Enable message age monitoring
-  enable_message_age_alarm     = true
-  message_age_threshold_seconds = 900  # 15 minutes
-  
-  # Tags for CloudWatch alarms
-  cloudwatch_tags = {
+  # Tags applied to all AWS resources in this module (SQS + alarms)
+  tags = {
     Team        = "platform"
     Environment = "production"
   }
@@ -74,19 +72,14 @@ resource "aws_sns_topic_subscription" "email_alerts" {
 }
 ```
 
-### Built-in data sources for default routing
+### Built-in data sources for routing
 
-The module will automatically look up these SNS topics by name and use them for routing:
+The module looks up these SNS topics by name and uses them for routing:
 
 - `cloudwatch-sqs-alarms-to-slack` (Slack via AWS Chatbot)
 - `alerts-to-rootly` (Rootly OnCall via Lambda)
 
-If they do not exist in the account/region, you can set variables instead:
-
-```hcl
-cloudwatch_sns_topic_slack_arn  = aws_sns_topic.slack_alerts.arn
-cloudwatch_sns_topic_rootly_arn = aws_sns_topic.rootly_alerts.arn
-```
+If they do not exist in the account/region, create them or update the module to reference your naming.
 
 ### Hybrid Approach (Datadog + CloudWatch)
 
@@ -117,8 +110,8 @@ module "my_sqs_queue" {
 ## Alarm Details
 
 ### Message Count Alarms
-- **Period**: 15 minutes (configurable)
-- **Evaluation**: 4 periods by default (≈1 hour window)
+- **Period**: 5 minutes (configurable via `cloudwatch_period_seconds`)
+- **Evaluation**: 1 period by default (configurable via `cloudwatch_evaluation_periods`)
 - **Statistic**: Average
 - **Missing Data**: Not breaching
 
@@ -126,10 +119,11 @@ module "my_sqs_queue" {
 - Uses CloudWatch metric math with `RATE()` function
 - Detects increasing trend in DLQ messages
 - More sensitive than absolute count thresholds
-- Pages Rootly via separate SNS topic in addition to Slack
+- Requires two consecutive 5-minute breaches (datapoints_to_alarm=2, evaluation_periods≥2)
+- By default routes to Slack only; Rootly can be enabled post‑testing
 
 ### Message Age Alarm
-Removed from module. If needed, create it in your root module.
+Removed from this module. If needed, implement it in your root module.
 
 ## Cost Considerations
 
