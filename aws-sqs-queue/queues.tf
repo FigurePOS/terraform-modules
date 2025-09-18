@@ -13,6 +13,8 @@ resource "aws_sqs_queue" "queue" {
     deadLetterTargetArn = aws_sqs_queue.dlq.arn
     maxReceiveCount     = var.redrive_policy_count
   })
+
+  tags = local.tags
 }
 
 resource "aws_sqs_queue" "dlq" {
@@ -22,6 +24,8 @@ resource "aws_sqs_queue" "dlq" {
 
   kms_master_key_id                 = data.aws_kms_key.sqs_encryption_key.id
   kms_data_key_reuse_period_seconds = 300
+
+  tags = local.tags
 }
 
 module "dd_sqs_input_queue" {
