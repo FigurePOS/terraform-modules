@@ -54,7 +54,7 @@ variable "dlq_name" {
 variable "enable_cloudwatch_alarms" {
   type        = bool
   description = "Whether to enable CloudWatch alarms for the SQS queues."
-  default     = false
+  default     = true
 }
 
 variable "env" {
