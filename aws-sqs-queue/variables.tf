@@ -86,6 +86,12 @@ variable "message_retention_seconds_ddl" {
   default     = 1209600
 }
 
+variable "queue_message_age_threshold_seconds" {
+  type        = number
+  description = "The maximum acceptable age in seconds for the oldest message in the main queue before alarming."
+  default     = 900
+}
+
 variable "queue_messages_critical" {
   type        = number
   description = "The number of messages in the queue to trigger a critical alert."

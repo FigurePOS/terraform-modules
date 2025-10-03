@@ -14,7 +14,9 @@ The CloudWatch alarms provide monitoring for:
 3. **Dead Letter Queue Increasing Messages**
    - Alarm when messages are being added to DLQ (rate of increase)
    - Routed to Slack by default. Rootly paging can be enabled after testing (see note below).
-4. Message Age alarm has been removed from this module
+4. **Message Age (Oldest Message) in Main Queue**
+   - Critical alarm on `ApproximateAgeOfOldestMessage` exceeding threshold
+   - Defaults to 15 minutes; configurable via `queue_message_age_threshold_seconds`
 
 ## Usage
 
@@ -40,6 +42,9 @@ module "my_sqs_queue" {
   queue_messages_warning  = 25
   queue_messages_critical = 100
   dlq_messages_critical   = 1  # Any message in DLQ is critical
+  
+  # Oldest message age (seconds)
+  queue_message_age_threshold_seconds = 900  # 15 minutes
   
   # Rate of increase threshold for DLQ
   dlq_messages_increase_threshold = 1  # messages per second
@@ -123,7 +128,13 @@ module "my_sqs_queue" {
 - By default routes to Slack only; Rootly can be enabled post‑testing
 
 ### Message Age Alarm
-Removed from this module. If needed, implement it in your root module.
+Monitors `AWS/SQS` metric `ApproximateAgeOfOldestMessage` on the main queue.
+
+- **Period**: uses `cloudwatch_period_seconds` (default 60s)
+- **Evaluation**: requires two consecutive breaches (datapoints_to_alarm=2, evaluation_periods≥2)
+- **Statistic**: Maximum
+- **Threshold**: `queue_message_age_threshold_seconds` (default 900s = 15m)
+- **Missing Data**: Not breaching
 
 ## Cost Considerations
 
