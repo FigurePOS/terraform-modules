@@ -137,3 +137,32 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_warning" {
 
   tags = local.tags
 }
+
+# CloudWatch alarm for main queue message age (critical)
+resource "aws_cloudwatch_metric_alarm" "sqs_oldest_message_age_critical" {
+  count = local.cloudwatch_count
+
+  alarm_name        = "${local.alarm_name_prefix}-age-critical-${var.queue_name}"
+  alarm_description = "SQS queue ${var.queue_name} has old messages exceeding threshold"
+
+  metric_name = "ApproximateAgeOfOldestMessage"
+  namespace   = "AWS/SQS"
+  statistic   = "Maximum"
+  period      = var.cloudwatch_period_seconds
+
+  dimensions = {
+    QueueName = aws_sqs_queue.queue.name
+  }
+
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = var.queue_message_age_threshold_seconds
+  evaluation_periods  = max(var.cloudwatch_evaluation_periods, 2)
+  datapoints_to_alarm = 2
+  treat_missing_data  = "notBreaching"
+
+  alarm_actions             = data.aws_sns_topic.chatbot_slack[*].arn
+  ok_actions                = data.aws_sns_topic.chatbot_slack[*].arn
+  insufficient_data_actions = []
+
+  tags = local.tags
+}
