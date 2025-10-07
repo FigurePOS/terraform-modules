@@ -5,6 +5,7 @@ resource "aws_sqs_queue" "queue" {
 
   deduplication_scope   = var.fifo_queue ? var.deduplication_scope : null
   fifo_throughput_limit = var.fifo_queue ? var.fifo_throughput_limit : null
+  max_message_size      = 1048576
 
   kms_master_key_id                 = data.aws_kms_key.sqs_encryption_key.id
   kms_data_key_reuse_period_seconds = 300
