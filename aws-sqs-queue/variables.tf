@@ -98,6 +98,12 @@ variable "queue_messages_count_threshold" {
   default     = 100
 }
 
+variable "queue_messages_count_threshold_warning" {
+  type        = number
+  description = "The number of messages in the queue to trigger a warning alert."
+  default     = 25
+}
+
 variable "queue_name" {
   type        = string
   description = "The name of the queue."
