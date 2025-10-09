@@ -33,9 +33,9 @@ variable "deduplication_scope" {
   default     = "queue"
 }
 
-variable "dlq_messages_critical" {
+variable "dlq_messages_count_threshold" {
   type        = number
-  description = "The number of messages in the dead letter queue to trigger a critical alert."
+  description = "The number of messages in the dead letter queue to trigger an alarm."
   default     = 50
 }
 
@@ -92,16 +92,10 @@ variable "queue_message_age_threshold_seconds" {
   default     = 900
 }
 
-variable "queue_messages_critical" {
+variable "queue_messages_count_threshold" {
   type        = number
   description = "The number of messages in the queue to trigger a critical alert."
   default     = 100
-}
-
-variable "queue_messages_warning" {
-  type        = number
-  description = "The number of messages in the queue to trigger a warning."
-  default     = 25
 }
 
 variable "queue_name" {
