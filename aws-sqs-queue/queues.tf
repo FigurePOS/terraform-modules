@@ -37,7 +37,7 @@ module "dd_sqs_input_queue" {
   queue_name                          = aws_sqs_queue.queue.name
   dead_letter_queue_name              = aws_sqs_queue.dlq.name
   identifier                          = var.datadog_identifier
-  queue_messages_warning              = var.queue_messages_warning
-  queue_messages_critical             = var.queue_messages_critical
-  dead_letter_queue_messages_critical = var.dlq_messages_critical
+  queue_messages_warning              = var.queue_messages_count_threshold_warning
+  queue_messages_critical             = var.queue_messages_count_threshold
+  dead_letter_queue_messages_critical = var.dlq_messages_count_threshold
 }
