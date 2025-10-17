@@ -98,6 +98,16 @@ variable "queue_messages_count_threshold" {
   default     = 100
 }
 
+variable "queue_messages_count_alarm_delay_periods" {
+  type        = number
+  description = "The number of consecutive periods the message count must exceed the threshold before triggering the alarm."
+  default     = 3
+  validation {
+    condition     = var.queue_messages_count_alarm_delay_periods >= 1
+    error_message = "The queue_messages_count_alarm_delay_periods must be at least 1."
+  }
+}
+
 variable "queue_messages_count_threshold_warning" {
   type        = number
   description = "The number of messages in the queue to trigger a warning alert."
