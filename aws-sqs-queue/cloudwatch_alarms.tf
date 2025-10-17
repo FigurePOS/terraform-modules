@@ -8,7 +8,7 @@
 resource "aws_cloudwatch_metric_alarm" "dlq_messages_count" {
   count = local.cloudwatch_count
 
-  alarm_name        = "${local.alarm_name_prefix}-dlq-messages-count-${aws_sqs_queue.dlq.name}"
+  alarm_name        = "${local.alarm_name_prefix} ${aws_sqs_queue.dlq.name} - DLQ Messages Count"
   alarm_description = "Dead letter queue ${aws_sqs_queue.dlq.name} has messages"
 
   metric_name = "ApproximateNumberOfMessagesVisible"
@@ -38,7 +38,7 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_count" {
 resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing" {
   count = local.cloudwatch_count
 
-  alarm_name        = "${local.alarm_name_prefix}-dlq-increasing-${aws_sqs_queue.dlq.name}"
+  alarm_name        = "${local.alarm_name_prefix} ${aws_sqs_queue.dlq.name} - DLQ Messages Increasing"
   alarm_description = "Dead letter queue ${aws_sqs_queue.dlq.name} messages are increasing"
 
   comparison_operator = "GreaterThanThreshold"
@@ -84,7 +84,7 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing" {
 resource "aws_cloudwatch_metric_alarm" "sqs_messages_count" {
   count = local.cloudwatch_count
 
-  alarm_name        = "${local.alarm_name_prefix}-messages-count-${var.queue_name}"
+  alarm_name        = "${local.alarm_name_prefix} ${var.queue_name} - Messages Count"
   alarm_description = "SQS queue ${var.queue_name} has high number of messages"
 
   metric_name = "ApproximateNumberOfMessagesVisible"
@@ -98,8 +98,8 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_count" {
 
   comparison_operator = "GreaterThanThreshold"
   threshold           = var.queue_messages_count_threshold
-  evaluation_periods  = var.cloudwatch_evaluation_periods
-  datapoints_to_alarm = 1
+  evaluation_periods  = max(var.cloudwatch_evaluation_periods, var.queue_messages_count_alarm_delay_periods)
+  datapoints_to_alarm = var.queue_messages_count_alarm_delay_periods
   treat_missing_data  = "notBreaching"
 
   alarm_actions             = data.aws_sns_topic.chatbot_slack[*].arn
@@ -113,7 +113,7 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_count" {
 resource "aws_cloudwatch_metric_alarm" "sqs_oldest_message_age" {
   count = local.cloudwatch_count
 
-  alarm_name        = "${local.alarm_name_prefix}-age-${var.queue_name}"
+  alarm_name        = "${local.alarm_name_prefix} ${var.queue_name} - Messages Age"
   alarm_description = "SQS queue ${var.queue_name} has old messages exceeding threshold"
 
   metric_name = "ApproximateAgeOfOldestMessage"
