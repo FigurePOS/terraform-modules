@@ -67,6 +67,11 @@ variable "memory_size" {
   default     = 128
 }
 
+variable "no_bundle" {
+  description = "Whether to pass --no-bundle flag to fgr lambda build command"
+  type        = bool
+  default     = false
+}
 
 variable "policy_documents" {
   description = "List of IAM policy documents for the Lambda function"
