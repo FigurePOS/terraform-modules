@@ -11,7 +11,7 @@ resource "null_resource" "build_lambda" {
   }
 
   provisioner "local-exec" {
-    command = "sh ${path.module}/build.sh ${var.function_name} ${abspath(var.source_dir)} ${abspath(local.zip_output_path)}"
+    command = "npx --yes fgr lambda build --source-dir ${abspath(var.source_dir)} --output-zip ${abspath(local.zip_output_path)}"
   }
 }
 
