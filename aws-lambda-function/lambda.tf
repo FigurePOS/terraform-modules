@@ -12,7 +12,7 @@ resource "null_resource" "build_lambda" {
   }
 
   provisioner "local-exec" {
-    command = "npx --yes fgr lambda build --source-dir ${abspath(var.source_dir)} --output-zip ${abspath(local.zip_output_path)}${var.no_bundle ? " --no-bundle" : ""}"
+    command = "npx --yes @figurepos/platform-tooling lambda build --source-dir ${abspath(var.source_dir)} --output-zip ${abspath(local.zip_output_path)}${var.no_bundle ? " --no-bundle" : ""}"
   }
 }
 
