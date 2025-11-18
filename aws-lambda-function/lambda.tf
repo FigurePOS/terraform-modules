@@ -8,10 +8,11 @@ resource "null_resource" "build_lambda" {
     runtime         = var.runtime
     environment     = jsonencode(var.environment_variables)
     source_dir      = var.source_dir
+    no_bundle       = var.no_bundle
   }
 
   provisioner "local-exec" {
-    command = "npx --yes fgr lambda build --source-dir ${abspath(var.source_dir)} --output-zip ${abspath(local.zip_output_path)}"
+    command = "npx --yes @figurepos/platform-tooling lambda build --source-dir ${abspath(var.source_dir)} --output-zip ${abspath(local.zip_output_path)}${var.no_bundle ? " --no-bundle" : ""}"
   }
 }
 
