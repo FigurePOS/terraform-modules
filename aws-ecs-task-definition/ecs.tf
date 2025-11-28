@@ -6,32 +6,12 @@ locals {
 
   default_service_envs = [
     {
+      name  = "AWS_ACCOUNT_ID",
+      value = var.aws_account_id
+    },
+    {
       name  = "AWS_REGION",
       value = var.aws_region
-    },
-    {
-      name  = "DD_DBM_PROPAGATION_MODE",
-      value = "full"
-    },
-    {
-      name  = "DD_ENV",
-      value = "${var.env}"
-    },
-    {
-      name  = "DD_LOGS_INJECTION",
-      value = "true"
-    },
-    {
-      name  = "DD_RUNTIME_METRICS_ENABLED",
-      value = "true"
-    },
-    {
-      name  = "DD_SERVICE",
-      value = "${var.service_name}"
-    },
-    {
-      name  = "DD_VERSION",
-      value = "${var.deployment_tag}"
     },
     {
       name  = "ENVIRONMENT",
@@ -48,6 +28,18 @@ locals {
     {
       name  = "NODE_ENV",
       value = var.env
+    },
+    {
+      name  = "OTEL_RESOURCE_ATTRIBUTES",
+      value = "environment=${var.env},deployment.environment=${var.env}"
+    },
+    {
+      name  = "OTEL_SERVICE_NAME",
+      value = "${var.service_name}"
+    },
+    {
+      name  = "OTEL_SERVICE_VERSION", 
+      value = "${var.deployment_tag}"
     },
     {
       name  = "PORT",
@@ -90,7 +82,7 @@ locals {
 module "app_container_definition" {
   # checkov:skip=CKV_TF_1: "Ensure Terraform module sources use a commit hash"
   source  = "cloudposse/ecs-container-definition/aws"
-  version = "0.61.1"
+  version = "0.61.2"
 
   container_name  = var.service_name
   container_image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.ecr_repository_uri}:${var.deployment_tag}"
@@ -111,11 +103,21 @@ module "app_container_definition" {
   ]
 
   docker_labels = {
+    # Datadog autodiscovery tags
+    "com.datadoghq.tags.aws_region"     = "${var.aws_region}",
+    "com.datadoghq.tags.aws_account"    = "${var.aws_account_id}",
     "com.datadoghq.tags.env"            = "${var.env}",
     "com.datadoghq.tags.service"        = "${var.service_name}",
     "com.datadoghq.tags.version"        = "${var.deployment_tag}",
+    "com.datadoghq.tags.task_family"    = "${var.service_name}",   
+    
+    # Container resource context for cost/performance analysis
+    "com.datadoghq.tags.task_cpu"       = "${var.task_cpu}",
+    "com.datadoghq.tags.task_memory"    = "${var.task_memory}",
+    
+    # Git/deployment context 
     "org.opencontainers.image.revision" = var.git_commit_hash,
-    "org.opencontainers.image.source"   = var.git_repository
+    "org.opencontainers.image.source"   = var.git_repository,
   }
 
   log_configuration = {
@@ -139,7 +141,7 @@ module "app_container_definition" {
 module "datadog_agent_definition" {
   # checkov:skip=CKV_TF_1: "Ensure Terraform module sources use a commit hash"
   source  = "cloudposse/ecs-container-definition/aws"
-  version = "0.61.1"
+  version = "0.61.2"
 
   container_name  = "datadog-agent"
   container_image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/ecr-public/datadog/agent:${var.dd_agent_version}"
@@ -164,6 +166,14 @@ module "datadog_agent_definition" {
     {
       name  = "DD_LOGS_CONFIG_USE_HTTP",
       value = "true"
+    },
+    {
+      name  = "DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT",
+      value = "0.0.0.0:4317"
+    },
+    {
+      name  = "DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT",
+      value = "0.0.0.0:4318"
     },
     {
       name  = "DD_PROCESS_AGENT_ENABLED",
@@ -209,8 +219,19 @@ module "datadog_agent_definition" {
 
   readonly_root_filesystem = false
 
-  mount_points    = []
-  port_mappings   = []
+  mount_points = []
+  port_mappings = [
+    {
+      name          = "otlp-grpc"
+      containerPort = 4317
+      protocol      = "tcp"
+    },
+    {
+      name          = "otlp-http"
+      containerPort = 4318
+      protocol      = "tcp"
+    }
+  ]
   system_controls = []
   volumes_from    = []
 }
