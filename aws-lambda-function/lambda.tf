@@ -52,7 +52,7 @@ resource "aws_lambda_function" "this" {
   //checkov:skip=CKV_AWS_272: "Ensure AWS Lambda function is configured to validate code-signing"
   function_name = var.function_name
   description   = var.description
-  handler       = "/opt/nodejs/node_modules/datadog-lambda-js/handler.handler"
+  handler       = var.handler
   runtime       = var.runtime
   timeout       = var.timeout
   memory_size   = var.memory_size
@@ -67,7 +67,6 @@ resource "aws_lambda_function" "this" {
 
   publish = true
   layers = concat(
-    var.datadog_layer_version != 0 ? [local.datadog_layer_arn] : [],
     var.datadog_extension_layer_version != 0 ? [local.datadog_extension_layer_arn] : [],
     var.layers
   )

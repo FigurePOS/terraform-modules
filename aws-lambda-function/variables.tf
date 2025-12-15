@@ -1,19 +1,7 @@
 variable "datadog_extension_layer_version" {
-  description = "Datadog extension layer version"
+  description = "Datadog extension layer version (receives OTLP and forwards to Datadog)"
   type        = number
-  default     = 83
-}
-
-variable "datadog_layer_version" {
-  description = "Datadog layer version"
-  type        = number
-  default     = 127
-}
-
-variable "dd_service_mapping" {
-  description = "Datadog service mapping for DD_SERVICE_MAPPING environment variable."
-  type        = string
-  default     = ""
+  default     = 90
 }
 
 variable "description" {
@@ -93,7 +81,7 @@ variable "role_name" {
 variable "runtime" {
   description = "Lambda function runtime"
   type        = string
-  default     = "nodejs22.x"
+  default     = "nodejs24.x"
 }
 
 variable "schedule_description" {
