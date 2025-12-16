@@ -9,7 +9,7 @@ locals {
 }
 
 resource "datadog_dashboard" "service_dashboard" {
-  title       = var.service_name_readable
+  title       = var.title
   layout_type = "ordered"
 
   template_variable {
@@ -382,89 +382,83 @@ resource "datadog_dashboard" "service_dashboard" {
   }
 
   ##################################################
-  # Operations SQS queue
+  # SQS Queues
   ##################################################
   dynamic "widget" {
-    for_each = var.queue_name == "" ? [] : [true]
+    for_each = var.queues
     content {
       group_definition {
-        title       = "Operations SQS queue"
+        title       = widget.value.title
         layout_type = "ordered"
 
         # Number of messages
-        dynamic "widget" {
-          for_each = var.queue_name == "" ? [] : [true]
-          content {
-            timeseries_definition {
-              show_legend = true
-              title       = "Number of messages"
-              request {
-                display_type = "bars"
-                q            = "avg:aws.sqs.number_of_messages_sent{queuename:${lower(var.queue_name)},$env}.as_count()"
-                style {
-                  line_type  = "solid"
-                  line_width = "normal"
-                  palette    = "dog_classic"
-                }
+        widget {
+          timeseries_definition {
+            show_legend = true
+            title       = "Number of messages"
+            request {
+              display_type = "bars"
+              q            = "avg:aws.sqs.number_of_messages_sent{queuename:${lower(widget.value.queue_name)},$env}.as_count()"
+              style {
+                line_type  = "solid"
+                line_width = "normal"
+                palette    = "dog_classic"
               }
-              yaxis {
-                include_zero = true
-                max          = "auto"
-                min          = "auto"
-                scale        = "linear"
-              }
+            }
+            yaxis {
+              include_zero = true
+              max          = "auto"
+              min          = "auto"
+              scale        = "linear"
             }
           }
         }
 
         # Number and age of messages
-        dynamic "widget" {
-          for_each = var.queue_name == "" ? [] : [true]
-          content {
-            timeseries_definition {
-              show_legend = true
-              title       = "Number and age of messages"
+        widget {
+          timeseries_definition {
+            show_legend = true
+            title       = "Number and age of messages"
 
-              request {
-                display_type = "bars"
-                q            = "max:aws.sqs.approximate_number_of_messages_visible{queuename:${lower(var.queue_name)},$env}.rollup(max)"
-                style {
-                  line_type  = "solid"
-                  line_width = "normal"
-                  palette    = "orange"
-                }
+            request {
+              display_type = "bars"
+              q            = "max:aws.sqs.approximate_number_of_messages_visible{queuename:${lower(widget.value.queue_name)},$env}.rollup(max)"
+              style {
+                line_type  = "solid"
+                line_width = "normal"
+                palette    = "orange"
               }
+            }
 
-              request {
-                display_type = "line"
-                q            = "avg:aws.sqs.approximate_age_of_oldest_message{queuename:${lower(var.queue_name)},$env}"
-                style {
-                  line_type  = "solid"
-                  line_width = "normal"
-                  palette    = "orange"
-                }
+            request {
+              display_type = "line"
+              q            = "avg:aws.sqs.approximate_age_of_oldest_message{queuename:${lower(widget.value.queue_name)},$env}"
+              style {
+                line_type  = "solid"
+                line_width = "normal"
+                palette    = "orange"
               }
+            }
 
-              yaxis {
-                include_zero = true
-                max          = "auto"
-                min          = "auto"
-                scale        = "linear"
-              }
+            yaxis {
+              include_zero = true
+              max          = "auto"
+              min          = "auto"
+              scale        = "linear"
             }
           }
         }
 
         # Number of messages in dead letter
         dynamic "widget" {
-          for_each = var.queue_dlq_name == "" ? [] : [true]
+          for_each = widget.value.dlq_name == "" ? [] : [widget.value]
           content {
             timeseries_definition {
               show_legend = true
               title       = "Number of messages in dead letter"
               request {
                 display_type = "bars"
-                q            = "max:aws.sqs.approximate_number_of_messages_visible{queuename:${lower(var.queue_dlq_name)},$env}.rollup(max)"
+                q            = "max:aws.sqs.approximate_number_of_messages_visible{queuename:${lower(widget.value.dlq_name)},$env}.rollup(max)"
                 style {
                   line_type  = "solid"
                   line_width = "normal"
@@ -482,29 +476,26 @@ resource "datadog_dashboard" "service_dashboard" {
         }
 
         # Message size
-        dynamic "widget" {
-          for_each = var.queue_name == "" ? [] : [true]
-          content {
-            timeseries_definition {
-              show_legend = true
-              title       = "Message size"
+        widget {
+          timeseries_definition {
+            show_legend = true
+            title       = "Message size"
 
-              request {
-                display_type = "line"
-                q            = "avg:aws.sqs.sent_message_size{queuename:${lower(var.queue_name)},$env}"
-                style {
-                  line_type  = "solid"
-                  line_width = "normal"
-                  palette    = "grey"
-                }
+            request {
+              display_type = "line"
+              q            = "avg:aws.sqs.sent_message_size{queuename:${lower(widget.value.queue_name)},$env}"
+              style {
+                line_type  = "solid"
+                line_width = "normal"
+                palette    = "grey"
               }
+            }
 
-              yaxis {
-                include_zero = true
-                max          = "auto"
-                min          = "auto"
-                scale        = "linear"
-              }
+            yaxis {
+              include_zero = true
+              max          = "auto"
+              min          = "auto"
+              scale        = "linear"
             }
           }
         }

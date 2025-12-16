@@ -12,29 +12,28 @@ variable "http_endpoints" {
     method = string
     route  = string
   }))
-  default = []
+  default     = []
   description = "List of HTTP endpoints with method (GET, POST, DELETE, etc.) and route (e.g., /account, /pricing/:id)"
 }
 
-variable "queue_dlq_name" {
-  type    = string
-  default = ""
-}
-
-variable "queue_name" {
-  type    = string
-  default = ""
+variable "queues" {
+  type = list(object({
+    queue_name = string
+    dlq_name   = string
+    title      = string
+  }))
+  default     = []
+  description = "List of SQS queues with queue name, DLQ name, and readable name (title for the group)"
 }
 
 variable "service" {
   type = string
 }
-
-variable "service_name_readable" {
-  type = string
-}
-
 variable "service_worker" {
   type    = string
   default = ""
+}
+
+variable "title" {
+  type = string
 }
