@@ -97,6 +97,18 @@ variable "ulimits" {
   default = []
 }
 
+variable "otel_traces_sampler" {
+  type        = string
+  default     = "parentbased_traceidratio"
+  description = "The OpenTelemetry traces sampler to use. Defaults to 'parentbased_traceidratio'. Only used if otel_traces_sampler_arg is set."
+}
+
+variable "otel_traces_sampler_arg" {
+  type        = string
+  default     = ""
+  description = "If non-empty, adds OTEL_TRACES_SAMPLER (using otel_traces_sampler variable) and OTEL_TRACES_SAMPLER_ARG (this value) to the app container environment."
+}
+
 
 locals {
   entry_point = var.entry_point != "" ? ["sh", "-c", var.entry_point] : (var.entry_point_node_script != "" ? ["sh", "-c", "exec node --enable-source-maps ${var.entry_point_node_script}"] : [])
