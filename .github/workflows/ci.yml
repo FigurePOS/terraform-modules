@@ -45,6 +45,11 @@ jobs:
           cd aws-s3-bucket
           terraform init
           terraform validate
+      - name: "validate datadog-dashboard-service"
+        run: |
+          cd datadog-dashboard-service
+          terraform init
+          terraform validate
       - name: "validate datadog-monitor-express-endpoint"
         run: |
           cd datadog-monitor-express-endpoint
