@@ -51,6 +51,11 @@ locals {
     }
   ]
 
+  otel_traces_sampler_envs_map = var.otel_traces_sampler_arg == "" ? {} : {
+    OTEL_TRACES_SAMPLER     = var.otel_traces_sampler
+    OTEL_TRACES_SAMPLER_ARG = var.otel_traces_sampler_arg
+  }
+
   default_service_secrets = []
 
 
@@ -61,7 +66,11 @@ locals {
   service_envs_map = { for item in var.service_envs : item.name => item.value if can(item.name) && can(item.value) }
 
   # Merge the maps, with service_env_map taking precedence
-  merged_service_envs_map = merge(local.default_service_envs_map, local.service_envs_map)
+  merged_service_envs_map = merge(
+    local.default_service_envs_map,
+    local.otel_traces_sampler_envs_map,
+    local.service_envs_map,
+  )
 
   # Convert back to the list format required by the module
   service_environment = [for name, value in local.merged_service_envs_map : { name = name, value = value }]
