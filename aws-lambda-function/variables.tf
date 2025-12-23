@@ -129,3 +129,60 @@ variable "vpc_subnet_ids" {
   type        = list(string)
   default     = []
 }
+
+# CloudWatch Alarms Configuration
+variable "enable_cloudwatch_alarms" {
+  description = "Whether to enable CloudWatch alarms for the Lambda function"
+  type        = bool
+  default     = true
+}
+
+variable "cloudwatch_evaluation_periods" {
+  description = "The number of evaluation periods for CloudWatch alarms"
+  type        = number
+  default     = 1
+}
+
+variable "cloudwatch_period_seconds" {
+  description = "The period in seconds for CloudWatch metric evaluation"
+  type        = number
+  default     = 60
+}
+
+variable "lambda_errors_threshold" {
+  description = "The number of errors to trigger an alarm"
+  type        = number
+  default     = 5
+}
+
+variable "lambda_throttles_threshold" {
+  description = "The number of throttles to trigger an alarm"
+  type        = number
+  default     = 1
+}
+
+variable "lambda_duration_threshold_percentage" {
+  description = "The percentage of timeout duration to trigger an alarm (e.g., 80 for 80% of timeout)"
+  type        = number
+  default     = 80
+  validation {
+    condition     = var.lambda_duration_threshold_percentage > 0 && var.lambda_duration_threshold_percentage <= 100
+    error_message = "The lambda_duration_threshold_percentage must be between 1 and 100."
+  }
+}
+
+variable "lambda_concurrent_executions_threshold" {
+  description = "The number of concurrent executions to trigger an alarm"
+  type        = number
+  default     = 50
+}
+
+variable "lambda_error_rate_threshold" {
+  description = "The error rate percentage to trigger an alarm (e.g., 5 for 5%)"
+  type        = number
+  default     = 5
+  validation {
+    condition     = var.lambda_error_rate_threshold >= 0 && var.lambda_error_rate_threshold <= 100
+    error_message = "The lambda_error_rate_threshold must be between 0 and 100."
+  }
+}

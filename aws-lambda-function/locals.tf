@@ -45,4 +45,8 @@ locals {
   datadog_extension_layer_arn = "arn:aws:lambda:${data.aws_region.current.region}:464622532012:layer:Datadog-Extension:${var.datadog_extension_layer_version}"
 
   scheduling_enabled = var.schedule_expression != ""
+
+  # CloudWatch alarms configuration
+  cloudwatch_count  = var.enable_cloudwatch_alarms ? 1 : 0
+  alarm_name_prefix = "${var.service_name} Lambda"
 }
