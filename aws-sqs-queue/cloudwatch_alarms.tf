@@ -26,8 +26,8 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_count" {
   datapoints_to_alarm = 1
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = local.tags
@@ -72,9 +72,9 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing" {
   }
 
   # Page Rootly in addition to Slack on alarm; only Slack on OK
-  # To re-enable Rootly, concat the splats: concat(data.aws_sns_topic.alerts_slack[*].arn, data.aws_sns_topic.rootly_oncall[*].arn)
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  # To re-enable Rootly, concat the ARNs: concat(local.alerts_slack_sns_topic_arns, data.aws_sns_topic.rootly_oncall[*].arn)
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = local.tags
@@ -102,8 +102,8 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_count" {
   datapoints_to_alarm = var.queue_messages_count_alarm_delay_periods
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = local.tags
@@ -131,8 +131,8 @@ resource "aws_cloudwatch_metric_alarm" "sqs_oldest_message_age" {
   datapoints_to_alarm = 2
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = local.tags

@@ -9,8 +9,3 @@ data "aws_s3_bucket" "lambda_deployment" {
 data "aws_secretsmanager_secret" "datadog_api_key" {
   name = "datadog-lambda-api-key"
 }
-
-# SNS topics for CloudWatch alarm notifications
-data "aws_sns_topic" "alerts_slack" {
-  name  = "alerts-to-slack"
-}

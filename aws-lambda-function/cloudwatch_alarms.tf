@@ -23,8 +23,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   datapoints_to_alarm = 1
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = var.tags
@@ -52,8 +52,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
   datapoints_to_alarm = 1
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = var.tags
@@ -82,8 +82,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
     FunctionName = aws_lambda_function.this.function_name
   }
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = var.tags
@@ -111,8 +111,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_concurrent_executions" {
   datapoints_to_alarm = 2
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = var.tags
@@ -171,8 +171,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_error_rate" {
     label       = "Error rate (%)"
   }
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = var.tags

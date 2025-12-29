@@ -49,4 +49,8 @@ locals {
   # CloudWatch alarms configuration
   cloudwatch_count  = var.enable_cloudwatch_alarms ? 1 : 0
   alarm_name_prefix = "${var.service_name} Lambda"
+  
+  # Hardcoded SNS topic ARN for Slack alerts (shared across all accounts)
+  # Returns a list for compatibility with alarm_actions which expects a list of ARNs
+  alerts_slack_sns_topic_arns = local.cloudwatch_count > 0 ? ["arn:aws:sns:us-east-1:637192944017:alerts-to-slack"] : []
 }
