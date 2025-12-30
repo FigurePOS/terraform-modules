@@ -3,7 +3,7 @@
 
 # CloudWatch alarm for Lambda errors
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
-  count = local.cloudwatch_count
+  count = local.cloudwatch_alarms_enabled
 
   alarm_name        = "${local.alarm_name_prefix} ${var.function_name} - Errors"
   alarm_description = "Lambda function ${var.function_name} has errors"
@@ -23,8 +23,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   datapoints_to_alarm = 1
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = var.tags
@@ -32,7 +32,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
 
 # CloudWatch alarm for Lambda throttles
 resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
-  count = local.cloudwatch_count
+  count = local.cloudwatch_alarms_enabled
 
   alarm_name        = "${local.alarm_name_prefix} ${var.function_name} - Throttles"
   alarm_description = "Lambda function ${var.function_name} is being throttled"
@@ -52,8 +52,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
   datapoints_to_alarm = 1
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = var.tags
@@ -62,7 +62,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
 # CloudWatch alarm for Lambda duration approaching timeout
 # Uses metric math to calculate percentage of timeout
 resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
-  count = local.cloudwatch_count
+  count = local.cloudwatch_alarms_enabled
 
   alarm_name        = "${local.alarm_name_prefix} ${var.function_name} - Duration"
   alarm_description = "Lambda function ${var.function_name} duration is approaching timeout (${var.lambda_duration_threshold_percentage}% of ${var.timeout}s)"
@@ -82,8 +82,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
     FunctionName = aws_lambda_function.this.function_name
   }
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = var.tags
@@ -91,7 +91,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
 
 # CloudWatch alarm for Lambda concurrent executions
 resource "aws_cloudwatch_metric_alarm" "lambda_concurrent_executions" {
-  count = local.cloudwatch_count
+  count = local.cloudwatch_alarms_enabled
 
   alarm_name        = "${local.alarm_name_prefix} ${var.function_name} - Concurrent Executions"
   alarm_description = "Lambda function ${var.function_name} concurrent executions are high"
@@ -111,8 +111,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_concurrent_executions" {
   datapoints_to_alarm = 2
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = var.tags
@@ -121,7 +121,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_concurrent_executions" {
 # CloudWatch alarm for Lambda error rate
 # Uses metric math to calculate error rate as percentage of invocations
 resource "aws_cloudwatch_metric_alarm" "lambda_error_rate" {
-  count = local.cloudwatch_count
+  count = local.cloudwatch_alarms_enabled
 
   alarm_name        = "${local.alarm_name_prefix} ${var.function_name} - Error Rate"
   alarm_description = "Lambda function ${var.function_name} error rate is above ${var.lambda_error_rate_threshold}%"
@@ -171,8 +171,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_error_rate" {
     label       = "Error rate (%)"
   }
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = var.tags

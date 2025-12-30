@@ -6,7 +6,7 @@
 
 # CloudWatch alarm for dead letter queue message count
 resource "aws_cloudwatch_metric_alarm" "dlq_messages_count" {
-  count = local.cloudwatch_count
+  count = local.cloudwatch_alarms_enabled
 
   alarm_name        = "${local.alarm_name_prefix} ${aws_sqs_queue.dlq.name} - DLQ Messages Count"
   alarm_description = "Dead letter queue ${aws_sqs_queue.dlq.name} has messages"
@@ -22,12 +22,12 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_count" {
 
   comparison_operator = "GreaterThanThreshold"
   threshold           = var.dlq_messages_count_threshold
-  evaluation_periods  = 2  # Use 2 periods for consistency
+  evaluation_periods  = 2 # Use 2 periods for consistency
   datapoints_to_alarm = 1
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = local.tags
@@ -36,7 +36,7 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_count" {
 # CloudWatch alarm for increasing dead letter queue messages
 # Uses metric math to detect rate of increase
 resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing" {
-  count = local.cloudwatch_count
+  count = local.cloudwatch_alarms_enabled
 
   alarm_name        = "${local.alarm_name_prefix} ${aws_sqs_queue.dlq.name} - DLQ Messages Increasing"
   alarm_description = "Dead letter queue ${aws_sqs_queue.dlq.name} messages are increasing"
@@ -72,9 +72,9 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing" {
   }
 
   # Page Rootly in addition to Slack on alarm; only Slack on OK
-  # To re-enable Rootly, concat the splats: concat(data.aws_sns_topic.alerts_slack[*].arn, data.aws_sns_topic.rootly_oncall[*].arn)
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  # To re-enable Rootly, concat the ARNs: concat(local.alerts_slack_sns_topic_arns, data.aws_sns_topic.rootly_oncall[*].arn)
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = local.tags
@@ -82,7 +82,7 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing" {
 
 # CloudWatch alarm for main queue message count
 resource "aws_cloudwatch_metric_alarm" "sqs_messages_count" {
-  count = local.cloudwatch_count
+  count = local.cloudwatch_alarms_enabled
 
   alarm_name        = "${local.alarm_name_prefix} ${var.queue_name} - Messages Count"
   alarm_description = "SQS queue ${var.queue_name} has high number of messages"
@@ -102,8 +102,8 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_count" {
   datapoints_to_alarm = var.queue_messages_count_alarm_delay_periods
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = local.tags
@@ -111,7 +111,7 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_count" {
 
 # CloudWatch alarm for main queue message age
 resource "aws_cloudwatch_metric_alarm" "sqs_oldest_message_age" {
-  count = local.cloudwatch_count
+  count = local.cloudwatch_alarms_enabled
 
   alarm_name        = "${local.alarm_name_prefix} ${var.queue_name} - Messages Age"
   alarm_description = "SQS queue ${var.queue_name} has old messages exceeding threshold"
@@ -131,8 +131,8 @@ resource "aws_cloudwatch_metric_alarm" "sqs_oldest_message_age" {
   datapoints_to_alarm = 2
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = data.aws_sns_topic.alerts_slack[*].arn
-  ok_actions                = data.aws_sns_topic.alerts_slack[*].arn
+  alarm_actions             = local.alerts_slack_sns_topic_arns
+  ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = local.tags
