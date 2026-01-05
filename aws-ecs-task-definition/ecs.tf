@@ -165,6 +165,10 @@ module "datadog_agent_definition" {
       value = "true"
     },
     {
+      name  = "DD_APM_FEATURES",
+      value = "enable_operation_and_resource_name_logic_v2"
+    },
+    {
       name  = "DD_APM_NON_LOCAL_TRAFFIC",
       value = "true"
     },
