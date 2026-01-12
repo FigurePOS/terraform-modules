@@ -111,5 +111,5 @@ variable "otel_traces_sampler_arg" {
 
 
 locals {
-  entry_point = var.entry_point != "" ? ["sh", "-c", var.entry_point] : (var.entry_point_node_script != "" ? ["sh", "-c", "exec node --enable-source-maps ${var.entry_point_node_script}"] : [])
+  entry_point = var.entry_point != "" ? ["sh", "-c", var.entry_point] : (var.entry_point_node_script != "" ? ["sh", "-c", "exec node --enable-source-maps --no-network-family-autoselection ${var.entry_point_node_script}"] : [])
 }
