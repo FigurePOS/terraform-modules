@@ -109,6 +109,12 @@ variable "otel_traces_sampler_arg" {
   description = "If non-empty, adds OTEL_TRACES_SAMPLER (using otel_traces_sampler variable) and OTEL_TRACES_SAMPLER_ARG (this value) to the app container environment."
 }
 
+variable "otel_traces_rate_limit" {
+  type        = number
+  default     = 20
+  description = "Maximum traces per second (rate limiting)."
+}
+
 
 locals {
   entry_point = var.entry_point != "" ? ["sh", "-c", var.entry_point] : (var.entry_point_node_script != "" ? ["sh", "-c", "exec node --enable-source-maps --no-network-family-autoselection --dns-result-order=ipv4first ${var.entry_point_node_script}"] : [])
