@@ -38,7 +38,7 @@ locals {
       value = "${var.service_name}"
     },
     {
-      name  = "OTEL_SERVICE_VERSION", 
+      name  = "OTEL_SERVICE_VERSION",
       value = "${var.deployment_tag}"
     },
     {
@@ -51,10 +51,17 @@ locals {
     }
   ]
 
-  otel_traces_sampler_envs_map = var.otel_traces_sampler_arg == "" ? {} : {
+  # Only set OTEL_TRACES_SAMPLER if rate limiting is not configured
+  # Rate limiting takes precedence and will ignore OTEL_TRACES_SAMPLER
+  otel_traces_sampler_envs_map = var.otel_traces_rate_limit != null || var.otel_traces_sampler_arg == "" ? {} : {
     OTEL_TRACES_SAMPLER     = var.otel_traces_sampler
     OTEL_TRACES_SAMPLER_ARG = var.otel_traces_sampler_arg
   }
+
+  # Rate limiting sampler configuration
+  otel_rate_limit_envs_map = var.otel_traces_rate_limit != null ? {
+    OTEL_TRACES_RATE_LIMIT = tostring(var.otel_traces_rate_limit)
+  } : {}
 
   default_service_secrets = []
 
@@ -69,6 +76,7 @@ locals {
   merged_service_envs_map = merge(
     local.default_service_envs_map,
     local.otel_traces_sampler_envs_map,
+    local.otel_rate_limit_envs_map,
     local.service_envs_map,
   )
 
@@ -113,17 +121,17 @@ module "app_container_definition" {
 
   docker_labels = {
     # Datadog autodiscovery tags
-    "com.datadoghq.tags.aws_region"     = "${var.aws_region}",
-    "com.datadoghq.tags.aws_account"    = "${var.aws_account_id}",
-    "com.datadoghq.tags.env"            = "${var.env}",
-    "com.datadoghq.tags.service"        = "${var.service_name}",
-    "com.datadoghq.tags.version"        = "${var.deployment_tag}",
-    "com.datadoghq.tags.task_family"    = "${var.service_name}",   
-    
+    "com.datadoghq.tags.aws_region"  = "${var.aws_region}",
+    "com.datadoghq.tags.aws_account" = "${var.aws_account_id}",
+    "com.datadoghq.tags.env"         = "${var.env}",
+    "com.datadoghq.tags.service"     = "${var.service_name}",
+    "com.datadoghq.tags.version"     = "${var.deployment_tag}",
+    "com.datadoghq.tags.task_family" = "${var.service_name}",
+
     # Container resource context for cost/performance analysis
-    "com.datadoghq.tags.task_cpu"       = "${var.task_cpu}",
-    "com.datadoghq.tags.task_memory"    = "${var.task_memory}",
-    
+    "com.datadoghq.tags.task_cpu"    = "${var.task_cpu}",
+    "com.datadoghq.tags.task_memory" = "${var.task_memory}",
+
     # Git/deployment context 
     "org.opencontainers.image.revision" = var.git_commit_hash,
     "org.opencontainers.image.source"   = var.git_repository,
