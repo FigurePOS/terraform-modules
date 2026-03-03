@@ -7,6 +7,18 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "dd_agent_enable_logging" {
+  type        = bool
+  default     = false
+  description = "Enable CloudWatch logging for the Datadog agent sidecar."
+}
+
+variable "dd_agent_log_retention_days" {
+  type        = number
+  default     = 1
+  description = "CloudWatch retention in days for Datadog agent logs."
+}
+
 variable "dd_agent_version" {
   type    = string
   default = "latest"
