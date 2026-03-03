@@ -96,6 +96,14 @@ locals {
   service_secrets = [for name, valueFrom in local.merged_service_secrets_map : { name = name, valueFrom = valueFrom }]
 }
 
+resource "aws_cloudwatch_log_group" "datadog_agent" {
+  count             = var.dd_agent_enable_logging ? 1 : 0
+  name              = "/figure/datadog-agent/${var.service_name}"
+  retention_in_days = var.dd_agent_log_retention_days
+
+  tags = local.common_tags
+}
+
 module "app_container_definition" {
   # checkov:skip=CKV_TF_1: "Ensure Terraform module sources use a commit hash"
   source  = "cloudposse/ecs-container-definition/aws"
@@ -239,6 +247,15 @@ module "datadog_agent_definition" {
   }
 
   readonly_root_filesystem = false
+
+  log_configuration = var.dd_agent_enable_logging ? {
+    logDriver = "awslogs"
+    options = {
+      awslogs-group         = aws_cloudwatch_log_group.datadog_agent[0].name
+      awslogs-region        = var.aws_region
+      awslogs-stream-prefix = "datadog-agent"
+    }
+  } : null
 
   mount_points = []
   port_mappings = [
