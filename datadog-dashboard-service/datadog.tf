@@ -2,8 +2,8 @@ locals {
   # Transform http_endpoints from {method, route} to {title, endpoint}
   http_endpoints = [
     for e in var.http_endpoints : {
-      title    = "${upper(e.method)} /${var.api_path_prefix}${e.route}"
-      endpoint = "${lower(e.method)}_/${var.api_path_prefix}${e.route}"
+      title    = "${upper(e.method) == "ANY" ? "*" : upper(e.method)} /${var.api_path_prefix}${e.route}"
+      endpoint = "${upper(e.method) == "ANY" ? "*" : lower(e.method)}_/${var.api_path_prefix}${e.route}"
     }
   ]
 }
