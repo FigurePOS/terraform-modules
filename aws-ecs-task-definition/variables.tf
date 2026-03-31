@@ -127,6 +127,15 @@ variable "otel_traces_rate_limit" {
   description = "Maximum traces per second (rate limiting)."
 }
 
+variable "telemetry_backend" {
+  type        = string
+  default     = "datadog"
+  description = "Telemetry backend: 'datadog' (Datadog Agent sidecar) or 'uptrace' (centralized OTEL Collector via Service Connect)."
+  validation {
+    condition     = contains(["datadog", "uptrace"], var.telemetry_backend)
+    error_message = "Must be 'datadog' or 'uptrace'."
+  }
+}
 
 locals {
   entry_point = var.entry_point != "" ? ["sh", "-c", var.entry_point] : (var.entry_point_node_script != "" ? ["sh", "-c", "exec node --enable-source-maps --no-network-family-autoselection --dns-result-order=ipv4first ${var.entry_point_node_script}"] : [])

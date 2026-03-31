@@ -69,12 +69,25 @@ locals {
   # Convert default environment to a map for easier merging
   default_service_envs_map = { for item in local.default_service_envs : item.name => item.value }
 
+  # Apply telemetry backend specific overrides
+  base_service_envs = var.telemetry_backend == "uptrace" ? concat(
+    local.default_service_envs,
+    [
+      {
+        name  = "OTEL_EXPORTER_OTLP_ENDPOINT"
+        value = "http://otel-collector:4318"
+      }
+    ]
+  ) : local.default_service_envs
+
+  base_service_envs_map = { for item in local.base_service_envs : item.name => item.value }
+
   # Convert service_envs to a map (if it's in the expected format)
   service_envs_map = { for item in var.service_envs : item.name => item.value if can(item.name) && can(item.value) }
 
   # Merge the maps, with service_env_map taking precedence
   merged_service_envs_map = merge(
-    local.default_service_envs_map,
+    local.base_service_envs_map,
     local.otel_traces_sampler_envs_map,
     local.otel_rate_limit_envs_map,
     local.service_envs_map,
@@ -97,7 +110,7 @@ locals {
 }
 
 resource "aws_cloudwatch_log_group" "datadog_agent" {
-  count             = var.dd_agent_enable_logging ? 1 : 0
+  count             = var.telemetry_backend == "datadog" && var.dd_agent_enable_logging ? 1 : 0
   name              = "/figure/datadog-agent/${var.service_name}"
   retention_in_days = var.dd_agent_log_retention_days
 
@@ -127,7 +140,7 @@ module "app_container_definition" {
     }
   ]
 
-  docker_labels = {
+  docker_labels = var.telemetry_backend == "datadog" ? {
     # Datadog autodiscovery tags
     "com.datadoghq.tags.aws_region"  = "${var.aws_region}",
     "com.datadoghq.tags.aws_account" = "${var.aws_account_id}",
@@ -141,6 +154,10 @@ module "app_container_definition" {
     "com.datadoghq.tags.task_memory" = "${var.task_memory}",
 
     # Git/deployment context 
+    "org.opencontainers.image.revision" = var.git_commit_hash,
+    "org.opencontainers.image.source"   = var.git_repository,
+  } : {
+    # Git/deployment context for non-Datadog backends
     "org.opencontainers.image.revision" = var.git_commit_hash,
     "org.opencontainers.image.source"   = var.git_repository,
   }
@@ -167,6 +184,8 @@ module "datadog_agent_definition" {
   # checkov:skip=CKV_TF_1: "Ensure Terraform module sources use a commit hash"
   source  = "cloudposse/ecs-container-definition/aws"
   version = "0.61.2"
+
+  count = var.telemetry_backend == "datadog" ? 1 : 0
 
   container_name  = "datadog-agent"
   container_image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/ecr-public/datadog/agent:${var.dd_agent_version}"
@@ -284,10 +303,14 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
   cpu                      = var.task_cpu
   memory                   = var.task_memory
 
-  container_definitions = jsonencode([
-    module.app_container_definition.json_map_object,
-    module.datadog_agent_definition.json_map_object
-  ])
+  container_definitions = jsonencode(
+    var.telemetry_backend == "datadog" ? [
+      module.app_container_definition.json_map_object,
+      module.datadog_agent_definition[0].json_map_object
+    ] : [
+      module.app_container_definition.json_map_object
+    ]
+  )
 
   tags = local.common_tags
 
