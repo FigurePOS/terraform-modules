@@ -304,12 +304,11 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
   memory                   = var.task_memory
 
   container_definitions = jsonencode(
-    var.telemetry_backend == "datadog" ? [
+    concat([
       module.app_container_definition.json_map_object,
+    ], var.telemetry_backend == "datadog" ? [
       module.datadog_agent_definition[0].json_map_object
-    ] : [
-      module.app_container_definition.json_map_object
-    ]
+    ] : [])
   )
 
   tags = local.common_tags
