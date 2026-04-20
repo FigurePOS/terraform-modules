@@ -12,24 +12,50 @@ variable "capacity_provider_strategy" {
   }
 }
 
-variable "dd_monitor_cpu_warning" {
-  type    = number
-  default = 80
+variable "cpu_utilization_alarm_warning_threshold" {
+  type        = number
+  description = "Average service CPU utilization (0–100) above which the CloudWatch warning alarm triggers."
+  default     = 80
 }
 
-variable "dd_monitor_cpu_critical" {
-  type    = number
-  default = 95
+variable "cpu_utilization_alarm_critical_threshold" {
+  type        = number
+  description = "Average service CPU utilization (0–100) above which the CloudWatch critical alarm triggers."
+  default     = 95
+
+  validation {
+    condition     = var.cpu_utilization_alarm_warning_threshold < var.cpu_utilization_alarm_critical_threshold
+    error_message = "cpu_utilization_alarm_warning_threshold must be strictly less than cpu_utilization_alarm_critical_threshold."
+  }
 }
 
-variable "dd_monitor_memory_warning" {
-  type    = number
-  default = 80
+variable "memory_utilization_alarm_warning_threshold" {
+  type        = number
+  description = "Average service memory utilization (0–100) above which the CloudWatch warning alarm triggers."
+  default     = 80
 }
 
-variable "dd_monitor_memory_critical" {
-  type    = number
-  default = 95
+variable "memory_utilization_alarm_critical_threshold" {
+  type        = number
+  description = "Average service memory utilization (0–100) above which the CloudWatch critical alarm triggers."
+  default     = 95
+
+  validation {
+    condition     = var.memory_utilization_alarm_warning_threshold < var.memory_utilization_alarm_critical_threshold
+    error_message = "memory_utilization_alarm_warning_threshold must be strictly less than memory_utilization_alarm_critical_threshold."
+  }
+}
+
+variable "cloudwatch_evaluation_periods" {
+  type        = number
+  description = "The number of periods over which the ECS utilization metric is compared to the threshold."
+  default     = 1
+}
+
+variable "cloudwatch_period_seconds" {
+  type        = number
+  description = "Metric period in seconds for ECS utilization alarms (e.g. 300 for a five-minute window)."
+  default     = 300
 }
 
 variable "desired_count" {
