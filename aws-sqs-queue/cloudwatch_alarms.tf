@@ -1,15 +1,12 @@
-# CloudWatch alarms for SQS queue monitoring
-# This module creates CloudWatch alarms for SQS with low-latency alerting (faster than Datadog)
-# - Defaults: 5m period, 1 evaluation period, datapoints_to_alarm tuned per alarm
-# - Only creates alarms in production environment
+# CloudWatch alarms for SQS queues (production only).
+# Warning thresholds notify Slack only; critical thresholds also page on-call via Rootly.
 
-
-# CloudWatch alarm for dead letter queue message count
-resource "aws_cloudwatch_metric_alarm" "dlq_messages_count" {
+# CloudWatch alarm for dead letter queue message count (warning)
+resource "aws_cloudwatch_metric_alarm" "dlq_messages_count_warning" {
   count = local.cloudwatch_alarms_enabled
 
-  alarm_name        = "${local.alarm_name_prefix} ${aws_sqs_queue.dlq.name} - DLQ Messages Count"
-  alarm_description = "Dead letter queue ${aws_sqs_queue.dlq.name} has messages"
+  alarm_name        = "${local.alarm_name_prefix} - DLQ Messages Count Warning"
+  alarm_description = "SQS dead letter queue ${aws_sqs_queue.dlq.name} has messages (> ${var.dlq_messages_count_threshold})."
 
   metric_name = "ApproximateNumberOfMessagesVisible"
   namespace   = "AWS/SQS"
@@ -22,8 +19,8 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_count" {
 
   comparison_operator = "GreaterThanThreshold"
   threshold           = var.dlq_messages_count_threshold
-  evaluation_periods  = 2 # Use 2 periods for consistency
-  datapoints_to_alarm = 1
+  evaluation_periods  = var.cloudwatch_evaluation_periods
+  datapoints_to_alarm = var.cloudwatch_evaluation_periods
   treat_missing_data  = "notBreaching"
 
   alarm_actions             = local.alerts_slack_sns_topic_arns
@@ -33,19 +30,18 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_count" {
   tags = local.tags
 }
 
-# CloudWatch alarm for increasing dead letter queue messages
-# Uses metric math to detect rate of increase
-resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing" {
+# CloudWatch alarm for increasing dead letter queue messages (critical)
+# Uses metric math to detect rate of increase; RATE() requires >= 2 evaluation periods.
+resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing_critical" {
   count = local.cloudwatch_alarms_enabled
 
-  alarm_name        = "${local.alarm_name_prefix} ${aws_sqs_queue.dlq.name} - DLQ Messages Increasing"
-  alarm_description = "Dead letter queue ${aws_sqs_queue.dlq.name} messages are increasing"
+  alarm_name        = "${local.alarm_name_prefix} - DLQ Messages Increasing Critical"
+  alarm_description = "SQS dead letter queue ${aws_sqs_queue.dlq.name} messages are increasing (rate > ${var.dlq_messages_increase_threshold}/s)."
 
   comparison_operator = "GreaterThanThreshold"
   threshold           = var.dlq_messages_increase_threshold
-  # Require two consecutive periods breaching; ensure periods >= 2
   evaluation_periods  = max(var.cloudwatch_evaluation_periods, 2)
-  datapoints_to_alarm = 2
+  datapoints_to_alarm = max(var.cloudwatch_evaluation_periods, 2)
   treat_missing_data  = "notBreaching"
 
   metric_query {
@@ -71,21 +67,19 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing" {
     label       = "Message increase rate"
   }
 
-  # Page Rootly in addition to Slack on alarm; only Slack on OK
-  # To re-enable Rootly, concat the ARNs: concat(local.alerts_slack_sns_topic_arns, data.aws_sns_topic.rootly_oncall[*].arn)
-  alarm_actions             = local.alerts_slack_sns_topic_arns
+  alarm_actions             = concat(local.alerts_slack_sns_topic_arns, local.alerts_rootly_sns_topic_arns)
   ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
   tags = local.tags
 }
 
-# CloudWatch alarm for main queue message count
-resource "aws_cloudwatch_metric_alarm" "sqs_messages_count" {
+# CloudWatch alarm for main queue message count (warning)
+resource "aws_cloudwatch_metric_alarm" "sqs_messages_count_warning" {
   count = local.cloudwatch_alarms_enabled
 
-  alarm_name        = "${local.alarm_name_prefix} ${var.queue_name} - Messages Count"
-  alarm_description = "SQS queue ${var.queue_name} has high number of messages"
+  alarm_name        = "${local.alarm_name_prefix} - Messages Count Warning"
+  alarm_description = "SQS queue ${aws_sqs_queue.queue.name} message count exceeded warning threshold (${var.queue_messages_count_warning_threshold})."
 
   metric_name = "ApproximateNumberOfMessagesVisible"
   namespace   = "AWS/SQS"
@@ -97,9 +91,9 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_count" {
   }
 
   comparison_operator = "GreaterThanThreshold"
-  threshold           = var.queue_messages_count_threshold
-  evaluation_periods  = max(var.cloudwatch_evaluation_periods, var.queue_messages_count_alarm_delay_periods)
-  datapoints_to_alarm = var.queue_messages_count_alarm_delay_periods
+  threshold           = var.queue_messages_count_warning_threshold
+  evaluation_periods  = var.cloudwatch_evaluation_periods
+  datapoints_to_alarm = var.cloudwatch_evaluation_periods
   treat_missing_data  = "notBreaching"
 
   alarm_actions             = local.alerts_slack_sns_topic_arns
@@ -109,12 +103,41 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_count" {
   tags = local.tags
 }
 
-# CloudWatch alarm for main queue message age
-resource "aws_cloudwatch_metric_alarm" "sqs_oldest_message_age" {
+# CloudWatch alarm for main queue message count (critical)
+resource "aws_cloudwatch_metric_alarm" "sqs_messages_count_critical" {
   count = local.cloudwatch_alarms_enabled
 
-  alarm_name        = "${local.alarm_name_prefix} ${var.queue_name} - Messages Age"
-  alarm_description = "SQS queue ${var.queue_name} has old messages exceeding threshold"
+  alarm_name        = "${local.alarm_name_prefix} - Messages Count Critical"
+  alarm_description = "SQS queue ${aws_sqs_queue.queue.name} message count exceeded critical threshold (${var.queue_messages_count_critical_threshold})."
+
+  metric_name = "ApproximateNumberOfMessagesVisible"
+  namespace   = "AWS/SQS"
+  statistic   = "Average"
+  period      = var.cloudwatch_period_seconds
+
+  dimensions = {
+    QueueName = aws_sqs_queue.queue.name
+  }
+
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = var.queue_messages_count_critical_threshold
+  evaluation_periods  = var.cloudwatch_evaluation_periods
+  datapoints_to_alarm = var.cloudwatch_evaluation_periods
+  treat_missing_data  = "notBreaching"
+
+  alarm_actions             = concat(local.alerts_slack_sns_topic_arns, local.alerts_rootly_sns_topic_arns)
+  ok_actions                = local.alerts_slack_sns_topic_arns
+  insufficient_data_actions = []
+
+  tags = local.tags
+}
+
+# CloudWatch alarm for main queue oldest message age (critical)
+resource "aws_cloudwatch_metric_alarm" "sqs_oldest_message_age_critical" {
+  count = local.cloudwatch_alarms_enabled
+
+  alarm_name        = "${local.alarm_name_prefix} - Messages Age Critical"
+  alarm_description = "SQS queue ${aws_sqs_queue.queue.name} oldest message age exceeded critical threshold (${var.queue_message_age_threshold_seconds}s)."
 
   metric_name = "ApproximateAgeOfOldestMessage"
   namespace   = "AWS/SQS"
@@ -127,11 +150,11 @@ resource "aws_cloudwatch_metric_alarm" "sqs_oldest_message_age" {
 
   comparison_operator = "GreaterThanThreshold"
   threshold           = var.queue_message_age_threshold_seconds
-  evaluation_periods  = max(var.cloudwatch_evaluation_periods, 2)
-  datapoints_to_alarm = 2
+  evaluation_periods  = var.cloudwatch_evaluation_periods
+  datapoints_to_alarm = var.cloudwatch_evaluation_periods
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = local.alerts_slack_sns_topic_arns
+  alarm_actions             = concat(local.alerts_slack_sns_topic_arns, local.alerts_rootly_sns_topic_arns)
   ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 

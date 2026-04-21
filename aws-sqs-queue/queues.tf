@@ -28,16 +28,3 @@ resource "aws_sqs_queue" "dlq" {
 
   tags = local.tags
 }
-
-module "dd_sqs_input_queue" {
-  source                              = "./../datadog-sqs"
-  env                                 = var.env
-  tags                                = var.datadog_tags
-  service_name                        = var.service_name
-  queue_name                          = aws_sqs_queue.queue.name
-  dead_letter_queue_name              = aws_sqs_queue.dlq.name
-  identifier                          = var.datadog_identifier
-  queue_messages_warning              = var.queue_messages_count_threshold_warning
-  queue_messages_critical             = var.queue_messages_count_threshold
-  dead_letter_queue_messages_critical = var.dlq_messages_count_threshold
-}

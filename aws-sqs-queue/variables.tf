@@ -7,13 +7,13 @@ variable "aws_region" {
 variable "cloudwatch_evaluation_periods" {
   type        = number
   description = "The number of evaluation periods for CloudWatch alarms."
-  default     = 1  # Fast notify: evaluate on the first period
+  default     = 1 # Fast notify: evaluate on the first period
 }
 
 variable "cloudwatch_period_seconds" {
   type        = number
   description = "The period in seconds for CloudWatch metric evaluation."
-  default     = 60  # 1 minute for fastest alerts
+  default     = 60 # 1 minute for fastest alerts
 }
 
 variable "datadog_identifier" {
@@ -51,12 +51,6 @@ variable "dlq_name" {
   default     = null
 }
 
-variable "enable_cloudwatch_alarms" {
-  type        = bool
-  description = "Whether to enable CloudWatch alarms for the SQS queues."
-  default     = true
-}
-
 variable "env" {
   type        = string
   description = "The environment the queues are for."
@@ -92,25 +86,15 @@ variable "queue_message_age_threshold_seconds" {
   default     = 900
 }
 
-variable "queue_messages_count_threshold" {
+variable "queue_messages_count_critical_threshold" {
   type        = number
-  description = "The number of messages in the queue to trigger a critical alert."
+  description = "Critical threshold for number of messages in the main queue; pages on-call in production."
   default     = 100
 }
 
-variable "queue_messages_count_alarm_delay_periods" {
+variable "queue_messages_count_warning_threshold" {
   type        = number
-  description = "The number of consecutive periods the message count must exceed the threshold before triggering the alarm."
-  default     = 3
-  validation {
-    condition     = var.queue_messages_count_alarm_delay_periods >= 1
-    error_message = "The queue_messages_count_alarm_delay_periods must be at least 1."
-  }
-}
-
-variable "queue_messages_count_threshold_warning" {
-  type        = number
-  description = "The number of messages in the queue to trigger a warning alert."
+  description = "Warning threshold for number of messages in the main queue; notifies Slack only."
   default     = 25
 }
 
