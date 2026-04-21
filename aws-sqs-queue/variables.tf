@@ -16,17 +16,6 @@ variable "cloudwatch_period_seconds" {
   default     = 60 # 1 minute for fastest alerts
 }
 
-variable "datadog_identifier" {
-  type        = string
-  description = "The identifier for the Datadog monitor."
-  default     = ""
-}
-
-variable "datadog_tags" {
-  type        = list(string)
-  description = "The tags to apply to the Datadog monitor."
-}
-
 variable "deduplication_scope" {
   type        = string
   description = "The scope of the deduplication for the messages in the queue."
