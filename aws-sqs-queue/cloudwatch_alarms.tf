@@ -132,12 +132,12 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_count_critical" {
   tags = local.tags
 }
 
-# CloudWatch alarm for main queue oldest message age (critical)
-resource "aws_cloudwatch_metric_alarm" "sqs_oldest_message_age_critical" {
+# CloudWatch alarm for main queue oldest message age (warning)
+resource "aws_cloudwatch_metric_alarm" "sqs_oldest_message_age_warning" {
   count = local.cloudwatch_alarms_enabled
 
-  alarm_name        = "${local.alarm_name_prefix} - Messages Age Critical"
-  alarm_description = "SQS queue ${aws_sqs_queue.queue.name} oldest message age exceeded critical threshold (${var.queue_message_age_threshold_seconds}s)."
+  alarm_name        = "${local.alarm_name_prefix} - Messages Age Warning"
+  alarm_description = "SQS queue ${aws_sqs_queue.queue.name} oldest message age exceeded warning threshold (${var.queue_message_age_threshold_seconds}s)."
 
   metric_name = "ApproximateAgeOfOldestMessage"
   namespace   = "AWS/SQS"
@@ -154,7 +154,7 @@ resource "aws_cloudwatch_metric_alarm" "sqs_oldest_message_age_critical" {
   datapoints_to_alarm = var.cloudwatch_evaluation_periods
   treat_missing_data  = "notBreaching"
 
-  alarm_actions             = concat(local.alerts_slack_sns_topic_arns, local.alerts_rootly_sns_topic_arns)
+  alarm_actions             = local.alerts_slack_sns_topic_arns
   ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
