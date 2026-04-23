@@ -3,8 +3,6 @@
 
 # CloudWatch alarm for dead letter queue message count (warning)
 resource "aws_cloudwatch_metric_alarm" "dlq_messages_count_warning" {
-  count = local.cloudwatch_alarms_enabled
-
   alarm_name        = "${local.alarm_name_prefix} - DLQ Messages Count Warning"
   alarm_description = "SQS dead letter queue ${aws_sqs_queue.dlq.name} has messages (> ${var.dlq_messages_count_threshold})."
 
@@ -33,8 +31,6 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_count_warning" {
 # CloudWatch alarm for increasing dead letter queue messages (critical)
 # Uses metric math to detect rate of increase; RATE() requires >= 2 evaluation periods.
 resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing_critical" {
-  count = local.cloudwatch_alarms_enabled
-
   alarm_name        = "${local.alarm_name_prefix} - DLQ Messages Increasing Critical"
   alarm_description = "SQS dead letter queue ${aws_sqs_queue.dlq.name} messages are increasing (rate > ${var.dlq_messages_increase_threshold}/s)."
 
@@ -76,8 +72,6 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages_increasing_critical" {
 
 # CloudWatch alarm for main queue message count (warning)
 resource "aws_cloudwatch_metric_alarm" "sqs_messages_count_warning" {
-  count = local.cloudwatch_alarms_enabled
-
   alarm_name        = "${local.alarm_name_prefix} - Messages Count Warning"
   alarm_description = "SQS queue ${aws_sqs_queue.queue.name} message count exceeded warning threshold (${var.queue_messages_count_warning_threshold})."
 
@@ -105,8 +99,6 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_count_warning" {
 
 # CloudWatch alarm for main queue message count (critical)
 resource "aws_cloudwatch_metric_alarm" "sqs_messages_count_critical" {
-  count = local.cloudwatch_alarms_enabled
-
   alarm_name        = "${local.alarm_name_prefix} - Messages Count Critical"
   alarm_description = "SQS queue ${aws_sqs_queue.queue.name} message count exceeded critical threshold (${var.queue_messages_count_critical_threshold})."
 
@@ -134,8 +126,6 @@ resource "aws_cloudwatch_metric_alarm" "sqs_messages_count_critical" {
 
 # CloudWatch alarm for main queue oldest message age (warning)
 resource "aws_cloudwatch_metric_alarm" "sqs_oldest_message_age_warning" {
-  count = local.cloudwatch_alarms_enabled
-
   alarm_name        = "${local.alarm_name_prefix} - Messages Age Warning"
   alarm_description = "SQS queue ${aws_sqs_queue.queue.name} oldest message age exceeded warning threshold (${var.queue_message_age_threshold_seconds}s)."
 
