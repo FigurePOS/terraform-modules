@@ -1,12 +1,12 @@
-# CloudWatch alarms for ECS service CPU and memory (production only).
-# Warning thresholds notify Slack only; critical thresholds also page on-call via Rootly.
+# CloudWatch alarms for ECS service CPU and memory.
+# Warning thresholds notify Slack only; critical thresholds also page on-call via Rootly in production.
 
 locals {
-  alarm_name_prefix         = "${var.service_name} ECS"
-  cloudwatch_alarms_enabled = var.env == "production" ? 1 : 0
+  alarm_name_prefix = "${var.service_name} ECS"
+  rootly_enabled    = var.env == "production"
 
-  alerts_slack_sns_topic_arns  = local.cloudwatch_alarms_enabled == 1 ? ["arn:aws:sns:us-east-1:637192944017:alerts-to-slack"] : []
-  alerts_rootly_sns_topic_arns = data.aws_sns_topic.rootly_oncall[*].arn
+  alerts_slack_sns_topic_arns  = ["arn:aws:sns:us-east-1:637192944017:alerts-to-slack"]
+  alerts_rootly_sns_topic_arns = local.rootly_enabled ? data.aws_sns_topic.rootly_oncall[*].arn : []
 
   utilization_alarm_tags = {
     Service = var.service_name
@@ -14,8 +14,6 @@ locals {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ecs_cpu_warning" {
-  count = local.cloudwatch_alarms_enabled
-
   alarm_name        = "${local.alarm_name_prefix} - CPU Utilization Warning"
   alarm_description = "ECS service ${var.service_name} average CPU utilization exceeded warning threshold (${var.cpu_utilization_alarm_warning_threshold}%)."
 
@@ -43,8 +41,6 @@ resource "aws_cloudwatch_metric_alarm" "ecs_cpu_warning" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ecs_cpu_critical" {
-  count = local.cloudwatch_alarms_enabled
-
   alarm_name        = "${local.alarm_name_prefix} - CPU Utilization Critical"
   alarm_description = "ECS service ${var.service_name} average CPU utilization exceeded critical threshold (${var.cpu_utilization_alarm_critical_threshold}%)."
 
@@ -72,8 +68,6 @@ resource "aws_cloudwatch_metric_alarm" "ecs_cpu_critical" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ecs_memory_warning" {
-  count = local.cloudwatch_alarms_enabled
-
   alarm_name        = "${local.alarm_name_prefix} - Memory Utilization Warning"
   alarm_description = "ECS service ${var.service_name} average memory utilization exceeded warning threshold (${var.memory_utilization_alarm_warning_threshold}%)."
 
@@ -101,8 +95,6 @@ resource "aws_cloudwatch_metric_alarm" "ecs_memory_warning" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ecs_memory_critical" {
-  count = local.cloudwatch_alarms_enabled
-
   alarm_name        = "${local.alarm_name_prefix} - Memory Utilization Critical"
   alarm_description = "ECS service ${var.service_name} average memory utilization exceeded critical threshold (${var.memory_utilization_alarm_critical_threshold}%)."
 
