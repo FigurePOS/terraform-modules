@@ -48,14 +48,14 @@ variable "memory_utilization_alarm_critical_threshold" {
 
 variable "cloudwatch_evaluation_periods" {
   type        = number
-  description = "The number of periods over which the ECS utilization metric is compared to the threshold."
-  default     = 1
+  description = "The number of consecutive periods over which the ECS utilization metric must breach the threshold."
+  default     = 5
 }
 
 variable "cloudwatch_period_seconds" {
   type        = number
-  description = "Metric period in seconds for ECS utilization alarms (e.g. 300 for a five-minute window)."
-  default     = 300
+  description = "Metric period in seconds for ECS utilization alarms."
+  default     = 60
 }
 
 variable "desired_count" {
