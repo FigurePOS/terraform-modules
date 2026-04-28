@@ -6,14 +6,14 @@ variable "aws_region" {
 
 variable "cloudwatch_evaluation_periods" {
   type        = number
-  description = "The number of evaluation periods for CloudWatch alarms."
-  default     = 1 # Fast notify: evaluate on the first period
+  description = "The number of consecutive evaluation periods that must breach before CloudWatch alarms."
+  default     = 5
 }
 
 variable "cloudwatch_period_seconds" {
   type        = number
   description = "The period in seconds for CloudWatch metric evaluation."
-  default     = 60 # 1 minute for fastest alerts
+  default     = 60
 }
 
 variable "deduplication_scope" {
