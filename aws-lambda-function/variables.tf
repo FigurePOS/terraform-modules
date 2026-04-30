@@ -1,9 +1,3 @@
-variable "datadog_extension_layer_version" {
-  description = "Datadog extension layer version (receives OTLP and forwards to Datadog)"
-  type        = number
-  default     = 90
-}
-
 variable "description" {
   description = "Description of the Lambda function"
   type        = string
@@ -24,6 +18,17 @@ variable "environment_variables" {
 variable "function_name" {
   description = "Name of the Lambda function"
   type        = string
+}
+
+variable "category" {
+  description = "Category of Lambda function for log routing and telemetry dataset selection. Use application for product service Lambdas and platform for infrastructure helper Lambdas."
+  type        = string
+  default     = "application"
+
+  validation {
+    condition     = contains(["application", "platform"], var.category)
+    error_message = "category must be either application or platform."
+  }
 }
 
 variable "git_commit_hash" {
@@ -59,6 +64,12 @@ variable "no_bundle" {
   description = "Whether to pass --no-bundle flag to fgr lambda build command"
   type        = bool
   default     = false
+}
+
+variable "otlp_http_endpoint" {
+  description = "OTLP/HTTP base URL for Axiom (no path; the SDK appends /v1/traces). Use your edge domain if not on api.axiom.co."
+  type        = string
+  default     = "https://us-east-1.aws.edge.axiom.co"
 }
 
 variable "policy_documents" {
@@ -138,51 +149,51 @@ variable "enable_cloudwatch_alarms" {
 }
 
 variable "cloudwatch_evaluation_periods" {
-  description = "The number of evaluation periods for CloudWatch alarms"
   type        = number
-  default     = 1
+  description = "The number of consecutive evaluation periods that must breach before Lambda CloudWatch alarms."
+  default     = 5
 }
 
 variable "cloudwatch_period_seconds" {
-  description = "The period in seconds for CloudWatch metric evaluation"
   type        = number
+  description = "Metric period in seconds for Lambda CloudWatch alarms."
   default     = 60
 }
 
-variable "lambda_errors_threshold" {
-  description = "The number of errors to trigger an alarm"
+variable "lambda_errors_alarm_warning_threshold" {
   type        = number
+  description = "Warning threshold for Lambda errors in one metric period; notifies Slack only."
   default     = 5
 }
 
-variable "lambda_throttles_threshold" {
-  description = "The number of throttles to trigger an alarm"
+variable "lambda_throttles_alarm_warning_threshold" {
   type        = number
+  description = "Warning threshold for Lambda throttles in one metric period; notifies Slack only."
   default     = 1
 }
 
-variable "lambda_duration_threshold_percentage" {
-  description = "The percentage of timeout duration to trigger an alarm (e.g., 80 for 80% of timeout)"
+variable "lambda_duration_alarm_warning_threshold_percentage" {
   type        = number
+  description = "Warning threshold for Lambda duration as a percentage of timeout; notifies Slack only."
   default     = 80
   validation {
-    condition     = var.lambda_duration_threshold_percentage > 0 && var.lambda_duration_threshold_percentage <= 100
-    error_message = "The lambda_duration_threshold_percentage must be between 1 and 100."
+    condition     = var.lambda_duration_alarm_warning_threshold_percentage > 0 && var.lambda_duration_alarm_warning_threshold_percentage <= 100
+    error_message = "lambda_duration_alarm_warning_threshold_percentage must be between 1 and 100."
   }
 }
 
-variable "lambda_concurrent_executions_threshold" {
-  description = "The number of concurrent executions to trigger an alarm"
+variable "lambda_concurrent_executions_alarm_warning_threshold" {
   type        = number
+  description = "Warning threshold for Lambda concurrent executions; notifies Slack only."
   default     = 50
 }
 
-variable "lambda_error_rate_threshold" {
-  description = "The error rate percentage to trigger an alarm (e.g., 5 for 5%)"
+variable "lambda_error_rate_alarm_warning_threshold" {
   type        = number
+  description = "Warning threshold for Lambda error rate percentage; notifies Slack only."
   default     = 5
   validation {
-    condition     = var.lambda_error_rate_threshold >= 0 && var.lambda_error_rate_threshold <= 100
-    error_message = "The lambda_error_rate_threshold must be between 0 and 100."
+    condition     = var.lambda_error_rate_alarm_warning_threshold >= 0 && var.lambda_error_rate_alarm_warning_threshold <= 100
+    error_message = "lambda_error_rate_alarm_warning_threshold must be between 0 and 100."
   }
 }

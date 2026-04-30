@@ -4,11 +4,11 @@ resource "null_resource" "build_lambda" {
   triggers = {
     source_code_hash = local.source_files_hash
     # Also trigger on configuration changes
-    handler         = var.handler
-    runtime         = var.runtime
-    environment     = jsonencode(var.environment_variables)
-    source_dir      = var.source_dir
-    no_bundle       = var.no_bundle
+    handler     = var.handler
+    runtime     = var.runtime
+    environment = jsonencode(var.environment_variables)
+    source_dir  = var.source_dir
+    no_bundle   = var.no_bundle
   }
 
   provisioner "local-exec" {
@@ -22,13 +22,13 @@ resource "aws_s3_object" "lambda_package" {
   key    = "${var.function_name}/${local.source_files_hash}.zip"
 
   source = local.zip_output_path
-  
+
   # Use the source code hash for change detection
   source_hash = local.source_files_hash
 
   # Ensure we don't upload until the package is built
   depends_on = [null_resource.build_lambda]
-  
+
   lifecycle {
     # Replace the object if the source changes
     create_before_destroy = true
@@ -37,8 +37,8 @@ resource "aws_s3_object" "lambda_package" {
 
 # CloudWatch Log Group for Lambda
 resource "aws_cloudwatch_log_group" "lambda" {
-  //checkov:skip=CKV_AWS_338: "Ensure CloudWatch log groups retains logs for at least 1 year" - We retain logs using Datadog → S3 integration.
-  name              = "/aws/lambda/${var.function_name}"
+  //checkov:skip=CKV_AWS_338: "Ensure CloudWatch log groups retains logs for at least 1 year" - Short platform retention; long-term log archival is handled separately.
+  name              = "${local.lambda_log_group_prefix}/${var.function_name}"
   retention_in_days = 7
   tags              = var.tags
 }
@@ -66,10 +66,7 @@ resource "aws_lambda_function" "this" {
   reserved_concurrent_executions = var.reserved_concurrent_executions
 
   publish = true
-  layers = concat(
-    var.datadog_extension_layer_version != 0 ? [local.datadog_extension_layer_arn] : [],
-    var.layers
-  )
+  layers  = var.layers
 
   depends_on = [
     aws_cloudwatch_log_group.lambda,
@@ -83,6 +80,11 @@ resource "aws_lambda_function" "this" {
 
   environment {
     variables = local.environment_variables
+  }
+
+  logging_config {
+    log_group  = aws_cloudwatch_log_group.lambda.name
+    log_format = "JSON"
   }
 
   dynamic "vpc_config" {
