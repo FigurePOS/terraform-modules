@@ -31,27 +31,21 @@ resource "aws_iam_role_policy_attachment" "lambda_vpc" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
-# Custom policy for resources access
+# Custom policy for resources access (optional — e.g. Buddy attaches policies outside the module)
 resource "aws_iam_policy" "lambda_policy" {
+  count = length(var.policy_documents) > 0 ? 1 : 0
+
   name        = "${var.function_name}-policy"
   description = "Policy for ${var.function_name} Lambda function"
   policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = concat(var.policy_documents, [
-      {
-        Effect = "Allow"
-        Action = [
-          "secretsmanager:GetSecretValue"
-        ]
-        Resource = [
-          data.aws_secretsmanager_secret.datadog_api_key.arn
-        ]
-      }
-    ])
+    Version   = "2012-10-17"
+    Statement = var.policy_documents
   })
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_custom_policy" {
+  count = length(var.policy_documents) > 0 ? 1 : 0
+
   role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.lambda_policy.arn
+  policy_arn = aws_iam_policy.lambda_policy[0].arn
 }

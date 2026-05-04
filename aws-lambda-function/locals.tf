@@ -1,4 +1,19 @@
 locals {
+  lambda_log_group_prefix = {
+    application = "/figure/lambda"
+    platform    = "/platform/lambda"
+  }[var.category]
+
+  axiom_traces_dataset = {
+    application = "node-js-traces"
+    platform    = "platform-traces"
+  }[var.category]
+  axiom_traces_dataset_env_suffix = {
+    development = "dev"
+    production  = "prod"
+  }
+  axiom_traces_dataset_name = "${local.axiom_traces_dataset}-${lookup(local.axiom_traces_dataset_env_suffix, var.env, var.env)}"
+
   # Calculate a hash of the source code for determining when to rebuild
   # Only includes files that actually affect the build output
   source_files = {
@@ -22,33 +37,30 @@ locals {
   build_output_dir = "${local.build_dir}/dist"
   zip_output_path  = "${path.module}/.build/${var.function_name}.zip"
 
-  # Environment variables for OpenTelemetry integration
-  # Send OTLP to Datadog extension (v53+) which forwards to Datadog
+  # OpenTelemetry: OTLP/HTTP to Axiom (https://axiom.co/docs/send-data/opentelemetry)
+  default_node_options = "--enable-source-maps --require @figurepos/lib-lambda-telemetry/register"
+  node_options         = trimspace("${local.default_node_options} ${lookup(var.environment_variables, "NODE_OPTIONS", "")}")
+
   otel_env_vars = {
-    NODE_OPTIONS                = "--enable-source-maps"
-    OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4318"
-    OTEL_RESOURCE_ATTRIBUTES    = "service.name=${var.service_name},service.version=${var.git_commit_hash != "" ? var.git_commit_hash : "unknown"},deployment.environment=${var.env}${var.git_repository_url != "" ? ",git.repository_url=${var.git_repository_url}" : ""}"
-    OTEL_SERVICE_NAME           = var.service_name
-    OTEL_SERVICE_VERSION        = var.git_commit_hash != "" ? var.git_commit_hash : "unknown"
+    OTEL_EXPORTER_OTLP_COMPRESSION = "gzip"
+    OTEL_EXPORTER_OTLP_ENDPOINT    = var.otlp_http_endpoint
+    OTEL_EXPORTER_OTLP_HEADERS     = "authorization=Bearer%20${data.aws_ssm_parameter.axiom_api_token.value},x-axiom-dataset=${local.axiom_traces_dataset_name}"
+    OTEL_EXPORTER_OTLP_PROTOCOL    = "http/protobuf"
+    OTEL_RESOURCE_ATTRIBUTES       = "service.name=${var.service_name},service.version=${var.git_commit_hash != "" ? var.git_commit_hash : "unknown"},deployment.environment=${var.env},lambda.name=${var.function_name},cloud.provider=aws,cloud.platform=aws_lambda"
+    OTEL_SERVICE_NAME              = var.service_name
+    OTEL_SERVICE_VERSION           = var.git_commit_hash != "" ? var.git_commit_hash : "unknown"
   }
 
-  datadog_extension_env_vars = {
-    DD_API_KEY_SECRET_ARN                           = data.aws_secretsmanager_secret.datadog_api_key.arn
-    DD_ENV                                          = var.env
-    DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT = "localhost:4318"
-    DD_SERVICE                                      = var.service_name
-
-  }
-
-  environment_variables = merge(local.otel_env_vars, local.datadog_extension_env_vars, var.environment_variables)
-
-  datadog_extension_layer_arn = "arn:aws:lambda:${data.aws_region.current.region}:464622532012:layer:Datadog-Extension:${var.datadog_extension_layer_version}"
+  environment_variables = merge(local.otel_env_vars, var.environment_variables, {
+    NODE_OPTIONS = local.node_options
+  })
 
   scheduling_enabled = var.schedule_expression != ""
 
   # CloudWatch alarms configuration
   cloudwatch_alarms_enabled = var.enable_cloudwatch_alarms ? 1 : 0
   alarm_name_prefix         = "${var.service_name} Lambda"
+  alarm_tags                = merge(var.tags, { Service = var.service_name })
 
   # Hardcoded SNS topic ARN for Slack alerts (shared across all accounts)
   # Returns a list for compatibility with alarm_actions which expects a list of ARNs
