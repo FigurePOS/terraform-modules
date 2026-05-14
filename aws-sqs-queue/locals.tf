@@ -1,5 +1,5 @@
 locals {
-  alarm_name_prefix = "${var.service_name} SQS"
+  alarm_name_prefix = "${var.service_name} SQS ${var.queue_name}"
   tags              = merge(var.tags, { Service = var.service_name })
 
   rootly_enabled = var.env == "production"
