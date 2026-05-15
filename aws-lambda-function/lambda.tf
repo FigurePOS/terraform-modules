@@ -39,7 +39,7 @@ resource "aws_s3_object" "lambda_package" {
 resource "aws_cloudwatch_log_group" "lambda" {
   //checkov:skip=CKV_AWS_338: "Ensure CloudWatch log groups retains logs for at least 1 year" - Short platform retention; long-term log archival is handled separately.
   name              = "${local.lambda_log_group_prefix}/${var.function_name}"
-  retention_in_days = 7
+  retention_in_days = 3
   tags              = var.tags
 }
 
