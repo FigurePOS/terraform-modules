@@ -1,5 +1,12 @@
+data "aws_region" "current" {}
+
+
 data "aws_ecs_cluster" "main" {
   cluster_name = "fgr-ecs-cluster"
+}
+
+data "aws_lambda_function" "axiom_log_forwarder" {
+  function_name = "axiom-cw-node-forwarder"
 }
 
 data "aws_lb" "main" {
@@ -42,6 +49,6 @@ data "aws_vpc" "main" {
 
 data "aws_sns_topic" "rootly_oncall" {
   count = local.rootly_enabled ? 1 : 0
-  
-  name  = "alerts-to-rootly"
+
+  name = "alerts-to-rootly"
 }

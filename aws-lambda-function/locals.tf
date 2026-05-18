@@ -1,18 +1,25 @@
 locals {
-  lambda_log_group_prefix = {
-    application = "/figure/lambda"
-    platform    = "/platform/lambda"
+  axiom_log_forwarder_function_name = {
+    application = "axiom-cw-node-forwarder"
+    platform    = "axiom-cw-platform-forwarder"
   }[var.category]
 
   axiom_traces_dataset = {
     application = "node-js-traces"
     platform    = "platform-traces"
   }[var.category]
+
   axiom_traces_dataset_env_suffix = {
     development = "dev"
     production  = "prod"
   }
+
   axiom_traces_dataset_name = "${local.axiom_traces_dataset}-${lookup(local.axiom_traces_dataset_env_suffix, var.env, var.env)}"
+
+  lambda_log_group_prefix = {
+    application = "/figure/lambda"
+    platform    = "/platform/lambda"
+  }[var.category]
 
   # Calculate a hash of the source code for determining when to rebuild
   # Only includes files that actually affect the build output
