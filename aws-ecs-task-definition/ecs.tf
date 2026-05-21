@@ -85,12 +85,22 @@ locals {
   # Convert service_envs to a map (if it's in the expected format)
   service_envs_map = { for item in var.service_envs : item.name => item.value if can(item.name) && can(item.value) }
 
+  service_node_options_override         = lookup(local.service_envs_map, "NODE_OPTIONS", "")
+  service_envs_map_without_node_options = { for name, value in local.service_envs_map : name => value if name != "NODE_OPTIONS" }
+
+  # Node runtime flags and OTEL preload run via NODE_OPTIONS so they apply before the app entry script loads.
+  node_runtime_options = var.node_script != "" ? "--enable-source-maps --no-network-family-autoselection --dns-result-order=ipv4first" : ""
+  otel_preload_option  = var.node_script != "" ? "--require @figurepos/lib-observability/ecs/register" : ""
+  default_node_options = trimspace("${local.node_runtime_options} ${local.otel_preload_option}")
+  node_options = local.default_node_options != "" ? trimspace("${local.default_node_options} ${local.service_node_options_override}") : local.service_node_options_override
+
   # Merge the maps, with service_env_map taking precedence
   merged_service_envs_map = merge(
     local.base_service_envs_map,
     local.otel_traces_sampler_envs_map,
     local.otel_rate_limit_envs_map,
-    local.service_envs_map,
+    local.service_envs_map_without_node_options,
+    local.node_options != "" ? { NODE_OPTIONS = local.node_options } : {},
   )
 
   # Convert back to the list format required by the module
