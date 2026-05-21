@@ -32,14 +32,10 @@ variable "ecr_repository_uri" {
   type = string
 }
 
-variable "entry_point" {
-  type    = string
-  default = ""
-}
-
-variable "entry_point_node_script" {
-  type    = string
-  default = ""
+variable "node_script" {
+  type        = string
+  default     = ""
+  description = "Path to the Node.js entry script (e.g. build or dist/server/server.js). When set, runs exec node <script> with standard runtime NODE_OPTIONS (source maps, OTEL preload). Leave empty to use the container image CMD."
 }
 
 variable "env" {
@@ -138,5 +134,5 @@ variable "telemetry_backend" {
 }
 
 locals {
-  entry_point = var.entry_point != "" ? ["sh", "-c", var.entry_point] : (var.entry_point_node_script != "" ? ["sh", "-c", "exec node --enable-source-maps --no-network-family-autoselection --dns-result-order=ipv4first ${var.entry_point_node_script}"] : [])
+  entry_point = var.node_script != "" ? ["sh", "-c", "exec node ${var.node_script}"] : []
 }

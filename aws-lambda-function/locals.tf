@@ -38,7 +38,7 @@ locals {
   zip_output_path  = "${path.module}/.build/${var.function_name}.zip"
 
   # OpenTelemetry: OTLP/HTTP to Axiom (https://axiom.co/docs/send-data/opentelemetry)
-  default_node_options = "--enable-source-maps --require @figurepos/lib-lambda-telemetry/register"
+  default_node_options = "--enable-source-maps --require @figurepos/lib-observability/lambda/register"
   node_options         = trimspace("${local.default_node_options} ${lookup(var.environment_variables, "NODE_OPTIONS", "")}")
 
   otel_env_vars = {
