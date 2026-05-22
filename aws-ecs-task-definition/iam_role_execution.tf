@@ -33,7 +33,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_custom" {
 }
 
 resource "aws_iam_policy" "ecs_task_execution_role_custom" {
-  count      = var.task_execution_policy != null ? 1 : 0
+  count  = var.task_execution_policy != null ? 1 : 0
   name   = "${var.service_name}__ecs_execution_custom"
   policy = var.task_execution_policy.json
 }
