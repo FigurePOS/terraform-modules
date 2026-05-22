@@ -15,12 +15,6 @@ variable "ecr_repository_uri" {
   type = string
 }
 
-variable "node_script" {
-  type        = string
-  default     = ""
-  description = "Path to the Node.js entry script (e.g. build or dist/server/server.js). When set, runs exec node <script> with standard runtime NODE_OPTIONS (source maps, OTEL preload). Leave empty to use the container image CMD."
-}
-
 variable "env" {
   type = string
 }
@@ -31,6 +25,30 @@ variable "git_commit_hash" {
 
 variable "git_repository" {
   type = string
+}
+
+variable "node_script" {
+  type        = string
+  default     = ""
+  description = "Path to the Node.js entry script (e.g. build or dist/server/server.js). When set, runs exec node <script> with standard runtime NODE_OPTIONS (source maps, OTEL preload). Leave empty to use the container image CMD."
+}
+
+variable "otel_traces_rate_limit" {
+  type        = number
+  default     = 20
+  description = "Maximum traces per second (rate limiting)."
+}
+
+variable "otel_traces_sampler" {
+  type        = string
+  default     = "parentbased_traceidratio"
+  description = "The OpenTelemetry traces sampler to use. Defaults to 'parentbased_traceidratio'. Only used if otel_traces_sampler_arg is set."
+}
+
+variable "otel_traces_sampler_arg" {
+  type        = string
+  default     = ""
+  description = "If non-empty, adds OTEL_TRACES_SAMPLER (using otel_traces_sampler variable) and OTEL_TRACES_SAMPLER_ARG (this value) to the app container environment."
 }
 
 variable "readonly_root_filesystem" {
@@ -68,14 +86,14 @@ variable "task_cpu" {
   default = 256
 }
 
-variable "task_memory" {
-  type    = number
-  default = 512
-}
-
 variable "task_execution_policy" {
   type    = any
   default = null
+}
+
+variable "task_memory" {
+  type    = number
+  default = 512
 }
 
 variable "task_policy" {
@@ -86,24 +104,6 @@ variable "task_policy" {
 variable "ulimits" {
   type    = list(any)
   default = []
-}
-
-variable "otel_traces_sampler" {
-  type        = string
-  default     = "parentbased_traceidratio"
-  description = "The OpenTelemetry traces sampler to use. Defaults to 'parentbased_traceidratio'. Only used if otel_traces_sampler_arg is set."
-}
-
-variable "otel_traces_sampler_arg" {
-  type        = string
-  default     = ""
-  description = "If non-empty, adds OTEL_TRACES_SAMPLER (using otel_traces_sampler variable) and OTEL_TRACES_SAMPLER_ARG (this value) to the app container environment."
-}
-
-variable "otel_traces_rate_limit" {
-  type        = number
-  default     = 20
-  description = "Maximum traces per second (rate limiting)."
 }
 
 locals {
