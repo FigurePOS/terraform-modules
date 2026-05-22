@@ -1,7 +1,6 @@
 locals {
   common_tags = {
-    "Environment" = var.env
-    "Service"     = var.service_name
+    "Service" = var.service_name
   }
 
   default_service_envs = [
@@ -28,6 +27,10 @@ locals {
     {
       name  = "NODE_ENV",
       value = var.env
+    },
+    {
+      name  = "OTEL_EXPORTER_OTLP_ENDPOINT",
+      value = "http://otel-collector:4318"
     },
     {
       name  = "OTEL_RESOURCE_ATTRIBUTES",
@@ -65,22 +68,8 @@ locals {
 
   default_service_secrets = []
 
-
   # Convert default environment to a map for easier merging
   default_service_envs_map = { for item in local.default_service_envs : item.name => item.value }
-
-  # Apply telemetry backend specific overrides
-  base_service_envs = var.telemetry_backend == "uptrace" ? concat(
-    local.default_service_envs,
-    [
-      {
-        name  = "OTEL_EXPORTER_OTLP_ENDPOINT"
-        value = "http://otel-collector:4318"
-      }
-    ]
-  ) : local.default_service_envs
-
-  base_service_envs_map = { for item in local.base_service_envs : item.name => item.value }
 
   # Convert service_envs to a map (if it's in the expected format)
   service_envs_map = { for item in var.service_envs : item.name => item.value if can(item.name) && can(item.value) }
@@ -92,11 +81,11 @@ locals {
   node_runtime_options = var.node_script != "" ? "--enable-source-maps --no-network-family-autoselection --dns-result-order=ipv4first" : ""
   otel_preload_option  = var.node_script != "" ? "--require @figurepos/lib-observability/ecs/register" : ""
   default_node_options = trimspace("${local.node_runtime_options} ${local.otel_preload_option}")
-  node_options = local.default_node_options != "" ? trimspace("${local.default_node_options} ${local.service_node_options_override}") : local.service_node_options_override
+  node_options         = local.default_node_options != "" ? trimspace("${local.default_node_options} ${local.service_node_options_override}") : local.service_node_options_override
 
   # Merge the maps, with service_env_map taking precedence
   merged_service_envs_map = merge(
-    local.base_service_envs_map,
+    local.default_service_envs_map,
     local.otel_traces_sampler_envs_map,
     local.otel_rate_limit_envs_map,
     local.service_envs_map_without_node_options,
@@ -117,14 +106,6 @@ locals {
 
   # Convert back to the list format required by the module
   service_secrets = [for name, valueFrom in local.merged_service_secrets_map : { name = name, valueFrom = valueFrom }]
-}
-
-resource "aws_cloudwatch_log_group" "datadog_agent" {
-  count             = var.telemetry_backend == "datadog" && var.dd_agent_enable_logging ? 1 : 0
-  name              = "/figure/datadog-agent/${var.service_name}"
-  retention_in_days = var.dd_agent_log_retention_days
-
-  tags = local.common_tags
 }
 
 module "app_container_definition" {
@@ -150,24 +131,7 @@ module "app_container_definition" {
     }
   ]
 
-  docker_labels = var.telemetry_backend == "datadog" ? {
-    # Datadog autodiscovery tags
-    "com.datadoghq.tags.aws_region"  = "${var.aws_region}",
-    "com.datadoghq.tags.aws_account" = "${var.aws_account_id}",
-    "com.datadoghq.tags.env"         = "${var.env}",
-    "com.datadoghq.tags.service"     = "${var.service_name}",
-    "com.datadoghq.tags.version"     = "${var.deployment_tag}",
-    "com.datadoghq.tags.task_family" = "${var.service_name}",
-
-    # Container resource context for cost/performance analysis
-    "com.datadoghq.tags.task_cpu"    = "${var.task_cpu}",
-    "com.datadoghq.tags.task_memory" = "${var.task_memory}",
-
-    # Git/deployment context 
-    "org.opencontainers.image.revision" = var.git_commit_hash,
-    "org.opencontainers.image.source"   = var.git_repository,
-  } : {
-    # Git/deployment context for non-Datadog backends
+  docker_labels = {
     "org.opencontainers.image.revision" = var.git_commit_hash,
     "org.opencontainers.image.source"   = var.git_repository,
   }
@@ -190,121 +154,7 @@ module "app_container_definition" {
   volumes_from    = []
 }
 
-module "datadog_agent_definition" {
-  # checkov:skip=CKV_TF_1: "Ensure Terraform module sources use a commit hash"
-  source  = "cloudposse/ecs-container-definition/aws"
-  version = "0.61.2"
-
-  count = var.telemetry_backend == "datadog" ? 1 : 0
-
-  container_name  = "datadog-agent"
-  container_image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/ecr-public/datadog/agent:${var.dd_agent_version}"
-  essential       = true
-
-  container_cpu                = 50
-  container_memory_reservation = 256
-
-  environment = [
-    {
-      name  = "DD_APM_ENABLED",
-      value = "true"
-    },
-    {
-      name  = "DD_APM_FEATURES",
-      value = "enable_operation_and_resource_name_logic_v2"
-    },
-    {
-      name  = "DD_APM_NON_LOCAL_TRAFFIC",
-      value = "true"
-    },
-    {
-      name  = "DD_DOGSTATSD_NON_LOCAL_TRAFFIC",
-      value = "true"
-    },
-    {
-      name  = "DD_LOGS_CONFIG_USE_HTTP",
-      value = "true"
-    },
-    {
-      name  = "DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT",
-      value = "0.0.0.0:4317"
-    },
-    {
-      name  = "DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT",
-      value = "0.0.0.0:4318"
-    },
-    {
-      name  = "DD_PROCESS_AGENT_ENABLED",
-      value = "true"
-    },
-    {
-      name  = "DD_PROCESS_AGENT_PROCESS_COLLECTION_ENABLED",
-      value = "true"
-    },
-    {
-      name  = "DD_REMOTE_CONFIGURATION_ENABLED",
-      value = "true"
-    },
-    {
-      name  = "ECS_FARGATE",
-      value = "true"
-    }
-  ]
-
-  secrets = [
-    {
-      name      = "DD_API_KEY",
-      valueFrom = "/ecs/datadog/api_key"
-    }
-  ]
-
-  docker_labels = {
-    "com.datadoghq.ad.instances"    = "[{\"host\": \"%%host%%\", \"port\": ${var.service_port}}]",
-    "com.datadoghq.ad.check_names"  = "[\"${var.service_name}\"]",
-    "com.datadoghq.ad.init_configs" = "[{}]"
-  }
-
-  healthcheck = {
-    command = [
-      "CMD-SHELL",
-      "agent health"
-    ],
-    interval    = 10,
-    timeout     = 5,
-    retries     = 5,
-    startPeriod = 15
-  }
-
-  readonly_root_filesystem = false
-
-  log_configuration = var.dd_agent_enable_logging ? {
-    logDriver = "awslogs"
-    options = {
-      awslogs-group         = aws_cloudwatch_log_group.datadog_agent[0].name
-      awslogs-region        = var.aws_region
-      awslogs-stream-prefix = "datadog-agent"
-    }
-  } : null
-
-  mount_points = []
-  port_mappings = [
-    {
-      name          = "otlp-grpc"
-      containerPort = 4317
-      protocol      = "tcp"
-    },
-    {
-      name          = "otlp-http"
-      containerPort = 4318
-      protocol      = "tcp"
-    }
-  ]
-  system_controls = []
-  volumes_from    = []
-}
-
 resource "aws_ecs_task_definition" "ecs_task_definition" {
-  # checkov:skip=CKV_AWS_336:This is needed for the ECS service to communicate with Datadog.
   family                   = var.service_name
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
@@ -313,13 +163,9 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
   cpu                      = var.task_cpu
   memory                   = var.task_memory
 
-  container_definitions = jsonencode(
-    concat([
-      module.app_container_definition.json_map_object,
-    ], var.telemetry_backend == "datadog" ? [
-      module.datadog_agent_definition[0].json_map_object
-    ] : [])
-  )
+  container_definitions = jsonencode([
+    module.app_container_definition.json_map_object,
+  ])
 
   tags = local.common_tags
 
