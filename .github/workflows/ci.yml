@@ -55,6 +55,11 @@ jobs:
           cd axiom-monitor-express-endpoint
           terraform init
           terraform validate
+      - name: "validate axiom-monitor-redis"
+        run: |
+          cd axiom-monitor-redis
+          terraform init
+          terraform validate
       - name: "scan for misconfigurations with Checkov"
         id: checkov
         uses: bridgecrewio/checkov-action@v12
