@@ -35,9 +35,9 @@ jobs:
           cd aws-ecs-task-definition
           terraform init
           terraform validate
-      - name: "validate aws-sqs-queue"
+      - name: "validate aws-lambda-function"
         run: |
-          cd aws-sqs-queue
+          cd aws-lambda-function
           terraform init
           terraform validate
       - name: "validate aws-s3-bucket"
@@ -45,34 +45,14 @@ jobs:
           cd aws-s3-bucket
           terraform init
           terraform validate
-      - name: "validate datadog-dashboard-service"
+      - name: "validate aws-sqs-queue"
         run: |
-          cd datadog-dashboard-service
+          cd aws-sqs-queue
           terraform init
           terraform validate
-      - name: "validate datadog-monitor-express-endpoint"
+      - name: "validate axiom-monitor-express-endpoint"
         run: |
-          cd datadog-monitor-express-endpoint
-          terraform init
-          terraform validate
-      - name: "validate datadog-monitor-latency"
-        run: |
-          cd datadog-monitor-latency
-          terraform init
-          terraform validate
-      - name: "validate datadog-monitor-metric"
-        run: |
-          cd datadog-monitor-metric
-          terraform init
-          terraform validate
-      - name: "validate datadog-monitor-metric-slo"
-        run: |
-          cd datadog-monitor-metric-slo
-          terraform init
-          terraform validate
-      - name: "validate datadog-sqs"
-        run: |
-          cd datadog-sqs
+          cd axiom-monitor-express-endpoint
           terraform init
           terraform validate
       - name: "scan for misconfigurations with Checkov"
