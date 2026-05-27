@@ -43,11 +43,6 @@ variable "resource_name" {
   description = "OTLP resource.name tag value for the route (e.g. POST /orders/order/v3). Must match lib-observability HTTP metrics."
 }
 
-variable "resource_name_readable" {
-  type        = string
-  description = "Short human-readable route label used in the Datadog monitor title (e.g. POST /order/v3)."
-}
-
 variable "service_name" {
   type = string
 }

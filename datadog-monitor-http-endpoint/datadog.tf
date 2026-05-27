@@ -16,7 +16,7 @@ data "datadog_role" "admin_role" {
 }
 
 resource "datadog_monitor" "http_monitor_error_rate" {
-  name    = "${var.service_name} – HTTP - ${var.resource_name_readable} – Error rate"
+  name    = "${var.service_name} – HTTP - ${var.resource_name} - Error rate"
   type    = "metric alert"
   message = local.monitor_message
   query   = "${var.eval_fn}(${var.interval}):(100 * ${local.metric_errors} / ${local.metric_hits}) > ${var.error_rate_target}"
@@ -26,7 +26,7 @@ resource "datadog_monitor" "http_monitor_error_rate" {
 }
 
 resource "datadog_monitor" "http_monitor_latency" {
-  name           = "${var.service_name} – HTTP - ${var.resource_name_readable} – Latency"
+  name           = "${var.service_name} – HTTP - ${var.resource_name} - Latency"
   type           = "metric alert"
   message        = local.monitor_message
   query          = "${var.eval_fn}(${var.interval}):${local.metric_latency} > ${var.latency_target}"
