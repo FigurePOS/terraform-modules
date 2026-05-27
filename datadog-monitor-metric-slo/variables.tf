@@ -1,23 +1,9 @@
+variable "critical_threshold" {
+  type = number
+}
+
 variable "env" {
   type = string
-}
-
-variable "tags" {
-  type    = list(string)
-  default = []
-}
-
-variable "monitor_name" {
-  type = string
-}
-
-variable "monitor_message" {
-  type = string
-}
-
-variable "monitor_eval_interval" {
-  type    = string
-  default = "last_5m"
 }
 
 variable "monitor_eval_fn" {
@@ -25,16 +11,25 @@ variable "monitor_eval_fn" {
   default = "max"
 }
 
+variable "monitor_eval_interval" {
+  type    = string
+  default = "last_5m"
+}
+
+variable "monitor_message" {
+  type = string
+}
+
+variable "monitor_name" {
+  type = string
+}
+
 variable "monitor_query" {
   type = string
 }
 
-variable "warning_threshold" {
-  type = number
-}
-
-variable "critical_threshold" {
-  type = number
+variable "service_name" {
+  type = string
 }
 
 variable "slo_name" {
@@ -43,4 +38,13 @@ variable "slo_name" {
 
 variable "slo_thresholds" {
   type = list(object({ timeframe : string, target : number }))
+}
+
+variable "tags" {
+  type    = list(string)
+  default = []
+}
+
+variable "warning_threshold" {
+  type = number
 }

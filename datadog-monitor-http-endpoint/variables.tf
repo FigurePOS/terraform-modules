@@ -3,6 +3,10 @@ variable "env" {
   type = string
 }
 
+variable "error_rate_target" {
+  type = number
+}
+
 variable "eval_fn" {
   type    = string
   default = "min"
@@ -19,7 +23,8 @@ variable "latency_percentile" {
 }
 
 variable "latency_target" {
-  type = number
+  type        = number
+  description = "Latency threshold in seconds (matches fgr.http.server.request.duration unit)."
 }
 
 variable "message" {
@@ -34,7 +39,13 @@ variable "notify_on_missing_data" {
 }
 
 variable "resource_name" {
-  type = string
+  type        = string
+  description = "OTLP resource.name tag value for the route (e.g. POST /orders/order/v3). Must match lib-observability HTTP metrics."
+}
+
+variable "resource_name_readable" {
+  type        = string
+  description = "Short human-readable route label used in the Datadog monitor title (e.g. POST /order/v3)."
 }
 
 variable "service_name" {
@@ -42,6 +53,7 @@ variable "service_name" {
 }
 
 variable "tags" {
-  type    = list(string)
-  default = []
+  type        = list(string)
+  default     = []
+  description = "Additional Datadog monitor tags. An env:<environment> tag is always included from var.env."
 }

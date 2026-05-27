@@ -60,6 +60,26 @@ jobs:
           cd axiom-monitor-redis
           terraform init
           terraform validate
+      - name: "validate datadog-monitor-event-latency"
+        run: |
+          cd datadog-monitor-event-latency
+          terraform init
+          terraform validate
+      - name: "validate datadog-monitor-http-endpoint"
+        run: |
+          cd datadog-monitor-http-endpoint
+          terraform init
+          terraform validate
+      - name: "validate datadog-monitor-metric"
+        run: |
+          cd datadog-monitor-metric
+          terraform init
+          terraform validate
+      - name: "validate datadog-monitor-metric-slo"
+        run: |
+          cd datadog-monitor-metric-slo
+          terraform init
+          terraform validate
       - name: "scan for misconfigurations with Checkov"
         id: checkov
         uses: bridgecrewio/checkov-action@v12
