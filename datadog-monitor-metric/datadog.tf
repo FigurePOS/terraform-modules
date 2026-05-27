@@ -21,7 +21,7 @@ resource "datadog_monitor" "monitor" {
 }
 
 output "monitor_id" {
-  value = datadog_monitor.monitor[0].id
+  value = datadog_monitor.monitor.id
 }
 
 
