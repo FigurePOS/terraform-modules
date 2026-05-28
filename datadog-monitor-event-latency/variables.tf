@@ -3,14 +3,20 @@ variable "env" {
   type = string
 }
 
-variable "eval_fn" {
-  type    = string
-  default = "min"
+variable "event_type" {
+  type        = string
+  description = "SQS event type passed to traceSqsMessage opts.resource (e.g. ProductUpdated). Must match fgr.message.consumer.* resource.name."
 }
 
 variable "interval" {
   type    = string
   default = "last_10m"
+}
+
+variable "latency_eval_fn" {
+  type        = string
+  default     = "max"
+  description = "Time aggregation for the latency monitor (e.g. avg, max, min). Use max to alert on worst p99 in the window."
 }
 
 variable "latency_percentile" {
@@ -32,11 +38,6 @@ variable "message" {
 variable "notify_on_missing_data" {
   type    = bool
   default = false
-}
-
-variable "resource_name" {
-  type        = string
-  description = "SQS event type (traceSqsMessage opts.resource), e.g. OrderPlaced. Must match fgr.message.consumer.* metric resource.name."
 }
 
 variable "service_name" {
