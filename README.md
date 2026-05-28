@@ -20,13 +20,13 @@ Creates SQS queue with its DeadLetterQueue.
 
 Creates S3 bucket.
 
-## datadog-monitor-express-endpoint
+## datadog-monitor-http-endpoint
 
-Creates Datadog latency and error rate monitor for Rest API endpoints.
+Creates Datadog error-rate and latency monitors for HTTP routes (`fgr.http.server.request.*`).
 
-## datadog-monitor-latency
+## datadog-monitor-event-latency
 
-Creates Datadog latency monitor for event handlers.
+Creates Datadog latency monitor for SQS event consumer handlers (`fgr.message.consumer.duration`).
 
 ## datadog-monitor-metric
 
@@ -44,10 +44,3 @@ Creates Datadog metric monitors for number of messages in SQS queue and its DLQ.
 
 Creates ECS Fargate service and load balancer.
 Creates Datadog monitors for CPU and Memory utilization of ECS Service.
-
-
-
-
-
-
-

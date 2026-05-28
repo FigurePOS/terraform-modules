@@ -9,6 +9,7 @@ module "dd_monitor" {
   monitor_eval_interval = var.monitor_eval_interval
   monitor_eval_fn       = var.monitor_eval_fn
   monitor_query         = var.monitor_query
+  service_name          = var.service_name
   warning_threshold     = var.warning_threshold
   critical_threshold    = var.critical_threshold
 }
@@ -28,6 +29,6 @@ resource "datadog_service_level_objective" "dd_slo" {
     }
   }
 
-  tags = var.tags
+  tags = concat(["env:${var.env}", "service:${var.service_name}"], var.tags)
 }
 

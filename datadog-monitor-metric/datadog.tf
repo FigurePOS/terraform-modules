@@ -3,12 +3,10 @@ data "datadog_role" "admin_role" {
 }
 
 locals {
-  count = var.env == "production" ? 1 : 0
+  monitor_tags = concat(["env:${var.env}", "service:${var.service_name}"], var.tags)
 }
 
 resource "datadog_monitor" "monitor" {
-  count = local.count
-
   name    = var.monitor_name
   type    = "metric alert"
   message = var.monitor_message
@@ -19,11 +17,11 @@ resource "datadog_monitor" "monitor" {
   }
 
   restricted_roles = [data.datadog_role.admin_role.id]
-  tags             = var.tags
+  tags             = local.monitor_tags
 }
 
 output "monitor_id" {
-  value = datadog_monitor.monitor[0].id
+  value = datadog_monitor.monitor.id
 }
 
 
