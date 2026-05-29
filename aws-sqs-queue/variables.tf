@@ -108,3 +108,9 @@ variable "tags" {
   description = "Tags to apply to all AWS resources in this module."
   default     = {}
 }
+
+variable "delay_seconds" {
+  type        = number
+  description = "The time in seconds that the delivery of all messages in the queue will be delayed."
+  default     = 0
+}
