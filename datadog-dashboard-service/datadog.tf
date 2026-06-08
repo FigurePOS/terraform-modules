@@ -3,7 +3,7 @@ locals {
 
   http_endpoints = [
     for e in var.http_endpoints : {
-      title       = "${upper(e.method) == "ANY" ? "*" : upper(e.method)} /${var.api_path_prefix}${e.route}"
+      title       = "${upper(e.method) == "ANY" ? "*" : upper(e.method)} ${e.route}"
       http_method = lower(e.method)
       http_route  = "/${var.api_path_prefix}${e.route}"
       metric_dims = join(",", [
@@ -580,6 +580,169 @@ resource "datadog_dashboard" "service_dashboard" {
             request {
               display_type = "line"
               q            = "avg:aws.sqs.sent_message_size{queuename:${lower(widget.value.queue_name)},$env}"
+              style {
+                line_type  = "solid"
+                line_width = "normal"
+                palette    = "grey"
+              }
+            }
+
+            yaxis {
+              include_zero = true
+              max          = "auto"
+              min          = "auto"
+              scale        = "linear"
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ##################################################
+  # DynamoDB Tables
+  ##################################################
+  dynamic "widget" {
+    for_each = var.dynamodb_tables
+    content {
+      group_definition {
+        title       = "DynamoDB – ${widget.value.title}"
+        layout_type = "ordered"
+
+        # Errors and throttling
+        widget {
+          timeseries_definition {
+            show_legend = true
+            title       = "Errors and throttling"
+
+            request {
+              display_type = "bars"
+              q            = "max:aws.dynamodb.user_errors{tablename:${lower(widget.value.table_name)},$env}.as_count()"
+              style {
+                line_type  = "solid"
+                line_width = "normal"
+                palette    = "orange"
+              }
+            }
+
+            request {
+              display_type = "bars"
+              q            = "max:aws.dynamodb.system_errors{tablename:${lower(widget.value.table_name)},$env}.as_count()"
+              style {
+                line_type  = "solid"
+                line_width = "normal"
+                palette    = "red"
+              }
+            }
+
+            request {
+              display_type = "bars"
+              q            = "max:aws.dynamodb.throttled_requests{tablename:${lower(widget.value.table_name)},$env}.as_count()"
+              style {
+                line_type  = "solid"
+                line_width = "normal"
+                palette    = "purple"
+              }
+            }
+
+            marker {
+              display_type = "warning dashed"
+              value        = "y = 1"
+            }
+
+            marker {
+              display_type = "error dashed"
+              value        = "y = 10"
+            }
+
+            yaxis {
+              include_zero = true
+              max          = "auto"
+              min          = "auto"
+              scale        = "linear"
+            }
+          }
+        }
+
+        # Successful request latency
+        widget {
+          timeseries_definition {
+            show_legend = true
+            title       = "Successful request latency"
+
+            request {
+              display_type = "line"
+              q            = "avg:aws.dynamodb.successful_request_latency{tablename:${lower(widget.value.table_name)},$env}"
+              style {
+                line_type  = "solid"
+                line_width = "normal"
+                palette    = "dog_classic"
+              }
+            }
+
+            marker {
+              display_type = "warning dashed"
+              value        = "y = 25"
+            }
+
+            marker {
+              display_type = "error dashed"
+              value        = "y = 100"
+            }
+
+            yaxis {
+              include_zero = true
+              max          = "auto"
+              min          = "auto"
+              scale        = "linear"
+            }
+          }
+        }
+
+        # Read and write throughput
+        widget {
+          timeseries_definition {
+            show_legend = true
+            title       = "Read and write throughput"
+
+            request {
+              display_type = "bars"
+              q            = "sum:aws.dynamodb.consumed_read_capacity_units{tablename:${lower(widget.value.table_name)},$env}.as_count()"
+              style {
+                line_type  = "solid"
+                line_width = "normal"
+                palette    = "dog_classic"
+              }
+            }
+
+            request {
+              display_type = "bars"
+              q            = "sum:aws.dynamodb.consumed_write_capacity_units{tablename:${lower(widget.value.table_name)},$env}.as_count()"
+              style {
+                line_type  = "solid"
+                line_width = "normal"
+                palette    = "orange"
+              }
+            }
+
+            yaxis {
+              include_zero = true
+              max          = "auto"
+              min          = "auto"
+              scale        = "linear"
+            }
+          }
+        }
+
+        # Item count
+        widget {
+          timeseries_definition {
+            show_legend = true
+            title       = "Item count"
+
+            request {
+              display_type = "line"
+              q            = "avg:aws.dynamodb.item_count{tablename:${lower(widget.value.table_name)},$env}"
               style {
                 line_type  = "solid"
                 line_width = "normal"

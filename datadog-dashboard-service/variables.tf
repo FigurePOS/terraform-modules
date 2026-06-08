@@ -2,6 +2,15 @@ variable "api_path_prefix" {
   type = string
 }
 
+variable "dynamodb_tables" {
+  type = list(object({
+    table_name = string
+    title      = string
+  }))
+  default     = []
+  description = "List of DynamoDB tables with table name and readable title for the group"
+}
+
 variable "events" {
   type    = list(string)
   default = []
@@ -29,6 +38,7 @@ variable "queues" {
 variable "service" {
   type = string
 }
+
 variable "service_worker" {
   type    = string
   default = ""
