@@ -6,7 +6,7 @@ locals {
   # Datadog indexes OTLP consumer metrics by resource.name (traceSqsMessage opts.resource).
   monitor_dimensions = join(",", [
     "env:${var.env}",
-    "resource.name:lower(${var.event_type})",
+    "resource.name:${lower(var.event_type)}",
     "service:${var.service_name}",
   ])
   metric_latency = "${var.latency_percentile}:fgr.message.consumer.duration{${local.monitor_dimensions}}"
