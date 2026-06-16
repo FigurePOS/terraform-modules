@@ -22,7 +22,7 @@ variable "http_endpoints" {
     route  = string
   }))
   default     = []
-  description = "List of HTTP endpoints with method (GET, POST, DELETE, etc.) and route (e.g., /account, /pricing/:id)"
+  description = "List of HTTP endpoints with method (GET, POST, DELETE, etc.) and route (e.g., /account, /pricing/:id). Metric filters use Datadog resource.name (e.g. get_/api-path/account)."
 }
 
 variable "queues" {
