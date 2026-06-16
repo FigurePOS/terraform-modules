@@ -3,15 +3,16 @@ locals {
 
   http_endpoints = [
     for e in var.http_endpoints : {
-      title       = "${upper(e.method) == "ANY" ? "*" : upper(e.method)} ${e.route}"
-      http_method = lower(e.method)
-      http_route  = "/${var.api_path_prefix}${e.route}"
-      metric_dims = join(",", [
-        "service:${var.service}",
-        "$env",
-        "http.method:${lower(e.method)}",
-        "http.route:/${var.api_path_prefix}${e.route}",
-      ])
+      title = "${upper(e.method) == "ANY" ? "*" : upper(e.method)} ${e.route}"
+      metric_dims = join(",", concat(
+        [
+          "service:${var.service}",
+          "$env",
+        ],
+        upper(e.method) == "ANY"
+        ? ["resource.name:*${"/${var.api_path_prefix}${e.route}"}"]
+        : ["resource.name:${lower(e.method)}_${"/${var.api_path_prefix}${e.route}"}"]
+      ))
     }
   ]
 }
