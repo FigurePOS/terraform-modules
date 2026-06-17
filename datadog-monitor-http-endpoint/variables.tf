@@ -1,7 +1,7 @@
 
 variable "api_path_prefix" {
   type        = string
-  description = "ALB mount prefix without slashes (e.g. business-config). Combined with route for http.route tag."
+  description = "ALB mount prefix without slashes (e.g. business-config). Combined with route for resource.name tag."
 }
 
 variable "env" {
@@ -47,7 +47,7 @@ variable "message" {
 
 variable "method" {
   type        = string
-  description = "HTTP method (GET, POST, etc.). Normalized to uppercase in monitor queries."
+  description = "HTTP method (GET, POST, etc.). Used in monitor title and resource.name filter."
 }
 
 variable "notify_on_missing_data" {

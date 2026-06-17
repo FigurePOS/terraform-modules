@@ -5,13 +5,12 @@ locals {
 
   method_upper        = upper(var.method)
   resource_name_label = "${local.method_upper} ${var.route}"
-  http_route          = "/${var.api_path_prefix}${var.route}"
+  http_path           = "/${var.api_path_prefix}${var.route}"
 
-  # Datadog indexes OTLP HTTP metrics by http.method and http.route, not resource.name.
+  # Datadog OTLP metrics use resource.name (e.g. get_/business-config/account).
   monitor_dimensions = join(",", [
     "env:${var.env}",
-    "http.method:${local.method_upper}",
-    "http.route:${local.http_route}",
+    "resource.name:${lower(var.method)}_${local.http_path}",
     "service:${var.service_name}",
   ])
   metric_errors       = "sum:fgr.http.server.request.errors{${local.monitor_dimensions}}.as_rate().rollup(sum,60)"
