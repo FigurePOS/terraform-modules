@@ -25,13 +25,13 @@ variable "interval" {
 
 variable "latency_eval_fn" {
   type        = string
-  default     = "max"
+  default     = "avg"
   description = "Time aggregation for the latency monitor (e.g. avg, max, min)."
 }
 
 variable "latency_percentile" {
   type    = string
-  default = "p99"
+  default = "p95"
 }
 
 variable "latency_target" {
