@@ -4,6 +4,8 @@ locals {
 
   rootly_enabled = var.env == "production"
 
+  slack_warning_handle = var.env == "development" ? "@slack-platform-warnings-dev" : "@slack-platform-warnings"
+
   alerts_slack_sns_topic_arns  = ["arn:aws:sns:us-east-1:637192944017:alerts-to-slack"]
   alerts_rootly_sns_topic_arns = local.rootly_enabled ? data.aws_sns_topic.rootly_oncall[*].arn : []
 }

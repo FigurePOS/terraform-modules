@@ -22,6 +22,12 @@ variable "deduplication_scope" {
   default     = "queue"
 }
 
+variable "delay_seconds" {
+  type        = number
+  description = "The time in seconds that the delivery of all messages in the queue will be delayed."
+  default     = 0
+}
+
 variable "dlq_messages_count_threshold" {
   type        = number
   description = "The number of messages in the dead letter queue to trigger an alarm."
@@ -39,6 +45,13 @@ variable "dlq_name" {
   description = "The name of the dead letter queue."
   default     = null
 }
+
+variable "dlq_renotify_interval_minutes" {
+  type        = number
+  description = "Minutes the DLQ must stay above threshold before Datadog sends the first reminder, and between subsequent reminders (minutes)."
+  default     = 24 * 60
+}
+
 
 variable "env" {
   type        = string
@@ -107,10 +120,4 @@ variable "tags" {
   type        = map(string)
   description = "Tags to apply to all AWS resources in this module."
   default     = {}
-}
-
-variable "delay_seconds" {
-  type        = number
-  description = "The time in seconds that the delivery of all messages in the queue will be delayed."
-  default     = 0
 }
