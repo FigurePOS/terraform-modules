@@ -1,7 +1,3 @@
-data "datadog_role" "admin_role" {
-  filter = "Admin"
-}
-
 locals {
   monitor_tags = concat(["env:${var.env}", "service:${var.service_name}"], var.tags)
 }
@@ -16,8 +12,7 @@ resource "datadog_monitor" "monitor" {
     critical = var.critical_threshold
   }
 
-  restricted_roles = [data.datadog_role.admin_role.id]
-  tags             = local.monitor_tags
+  tags = local.monitor_tags
 }
 
 output "monitor_id" {
