@@ -21,3 +21,8 @@ output "queue_name" {
 output "queue_url" {
   value = aws_sqs_queue.queue.url
 }
+
+output "datadog_dlq_messages_monitor_id" {
+  description = "Datadog monitor ID for DLQ message count re-notifications."
+  value       = datadog_monitor.dlq_messages_count.id
+}
