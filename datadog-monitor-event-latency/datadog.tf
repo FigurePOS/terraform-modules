@@ -25,6 +25,5 @@ resource "datadog_monitor" "event_monitor_latency" {
   query          = "${var.latency_eval_fn}(${var.interval}):${local.metric_latency} > ${var.latency_target}"
   notify_no_data = var.notify_on_missing_data
 
-  restricted_roles = [data.datadog_role.admin_role.id]
-  tags             = local.monitor_tags
+  tags = local.monitor_tags
 }

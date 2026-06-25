@@ -20,18 +20,13 @@ locals {
   monitor_tags = concat(["env:${var.env}", "service:${var.service_name}"], var.tags)
 }
 
-data "datadog_role" "admin_role" {
-  filter = "Admin"
-}
-
 resource "datadog_monitor" "http_monitor_error_rate" {
   name    = "${var.service_name} – HTTP - ${local.resource_name_label} - Error rate"
   type    = "metric alert"
   message = local.monitor_message
   query   = "${var.error_rate_eval_fn}(${var.interval}):(100 * ${local.metric_errors} / ${local.metric_hits}) > ${var.error_rate_target}"
 
-  restricted_roles = [data.datadog_role.admin_role.id]
-  tags             = local.monitor_tags
+  tags = local.monitor_tags
 }
 
 resource "datadog_monitor" "http_monitor_latency" {
@@ -41,6 +36,5 @@ resource "datadog_monitor" "http_monitor_latency" {
   query          = "${var.latency_eval_fn}(${var.interval}):${local.metric_latency} > ${var.latency_target}"
   notify_no_data = var.notify_on_missing_data
 
-  restricted_roles = [data.datadog_role.admin_role.id]
-  tags             = local.monitor_tags
+  tags = local.monitor_tags
 }

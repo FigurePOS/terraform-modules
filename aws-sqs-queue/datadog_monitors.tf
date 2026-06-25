@@ -2,10 +2,6 @@
 # dlq_renotify_interval_minutes, then re-notifies on the same interval. CloudWatch handles
 # the initial alert.
 
-data "datadog_role" "admin_role" {
-  filter = "Admin"
-}
-
 resource "datadog_monitor" "dlq_messages_count" {
   name    = "${var.service_name} – SQS – DLQ messages reminder (${var.queue_name})"
   type    = "metric alert"
@@ -20,6 +16,6 @@ resource "datadog_monitor" "dlq_messages_count" {
   renotify_interval   = var.dlq_renotify_interval_minutes
   renotify_statuses   = ["alert"]
   require_full_window = false
-  restricted_roles    = [data.datadog_role.admin_role.id]
-  tags                = ["env:${var.env}", "service:${var.service_name}"]
+
+  tags = ["env:${var.env}", "service:${var.service_name}"]
 }
