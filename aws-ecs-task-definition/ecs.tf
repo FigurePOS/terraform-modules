@@ -127,6 +127,7 @@ module "app_container_definition" {
       name          = "http"
       containerPort = var.service_port
       hostPort      = var.service_port
+      appProtocol   = "http"
       protocol      = "tcp"
     }
   ]
