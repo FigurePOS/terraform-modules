@@ -11,8 +11,9 @@ resource "null_resource" "build_lambda" {
     no_bundle   = var.no_bundle
   }
 
+  # Repo-installed fgr only — do not use unpinned npx (follows registry `latest`).
   provisioner "local-exec" {
-    command = "npx --yes @figurepos/platform-tooling lambda build --source-dir ${abspath(var.source_dir)} --output-zip ${abspath(local.zip_output_path)}${var.no_bundle ? " --no-bundle" : ""}"
+    command = "${path.module}/find-fgr.sh ${abspath(var.source_dir)} lambda build --source-dir ${abspath(var.source_dir)} --output-zip ${abspath(local.zip_output_path)}${var.no_bundle ? " --no-bundle" : ""}"
   }
 }
 
