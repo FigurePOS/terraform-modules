@@ -12,6 +12,8 @@ Creates target tracking autoscaling policy for ECS.
 
 Creates Lambda function.
 
+Lambda zip build uses the repo-installed `fgr` CLI (`@figurepos/platform-tooling`) via `find-fgr.sh` (walks up from `source_dir` for `node_modules/.bin/fgr`). Run `npm ci` / `pnpm install` before `terraform apply`. Check: `aws-lambda-function/find-fgr.test.sh`.
+
 ## aws-sqs-queue
 
 Creates SQS queue with its DeadLetterQueue.
