@@ -23,7 +23,7 @@ done
 
 if [ -z "$fgr" ]; then
   echo "ERROR: fgr not found under ${source_dir} (or parents)." >&2
-  echo "Install @figurepos/platform-tooling via npm ci / pnpm ci in the service repo or lambda directory before terraform apply." >&2
+  echo "Install @figurepos/platform-tooling via pnpm install in the service repo or lambda directory before terraform apply." >&2
   exit 1
 fi
 

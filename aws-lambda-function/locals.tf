@@ -17,10 +17,11 @@ locals {
   # Calculate a hash of the source code for determining when to rebuild
   # Only includes files that actually affect the build output
   source_files = {
-    package_json      = fileexists("${var.source_dir}/package.json") ? file("${var.source_dir}/package.json") : ""
-    package_lock_json = fileexists("${var.source_dir}/package-lock.json") ? file("${var.source_dir}/package-lock.json") : ""
-    tsconfig          = fileexists("${var.source_dir}/tsconfig.json") ? file("${var.source_dir}/tsconfig.json") : ""
-    esbuild_config    = fileexists("${var.source_dir}/esbuild.config.mjs") ? file("${var.source_dir}/esbuild.config.mjs") : ""
+    package_json        = fileexists("${var.source_dir}/package.json") ? file("${var.source_dir}/package.json") : ""
+    pnpm_lock_yaml      = fileexists("${var.source_dir}/pnpm-lock.yaml") ? file("${var.source_dir}/pnpm-lock.yaml") : ""
+    pnpm_workspace_yaml = fileexists("${var.source_dir}/pnpm-workspace.yaml") ? file("${var.source_dir}/pnpm-workspace.yaml") : ""
+    tsconfig            = fileexists("${var.source_dir}/tsconfig.json") ? file("${var.source_dir}/tsconfig.json") : ""
+    esbuild_config      = fileexists("${var.source_dir}/esbuild.config.mjs") ? file("${var.source_dir}/esbuild.config.mjs") : ""
     # Sort source files for consistent hash across machines
     source_files = join("", [for f in sort(fileset("${var.source_dir}", "src/**/*.ts")) : file("${var.source_dir}/${f}")])
   }
