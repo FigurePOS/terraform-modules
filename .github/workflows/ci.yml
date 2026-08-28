@@ -80,6 +80,12 @@ jobs:
           cd datadog-monitor-metric-slo
           terraform init
           terraform validate
+      - name: "validate grafana-dashboard-service"
+        run: |
+          cd grafana-dashboard-service
+          terraform init
+          terraform validate
+
       - name: "scan for misconfigurations with Checkov"
         id: checkov
         uses: bridgecrewio/checkov-action@v12

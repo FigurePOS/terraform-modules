@@ -46,3 +46,7 @@ Creates Datadog metric monitors for number of messages in SQS queue and its DLQ.
 
 Creates ECS Fargate service and load balancer.
 Creates Datadog monitors for CPU and Memory utilization of ECS Service.
+
+## grafana-dashboard-service
+
+Grafana service dashboard (CloudWatch `aws.*` + Axiom `fgr.*` / event-loop / task count). Same call-site shape as `datadog-dashboard-service`. HTTP/event filters use OTEL `resource.name` (`POST /payments/payment/:id`).
