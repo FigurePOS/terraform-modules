@@ -21,6 +21,21 @@ locals {
     period           = ""
   }
 
+  # Metric math SEARCH, not Insights: Insights allows only 1 query per GetMetricData
+  # and this panel needs 2xx/3xx/4xx/5xx. Period is literal inside the expression.
+  grafana_cw_search_target = {
+    datasource       = local.grafana_cw_ds
+    queryMode        = "Metrics"
+    metricQueryType  = 0
+    metricEditorMode = 1
+    region           = "default"
+    matchExact       = false
+    period           = "60"
+    namespace        = "AWS/ApplicationELB"
+    statistic        = "Sum"
+    dimensions       = {}
+  }
+
   # DynamoDB Operation-scoped metrics: single aggregation only (no AS aliases).
   grafana_cw_insights_target = {
     datasource       = local.grafana_cw_ds
@@ -30,21 +45,6 @@ locals {
     region           = "default"
     matchExact       = false
     period           = ""
-    dimensions       = {}
-  }
-
-  # Classic metric math (multiple queries per panel; AMG limits Insights to 1).
-  grafana_cw_math_target = {
-    datasource       = local.grafana_cw_ds
-    queryMode        = "Metrics"
-    metricQueryType  = 0
-    metricEditorMode = 1
-    region           = "default"
-    matchExact       = false
-    period           = ""
-    namespace        = ""
-    metricName       = ""
-    statistic        = "Sum"
     dimensions       = {}
   }
 
@@ -165,9 +165,9 @@ locals {
   ]
   queues_h = length(var.queues) == 0 ? 0 : sum(local.queue_heights)
 
-  y_dynamo  = local.y_queue + local.queues_h
-  dynamo_h  = length(var.dynamodb_tables) * 18
-  y_http    = local.y_dynamo + local.dynamo_h
-  http_h    = length(var.http_endpoints) == 0 ? 0 : 1 + (floor((length(var.http_endpoints) + 1) / 2) * 8)
-  y_events  = local.y_http + local.http_h
+  y_dynamo = local.y_queue + local.queues_h
+  dynamo_h = length(var.dynamodb_tables) * 18
+  y_http   = local.y_dynamo + local.dynamo_h
+  http_h   = length(var.http_endpoints) == 0 ? 0 : 1 + (floor((length(var.http_endpoints) + 1) / 2) * 8)
+  y_events = local.y_http + local.http_h
 }

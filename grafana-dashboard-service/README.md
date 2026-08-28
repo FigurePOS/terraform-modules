@@ -2,7 +2,7 @@
 
 Grafana recreation of `datadog-dashboard-service` for Amazon Managed Grafana.
 
-One dashboard per service, env variable `development|production`. CloudWatch uid is `aws-cloudwatch-${env:text}`; Axiom dataset is `${env}` (`node-js-metrics-dev` / `node-js-metrics-prod`).
+One dashboard per service, env variable `development|production`. CloudWatch uid is `aws-cloudwatch-${env:text}`; Axiom dataset is `${env}` (`node-js-metrics-dev` / `node-js-metrics-prod`). ALB panels use CloudWatch SEARCH (not Insights, which allows only 1 query per `GetMetricData`) and match the target group by unquoted partial match on the service name — quoting it would make it an exact match on the full `targetgroup/{name}/{id}` value.
 
 HTTP and event queries use OTEL `resource.name` (`POST /payments/payment/:id`, event name as-is), not Datadog tags (`post_/payments/payment/:id`).
 

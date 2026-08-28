@@ -1,27 +1,29 @@
 locals {
   ecs_sections = concat(
     [{
-      title         = "Application – API"
-      service       = var.service
-      y             = local.y_api
-      row_id        = 1
-      id_cpu        = 11
-      id_mem        = 12
-      id_tasks      = 13
-      id_eventloop  = 14
-      include_alb   = true
+      title        = "Application – API"
+      service      = var.service
+      y            = local.y_api
+      row_id       = 1
+      id_cpu       = 11
+      id_mem       = 12
+      id_tasks     = 13
+      id_eventloop = 14
+      include_alb  = true
     }],
-    var.service_worker == "" ? [] : [{
-      title         = "Application – Worker"
-      service       = var.service_worker
-      y             = local.y_worker
-      row_id        = 5
-      id_cpu        = 51
-      id_mem        = 52
-      id_tasks      = 53
-      id_eventloop  = 54
-      include_alb   = false
-    }],
+    [
+      for _ in range(var.service_worker == "" ? 0 : 1) : {
+        title        = "Application – Worker"
+        service      = var.service_worker
+        y            = local.y_worker
+        row_id       = 5
+        id_cpu       = 51
+        id_mem       = 52
+        id_tasks     = 53
+        id_eventloop = 54
+        include_alb  = false
+      }
+    ],
   )
 
   ecs_panels = flatten([
@@ -47,7 +49,7 @@ locals {
               metricName = "CPUUtilization"
               statistic  = "Average"
               label      = "avg"
-              dimensions = { ClusterName = var.cluster_name, ServiceName = s.service }
+              dimensions = { ClusterName = [var.cluster_name], ServiceName = [s.service] }
             }),
             merge(local.grafana_cw_target, {
               refId      = "B"
@@ -55,7 +57,7 @@ locals {
               metricName = "CPUUtilization"
               statistic  = "Maximum"
               label      = "max"
-              dimensions = { ClusterName = var.cluster_name, ServiceName = s.service }
+              dimensions = { ClusterName = [var.cluster_name], ServiceName = [s.service] }
             }),
             merge(local.grafana_cw_target, {
               refId      = "C"
@@ -63,7 +65,7 @@ locals {
               metricName = "CPUUtilization"
               statistic  = "Minimum"
               label      = "min"
-              dimensions = { ClusterName = var.cluster_name, ServiceName = s.service }
+              dimensions = { ClusterName = [var.cluster_name], ServiceName = [s.service] }
             }),
           ]
         }),
@@ -79,7 +81,7 @@ locals {
               metricName = "MemoryUtilization"
               statistic  = "Average"
               label      = "avg"
-              dimensions = { ClusterName = var.cluster_name, ServiceName = s.service }
+              dimensions = { ClusterName = [var.cluster_name], ServiceName = [s.service] }
             }),
             merge(local.grafana_cw_target, {
               refId      = "B"
@@ -87,7 +89,7 @@ locals {
               metricName = "MemoryUtilization"
               statistic  = "Maximum"
               label      = "max"
-              dimensions = { ClusterName = var.cluster_name, ServiceName = s.service }
+              dimensions = { ClusterName = [var.cluster_name], ServiceName = [s.service] }
             }),
             merge(local.grafana_cw_target, {
               refId      = "C"
@@ -95,7 +97,7 @@ locals {
               metricName = "MemoryUtilization"
               statistic  = "Minimum"
               label      = "min"
-              dimensions = { ClusterName = var.cluster_name, ServiceName = s.service }
+              dimensions = { ClusterName = [var.cluster_name], ServiceName = [s.service] }
             }),
           ]
         }),
@@ -156,8 +158,8 @@ locals {
           ]
         }),
       ],
-      s.include_alb ? [
-        merge(local.grafana_timeseries_base, {
+      [
+        for _ in range(s.include_alb ? 1 : 0) : merge(local.grafana_timeseries_base, {
           id      = 15
           title   = "Load Balancer Responses"
           gridPos = { h = 8, w = 8, x = 16, y = s.y + 9 }
@@ -179,20 +181,25 @@ locals {
               },
             ]
           })
+          # TargetGroup is targetgroup/{name}/{id}; the id is unknown here, so the service
+          # name goes in as an unquoted SEARCH partial match. Quoting it would make it an
+          # exact match on the whole dimension value and return nothing.
           targets = [
             for pair in [
-              { ref = "A", metric = "HTTPCode_Target_2XX_Count", label = "2xx" },
-              { ref = "B", metric = "HTTPCode_Target_3XX_Count", label = "3xx" },
-              { ref = "C", metric = "HTTPCode_Target_4XX_Count", label = "4xx" },
-              { ref = "D", metric = "HTTPCode_Target_5XX_Count", label = "5xx" },
-              ] : merge(local.grafana_cw_math_target, {
+              { ref = "A", id = "e2xx", metric = "HTTPCode_Target_2XX_Count", label = "2xx" },
+              { ref = "B", id = "e3xx", metric = "HTTPCode_Target_3XX_Count", label = "3xx" },
+              { ref = "C", id = "e4xx", metric = "HTTPCode_Target_4XX_Count", label = "4xx" },
+              { ref = "D", id = "e5xx", metric = "HTTPCode_Target_5XX_Count", label = "5xx" },
+              ] : merge(local.grafana_cw_search_target, {
                 refId      = pair.ref
+                id         = pair.id
+                metricName = pair.metric
                 label      = pair.label
-                expression = "SUM(SEARCH('{AWS/ApplicationELB,TargetGroup,LoadBalancer} MetricName=\"${pair.metric}\" \"targetgroup/${s.service}\"', 'Sum', 60))"
+                expression = "SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer,TargetGroup} MetricName=\"${pair.metric}\" ${substr(s.service, 0, 32)}', 'Sum', 60))"
             })
           ]
-        }),
-      ] : [],
+        })
+      ],
     )
   ])
 
@@ -203,7 +210,7 @@ locals {
       age  = 22
       size = 24
       dlq  = 23
-    } : {
+      } : {
       row  = 600 + i * 10
       sent = 601 + i * 10
       age  = 602 + i * 10
@@ -239,7 +246,7 @@ locals {
               metricName = "NumberOfMessagesSent"
               statistic  = "Sum"
               label      = "sent"
-              dimensions = { QueueName = q.queue_name }
+              dimensions = { QueueName = [q.queue_name] }
             }),
           ]
         }),
@@ -254,7 +261,7 @@ locals {
               metricName = "ApproximateNumberOfMessagesVisible"
               statistic  = "Maximum"
               label      = "visible"
-              dimensions = { QueueName = q.queue_name }
+              dimensions = { QueueName = [q.queue_name] }
             }),
             merge(local.grafana_cw_target, {
               refId      = "B"
@@ -262,7 +269,7 @@ locals {
               metricName = "ApproximateAgeOfOldestMessage"
               statistic  = "Average"
               label      = "oldest age"
-              dimensions = { QueueName = q.queue_name }
+              dimensions = { QueueName = [q.queue_name] }
             }),
           ]
         }),
@@ -280,46 +287,48 @@ locals {
               metricName = "SentMessageSize"
               statistic  = "Average"
               label      = "avg size"
-              dimensions = { QueueName = q.queue_name }
+              dimensions = { QueueName = [q.queue_name] }
             }),
           ]
         }),
       ],
-      q.dlq_name == "" ? [] : [{
-        type       = "stat"
-        id         = local.queue_ids[i].dlq
-        title      = "Number of messages in dead letter"
-        datasource = local.grafana_cw_ds
-        gridPos    = { h = 5, w = 5, x = 0, y = local.queue_ys[i] + 9 }
-        options = {
-          colorMode     = "background"
-          graphMode     = "none"
-          justifyMode   = "center"
-          textMode      = "value"
-          reduceOptions = { calcs = ["max"], fields = "", values = false }
-        }
-        fieldConfig = {
-          defaults = {
-            thresholds = {
-              mode = "absolute"
-              steps = [
-                { color = "green", value = null },
-                { color = "red", value = 1 },
-              ]
-            }
+      [
+        for _ in range(q.dlq_name == "" ? 0 : 1) : {
+          type       = "stat"
+          id         = local.queue_ids[i].dlq
+          title      = "Number of messages in dead letter"
+          datasource = local.grafana_cw_ds
+          gridPos    = { h = 5, w = 5, x = 0, y = local.queue_ys[i] + 9 }
+          options = {
+            colorMode     = "background"
+            graphMode     = "none"
+            justifyMode   = "center"
+            textMode      = "value"
+            reduceOptions = { calcs = ["max"], fields = "", values = false }
           }
-          overrides = []
+          fieldConfig = {
+            defaults = {
+              thresholds = {
+                mode = "absolute"
+                steps = [
+                  { color = "green", value = null },
+                  { color = "red", value = 1 },
+                ]
+              }
+            }
+            overrides = []
+          }
+          targets = [
+            merge(local.grafana_cw_target, {
+              refId      = "A"
+              namespace  = "AWS/SQS"
+              metricName = "ApproximateNumberOfMessagesVisible"
+              statistic  = "Maximum"
+              dimensions = { QueueName = [q.dlq_name] }
+            }),
+          ]
         }
-        targets = [
-          merge(local.grafana_cw_target, {
-            refId      = "A"
-            namespace  = "AWS/SQS"
-            metricName = "ApproximateNumberOfMessagesVisible"
-            statistic  = "Maximum"
-            dimensions = { QueueName = q.dlq_name }
-          }),
-        ]
-      }],
+      ],
     )
   ])
 
@@ -358,10 +367,17 @@ locals {
             { ref = "A", metric = "UserErrors", label = "user errors" },
             { ref = "B", metric = "SystemErrors", label = "system errors" },
             { ref = "C", metric = "ThrottledRequests", label = "throttled" },
-            ] : merge(local.grafana_cw_math_target, {
+            ] : merge(local.grafana_cw_target, {
               refId      = pair.ref
+              namespace  = "AWS/DynamoDB"
+              metricName = pair.metric
+              statistic  = "Sum"
               label      = pair.label
-              expression = "SUM(SEARCH('{AWS/DynamoDB,TableName,Operation} MetricName=\"${pair.metric}\" TableName=\"${table.table_name}\"', 'Sum', 60))"
+              matchExact = false
+              dimensions = {
+                TableName = [table.table_name]
+                Operation = ["*"]
+              }
           })
         ]
       }),
@@ -416,7 +432,7 @@ locals {
             metricName = "ConsumedReadCapacityUnits"
             statistic  = "Sum"
             label      = "read"
-            dimensions = { TableName = table.table_name }
+            dimensions = { TableName = [table.table_name] }
           }),
           merge(local.grafana_cw_target, {
             refId      = "B"
@@ -424,7 +440,7 @@ locals {
             metricName = "ConsumedWriteCapacityUnits"
             statistic  = "Sum"
             label      = "write"
-            dimensions = { TableName = table.table_name }
+            dimensions = { TableName = [table.table_name] }
           }),
         ]
       }),
@@ -440,22 +456,24 @@ locals {
             statistic  = "Maximum"
             label      = "items"
             period     = "3600"
-            dimensions = { TableName = table.table_name }
+            dimensions = { TableName = [table.table_name] }
           }),
         ]
       }),
     ]
   ])
 
-  http_panels = length(var.http_endpoints) == 0 ? [] : concat(
-    [{
-      type      = "row"
-      id        = 3
-      title     = "API Requests"
-      gridPos   = { h = 1, w = 24, x = 0, y = local.y_http }
-      collapsed = false
-      panels    = []
-    }],
+  http_panels = concat(
+    [
+      for _ in range(length(var.http_endpoints) == 0 ? 0 : 1) : {
+        type      = "row"
+        id        = 3
+        title     = "API Requests"
+        gridPos   = { h = 1, w = 24, x = 0, y = local.y_http }
+        collapsed = false
+        panels    = []
+      }
+    ],
     [
       for i, ep in local.http_endpoints : merge(local.grafana_timeseries_base, {
         id          = 100 + i
@@ -504,15 +522,17 @@ locals {
     ]
   )
 
-  event_panels = length(var.events) == 0 ? [] : concat(
-    [{
-      type      = "row"
-      id        = 4
-      title     = "Events"
-      gridPos   = { h = 1, w = 24, x = 0, y = local.y_events }
-      collapsed = false
-      panels    = []
-    }],
+  event_panels = concat(
+    [
+      for _ in range(length(var.events) == 0 ? 0 : 1) : {
+        type      = "row"
+        id        = 4
+        title     = "Events"
+        gridPos   = { h = 1, w = 24, x = 0, y = local.y_events }
+        collapsed = false
+        panels    = []
+      }
+    ],
     [
       for i, event in var.events : merge(local.grafana_timeseries_base, {
         id          = 200 + i
