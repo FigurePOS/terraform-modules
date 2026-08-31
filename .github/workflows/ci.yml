@@ -80,6 +80,17 @@ jobs:
           cd datadog-monitor-metric-slo
           terraform init
           terraform validate
+
+      - name: "validate grafana-alert-event-latency"
+        run: |
+          cd grafana-alert-event-latency
+          terraform init
+          terraform validate
+      - name: "validate grafana-alert-http-endpoint"
+        run: |
+          cd grafana-alert-http-endpoint
+          terraform init
+          terraform validate
       - name: "validate grafana-dashboard-service"
         run: |
           cd grafana-dashboard-service
