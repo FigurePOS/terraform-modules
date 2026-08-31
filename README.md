@@ -47,6 +47,14 @@ Creates Datadog metric monitors for number of messages in SQS queue and its DLQ.
 Creates ECS Fargate service and load balancer.
 Creates Datadog monitors for CPU and Memory utilization of ECS Service.
 
+## grafana-alert-event-latency
+
+Grafana latency alert rule for SQS consumer events (`fgr.message.consumer.duration`). Same required inputs as `datadog-monitor-event-latency`. OTEL `resource.name` is the event name as-is (`OrderPlaced`). Slack is routed by `labels.env` in `infrastructure/aws/monitoring`.
+
+## grafana-alert-http-endpoint
+
+Grafana error-rate and latency alert rules for HTTP routes (`fgr.http.server.request.*`). Same required inputs as `datadog-monitor-http-endpoint`. Slack is routed by `labels.env` in `infrastructure/aws/monitoring` (`#platform-warnings` / `#platform-warnings-dev`).
+
 ## grafana-dashboard-service
 
 Grafana service dashboard (CloudWatch `aws.*` + Axiom `fgr.*` / event-loop / task count). Same call-site shape as `datadog-dashboard-service`. HTTP/event filters use OTEL `resource.name` (`POST /payments/payment/:id`).
