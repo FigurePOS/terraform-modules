@@ -150,6 +150,10 @@ locals {
     }
   ]
 
+  # MPL where: == / or (Grafana plugin has no startswith / in). When a worker exists,
+  # prod emits events under service_worker and dev under service — same dashboard, both names.
+  event_service_where = var.service_worker == "" ? "== \"${var.service}\"" : "== \"${var.service}\" or `service.name` == \"${var.service_worker}\""
+
   # Layout: API (17) + optional worker (17) + queues (14 with DLQ, 9 without) + Dynamo (18 each) + HTTP + events.
   y_api    = 0
   api_h    = 17

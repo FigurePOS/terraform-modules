@@ -545,7 +545,7 @@ locals {
             refId = "A"
             query = <<-EOT
               `$${env}`:`fgr.message.consumer.count`
-              | where `service.name` == "${var.service}"
+              | where `service.name` ${local.event_service_where}
               | where `resource.name` == "${event}"
               | align to 1m using sum
               | group using sum
@@ -556,7 +556,7 @@ locals {
             refId = "B"
             query = <<-EOT
               `$${env}`:`fgr.message.consumer.errors`
-              | where `service.name` == "${var.service}"
+              | where `service.name` ${local.event_service_where}
               | where `resource.name` == "${event}"
               | align to 1m using sum
               | group using sum
@@ -567,7 +567,7 @@ locals {
             refId = "C"
             query = <<-EOT
               `$${env}`:`fgr.message.consumer.duration`
-              | where `service.name` == "${var.service}"
+              | where `service.name` ${local.event_service_where}
               | where `resource.name` == "${event}"
               | bucket to 1m using interpolate_delta_histogram(0.95)
               | map * 1000
