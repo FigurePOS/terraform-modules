@@ -156,6 +156,7 @@ locals {
           { id = "custom.lineWidth", value = 2 },
           { id = "custom.fillOpacity", value = 0 },
           { id = "custom.stacking", value = { mode = "none", group = "A" } },
+          { id = "custom.spanNulls", value = true },
           { id = "unit", value = "ms" },
           { id = "color", value = { mode = "fixed", fixedColor = "orange" } },
         ]
