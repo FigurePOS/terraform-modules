@@ -121,23 +121,44 @@ locals {
     ]
   }
 
-  http_red_field_config = {
+  # RED (count / errors / latency): bars + p95/p99 line. Shared by HTTP and event panels.
+  red_field_config = {
     defaults = {
       custom = {
-        drawStyle   = "bars"
-        lineWidth   = 1
-        fillOpacity = 20
-        spanNulls   = false
+        drawStyle     = "bars"
+        barAlignment  = 0
+        lineWidth     = 1
+        fillOpacity   = 50
+        spanNulls     = false
+        showPoints    = "never"
+        stacking      = { mode = "none", group = "A" }
       }
     }
     overrides = [
+      {
+        matcher = { id = "byName", options = "count" }
+        properties = [
+          { id = "color", value = { mode = "fixed", fixedColor = "blue" } },
+        ]
+      },
+      {
+        matcher = { id = "byName", options = "errors" }
+        properties = [
+          { id = "color", value = { mode = "fixed", fixedColor = "red" } },
+          { id = "custom.fillOpacity", value = 80 },
+        ]
+      },
       {
         matcher = { id = "byRegexp", options = "^p9[59] ms$" }
         properties = [
           { id = "custom.drawStyle", value = "line" },
           { id = "custom.axisPlacement", value = "right" },
-          { id = "unit", value = "ms" },
+          { id = "custom.lineWidth", value = 2 },
           { id = "custom.fillOpacity", value = 0 },
+          { id = "custom.stacking", value = { mode = "none", group = "A" } },
+          { id = "custom.spanNulls", value = true },
+          { id = "unit", value = "ms" },
+          { id = "color", value = { mode = "fixed", fixedColor = "orange" } },
         ]
       },
     ]
@@ -149,6 +170,10 @@ locals {
       where_resource = upper(e.method) == "ANY" ? "endswith \" /${var.http_endpoint_prefix}${e.route}\"" : "== \"${upper(e.method)} /${var.http_endpoint_prefix}${e.route}\""
     }
   ]
+
+  # MPL where: == / or (Grafana plugin has no startswith / in). When a worker exists,
+  # prod emits events under service_worker and dev under service — same dashboard, both names.
+  event_service_where = var.service_worker == "" ? "== \"${var.service}\"" : "== \"${var.service}\" or `service.name` == \"${var.service_worker}\""
 
   # Layout: API (17) + optional worker (17) + queues (14 with DLQ, 9 without) + Dynamo (18 each) + HTTP + events.
   y_api    = 0

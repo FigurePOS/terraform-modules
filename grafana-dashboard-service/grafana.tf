@@ -480,7 +480,7 @@ locals {
         title       = ep.title
         datasource  = local.grafana_axiom_ds
         gridPos     = { h = 8, w = 12, x = (i % 2) * 12, y = local.y_http + 1 + floor(i / 2) * 8 }
-        fieldConfig = local.http_red_field_config
+        fieldConfig = local.red_field_config
         targets = [
           merge(local.grafana_axiom_target, {
             refId = "A"
@@ -539,13 +539,13 @@ locals {
         title       = event
         datasource  = local.grafana_axiom_ds
         gridPos     = { h = 8, w = 12, x = (i % 2) * 12, y = local.y_events + 1 + floor(i / 2) * 8 }
-        fieldConfig = local.http_red_field_config
+        fieldConfig = local.red_field_config
         targets = [
           merge(local.grafana_axiom_target, {
             refId = "A"
             query = <<-EOT
               `$${env}`:`fgr.message.consumer.count`
-              | where `service.name` == "${var.service}"
+              | where `service.name` ${local.event_service_where}
               | where `resource.name` == "${event}"
               | align to 1m using sum
               | group using sum
@@ -556,7 +556,7 @@ locals {
             refId = "B"
             query = <<-EOT
               `$${env}`:`fgr.message.consumer.errors`
-              | where `service.name` == "${var.service}"
+              | where `service.name` ${local.event_service_where}
               | where `resource.name` == "${event}"
               | align to 1m using sum
               | group using sum
@@ -567,7 +567,7 @@ locals {
             refId = "C"
             query = <<-EOT
               `$${env}`:`fgr.message.consumer.duration`
-              | where `service.name` == "${var.service}"
+              | where `service.name` ${local.event_service_where}
               | where `resource.name` == "${event}"
               | bucket to 1m using interpolate_delta_histogram(0.95)
               | map * 1000
