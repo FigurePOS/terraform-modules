@@ -480,7 +480,7 @@ locals {
         title       = ep.title
         datasource  = local.grafana_axiom_ds
         gridPos     = { h = 8, w = 12, x = (i % 2) * 12, y = local.y_http + 1 + floor(i / 2) * 8 }
-        fieldConfig = local.http_red_field_config
+        fieldConfig = local.red_field_config
         targets = [
           merge(local.grafana_axiom_target, {
             refId = "A"
@@ -539,7 +539,7 @@ locals {
         title       = event
         datasource  = local.grafana_axiom_ds
         gridPos     = { h = 8, w = 12, x = (i % 2) * 12, y = local.y_events + 1 + floor(i / 2) * 8 }
-        fieldConfig = local.http_red_field_config
+        fieldConfig = local.red_field_config
         targets = [
           merge(local.grafana_axiom_target, {
             refId = "A"
