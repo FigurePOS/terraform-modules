@@ -10,6 +10,12 @@ variable "dashboard_uid" {
   description = "Stable Grafana dashboard UID. Defaults to var.service (e.g. fgr-service-payments)."
 }
 
+variable "folder_uid" {
+  type        = string
+  default     = null
+  description = "Grafana folder UID for the dashboard. Pair with the service alert folder (same uid as grafana_folder) so Dashboards and Alerting share one folder per service."
+}
+
 variable "dynamodb_tables" {
   type = list(object({
     table_name = string
