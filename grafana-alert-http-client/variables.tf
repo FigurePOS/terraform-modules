@@ -1,8 +1,3 @@
-variable "api_path_prefix" {
-  type        = string
-  description = "ALB mount prefix without slashes (e.g. payments). Combined with route for OTEL resource.name."
-}
-
 variable "axiom_datasource_uid" {
   type        = string
   default     = "axiom"
@@ -27,7 +22,19 @@ variable "env" {
 
 variable "error_rate_target" {
   type        = number
-  description = "Error rate threshold in percent."
+  description = "Error rate threshold in percent (100 * 5xx / all client requests)."
+}
+
+variable "error_status_class" {
+  type        = string
+  default     = "5xx"
+  description = "http_status_class attribute value treated as errors (numerator)."
+}
+
+variable "filters" {
+  type        = map(string)
+  default     = {}
+  description = "Extra metric attribute filters (e.g. { type = \"payment_gateway\", service = \"CardPointe\" }). service.name is always filtered. Note: attribute `service` is the remote client id, not OTEL service.name."
 }
 
 variable "folder_uid" {
@@ -61,12 +68,12 @@ variable "latency_percentile" {
 
 variable "latency_target" {
   type        = number
-  description = "Latency threshold in seconds (matches fgr.http.server.request.duration unit)."
+  description = "Latency threshold in seconds. Metric fgr.http.client.request is recorded in ms; the query converts to seconds."
 }
 
-variable "method" {
+variable "name" {
   type        = string
-  description = "HTTP method (GET, POST, etc.). Used in rule title and resource.name filter."
+  description = "Short label for rule titles (e.g. \"CardPointe gateway\")."
 }
 
 variable "panel_id" {
@@ -75,17 +82,7 @@ variable "panel_id" {
   description = "Grafana panel id for the alert panel link. Pair with dashboard_uid."
 }
 
-variable "route" {
-  type        = string
-  description = "Route path with leading slash, without api_path_prefix (e.g. /payment/:id)."
-
-  validation {
-    condition     = startswith(var.route, "/")
-    error_message = "route must start with / (e.g. /category/match)."
-  }
-}
-
 variable "service_name" {
   type        = string
-  description = "OTEL service.name (e.g. fgr-service-payments)."
+  description = "OTEL service.name of the calling service (e.g. fgr-service-payments)."
 }

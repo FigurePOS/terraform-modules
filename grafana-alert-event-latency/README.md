@@ -29,6 +29,6 @@ module "grafana_alert_event_order_placed" {
 
 Same required inputs as the Datadog module (`env`, `service_name`, `event_type`, `latency_target`). Grafana extras: `folder_uid` (default `fgr-services`), optional `dashboard_uid` / `panel_id` for the panel link.
 
-`interval` is seconds (default `600` = Datadog `last_10m`). `latency_percentile` stays `p95` / `p99`.
+`interval` is the lookback window in seconds (default `300` = 5m). Rules evaluate every 2m, pending 2m, `KeepLast` on query error (AMG's Axiom timeout is 30s). `latency_percentile` stays `p95` / `p99`.
 
 Grafana provider (`url` / `auth`) is minted by `fgr tf` / `auth-terraform-providers`.

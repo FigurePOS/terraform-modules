@@ -1,8 +1,3 @@
-variable "api_path_prefix" {
-  type        = string
-  description = "ALB mount prefix without slashes (e.g. payments). Combined with route for OTEL resource.name."
-}
-
 variable "axiom_datasource_uid" {
   type        = string
   default     = "axiom"
@@ -15,6 +10,11 @@ variable "dashboard_uid" {
   description = "Grafana dashboard UID for the alert panel link. Pair with panel_id."
 }
 
+variable "denominator_metric" {
+  type        = string
+  description = "Axiom metric name for the denominator (e.g. fgr.delivery.estimation.requested)."
+}
+
 variable "env" {
   type        = string
   description = "development or production. Selects Axiom dataset and Slack route (via labels.env)."
@@ -25,9 +25,10 @@ variable "env" {
   }
 }
 
-variable "error_rate_target" {
-  type        = number
-  description = "Error rate threshold in percent."
+variable "filters" {
+  type        = map(string)
+  default     = {}
+  description = "Extra metric attribute filters applied to both numerator and denominator (e.g. { resource = \"doordash\" }). service.name is always filtered."
 }
 
 variable "folder_uid" {
@@ -48,25 +49,14 @@ variable "labels" {
   description = "Extra Grafana labels (e.g. team). env, service, and kind are always set."
 }
 
-variable "latency_percentile" {
+variable "name" {
   type        = string
-  default     = "p95"
-  description = "Latency percentile (p95, p99). Converted to 0.95 / 0.99 for Axiom interpolate_delta_histogram."
-
-  validation {
-    condition     = can(regex("^p[0-9]+$", var.latency_percentile))
-    error_message = "latency_percentile must look like p95 or p99."
-  }
+  description = "Alert rule title."
 }
 
-variable "latency_target" {
-  type        = number
-  description = "Latency threshold in seconds (matches fgr.http.server.request.duration unit)."
-}
-
-variable "method" {
+variable "numerator_metric" {
   type        = string
-  description = "HTTP method (GET, POST, etc.). Used in rule title and resource.name filter."
+  description = "Axiom metric name for the numerator (e.g. fgr.delivery.estimation.failed)."
 }
 
 variable "panel_id" {
@@ -75,17 +65,18 @@ variable "panel_id" {
   description = "Grafana panel id for the alert panel link. Pair with dashboard_uid."
 }
 
-variable "route" {
-  type        = string
-  description = "Route path with leading slash, without api_path_prefix (e.g. /payment/:id)."
-
-  validation {
-    condition     = startswith(var.route, "/")
-    error_message = "route must start with / (e.g. /category/match)."
-  }
-}
-
 variable "service_name" {
   type        = string
-  description = "OTEL service.name (e.g. fgr-service-payments)."
+  description = "OTEL service.name (e.g. fgr-service-delivery)."
+}
+
+variable "summary" {
+  type        = string
+  default     = null
+  description = "Optional alert summary. Defaults to name."
+}
+
+variable "threshold" {
+  type        = number
+  description = "Ratio threshold in percent (100 * numerator / denominator)."
 }

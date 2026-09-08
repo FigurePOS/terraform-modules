@@ -1,10 +1,10 @@
-resource "grafana_rule_group" "event" {
+resource "grafana_rule_group" "ratio" {
   name             = local.group_name
   folder_uid       = var.folder_uid
   interval_seconds = local.eval_interval_seconds
 
   rule {
-    name           = "${var.service_name} – Events - ${var.event_type} – Latency (${var.env})"
+    name           = var.name
     condition      = "C"
     for            = local.pending_for
     no_data_state  = "OK"
@@ -12,14 +12,12 @@ resource "grafana_rule_group" "event" {
     is_paused      = false
 
     annotations = merge(local.panel_annotations, {
-      summary     = "${var.latency_percentile} latency for ${var.event_type} is over ${var.latency_target}s (${var.env})"
-      description = "avg(last_${local.interval_m}m) of ${var.latency_percentile}(fgr.message.consumer.duration) > ${var.latency_target}s."
+      summary     = local.summary
+      description = "avg(last_${local.interval_m}m) of 100 * ${var.numerator_metric} / ${var.denominator_metric} > ${var.threshold}."
     })
 
-    labels = merge(var.labels, {
-      service = var.service_name
-      env     = var.env
-      kind    = "event-latency"
+    labels = merge(local.rule_labels, {
+      kind = "metric-ratio"
     })
 
     data {
@@ -43,7 +41,7 @@ resource "grafana_rule_group" "event" {
         kind    = "mpl"
         version = "2.0"
         totals  = false
-        query   = local.latency_query
+        query   = local.ratio_query
       })
     }
 
@@ -88,7 +86,7 @@ resource "grafana_rule_group" "event" {
           {
             evaluator = {
               type   = "gt"
-              params = [var.latency_target]
+              params = [var.threshold]
             }
           },
         ]
