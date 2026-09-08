@@ -50,14 +50,34 @@ jobs:
           cd aws-sqs-queue
           terraform init
           terraform validate
-      - name: "validate axiom-monitor-express-endpoint"
+      - name: "validate axiom-monitor-event-latency"
         run: |
-          cd axiom-monitor-express-endpoint
+          cd axiom-monitor-event-latency
+          terraform init
+          terraform validate
+      - name: "validate axiom-monitor-http-client"
+        run: |
+          cd axiom-monitor-http-client
+          terraform init
+          terraform validate
+      - name: "validate axiom-monitor-http-endpoint"
+        run: |
+          cd axiom-monitor-http-endpoint
+          terraform init
+          terraform validate
+      - name: "validate axiom-monitor-ratio"
+        run: |
+          cd axiom-monitor-ratio
           terraform init
           terraform validate
       - name: "validate axiom-monitor-redis"
         run: |
           cd axiom-monitor-redis
+          terraform init
+          terraform validate
+      - name: "validate datadog-dashboard-service"
+        run: |
+          cd datadog-dashboard-service
           terraform init
           terraform validate
       - name: "validate datadog-monitor-event-latency"
@@ -80,15 +100,24 @@ jobs:
           cd datadog-monitor-metric-slo
           terraform init
           terraform validate
-
       - name: "validate grafana-alert-event-latency"
         run: |
           cd grafana-alert-event-latency
           terraform init
           terraform validate
+      - name: "validate grafana-alert-http-client"
+        run: |
+          cd grafana-alert-http-client
+          terraform init
+          terraform validate
       - name: "validate grafana-alert-http-endpoint"
         run: |
           cd grafana-alert-http-endpoint
+          terraform init
+          terraform validate
+      - name: "validate grafana-alert-ratio"
+        run: |
+          cd grafana-alert-ratio
           terraform init
           terraform validate
       - name: "validate grafana-dashboard-service"
