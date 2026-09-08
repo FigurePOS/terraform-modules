@@ -6,23 +6,17 @@ One dashboard per service, env variable `development|production`. CloudWatch uid
 
 HTTP and event queries use OTEL `resource.name` (`POST /payments/payment/:id`, event name as-is), not Datadog tags (`post_/payments/payment/:id`). Event panels use MPL `==` / `or`: if `service_worker` is set, match API or worker so one dashboard works in both envs (dev often runs events on the API task; prod on the worker).
 
-Datasources stay in `infrastructure/aws/monitoring`. Pass `folder_uid` (same as the service alert folder) so the dashboard is not left in General while alerts live under empty per-service folders.
+Datasources stay in `infrastructure/aws/monitoring`. Dashboards stay in General (same as Datadog). Alert rules still use a per-service `grafana_folder`.
 
 ## Usage (payments)
 
 ```hcl
-resource "grafana_folder" "service" {
-  uid   = var.service_name
-  title = var.service_name
-}
-
 module "grafana_dashboard" {
   source = "github.com/FigurePOS/terraform-modules//grafana-dashboard-service?ref=<tag>"
 
   title         = "Payments Service"
   service       = var.service_name
   dashboard_uid = "fgr-service-payments"
-  folder_uid    = grafana_folder.service.uid
   tags          = ["payments", "service"]
 
   http_endpoint_prefix = local.api_path_prefix

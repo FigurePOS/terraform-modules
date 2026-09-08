@@ -582,7 +582,6 @@ locals {
 
 resource "grafana_dashboard" "service" {
   overwrite = true
-  folder    = var.folder_uid
 
   config_json = jsonencode({
     uid           = local.dashboard_uid
