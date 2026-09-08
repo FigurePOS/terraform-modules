@@ -38,8 +38,8 @@ variable "folder_uid" {
 
 variable "interval" {
   type        = number
-  default     = 600
-  description = "Eval window in seconds (Grafana relative_time_range.from). Datadog last_10m = 600."
+  default     = 300
+  description = "Lookback window in seconds (Grafana relative_time_range.from). Default 5m; keep small so AMG's 30s Axiom query timeout holds."
 }
 
 variable "labels" {

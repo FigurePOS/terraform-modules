@@ -1,14 +1,14 @@
 resource "grafana_rule_group" "event" {
   name             = local.group_name
   folder_uid       = var.folder_uid
-  interval_seconds = 60
+  interval_seconds = local.eval_interval_seconds
 
   rule {
     name           = "${var.service_name} – Events - ${var.event_type} – Latency (${var.env})"
     condition      = "C"
-    for            = "0s"
+    for            = local.pending_for
     no_data_state  = "OK"
-    exec_err_state = "Error"
+    exec_err_state = "KeepLast"
     is_paused      = false
 
     annotations = merge(local.panel_annotations, {
@@ -35,7 +35,7 @@ resource "grafana_rule_group" "event" {
         refId         = "A"
         hide          = false
         intervalMs    = 60000
-        maxDataPoints = 43200
+        maxDataPoints = local.max_data_points
         datasource = {
           type = "axiomhq-axiom-datasource"
           uid  = var.axiom_datasource_uid

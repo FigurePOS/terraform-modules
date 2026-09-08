@@ -32,6 +32,6 @@ module "grafana_alert_endpoint_post_payment" {
 
 Same required inputs as the Datadog module (`env`, `service_name`, `api_path_prefix`, `method`, `route`, `error_rate_target`, `latency_target`). Grafana extras: `folder_uid` (default `fgr-services`), optional `dashboard_uid` / `panel_id` for the panel link.
 
-`interval` is seconds (default `600` = Datadog `last_10m`). `latency_percentile` stays `p95` / `p99`.
+`interval` is the lookback window in seconds (default `300` = 5m). Rules evaluate every 2m, pending 2m, `KeepLast` on query error (AMG's Axiom timeout is 30s). Error-rate and latency are separate rule groups. `latency_percentile` stays `p95` / `p99`.
 
 Grafana provider (`url` / `auth`) is minted by `fgr tf` / `auth-terraform-providers`.

@@ -11,6 +11,12 @@ locals {
     var.env,
   ]))
 
+  # AMG caps alert queries at 30s (not configurable). One rule per group, 2m eval,
+  # KeepLast + pending swallow a single timeout instead of paging DatasourceError.
+  eval_interval_seconds = 120
+  pending_for           = "2m"
+  max_data_points       = max(local.interval_m, 1)
+
   panel_annotations = var.dashboard_uid != null && var.panel_id != null ? {
     __dashboardUid__ = var.dashboard_uid
     __panelId__      = tostring(var.panel_id)

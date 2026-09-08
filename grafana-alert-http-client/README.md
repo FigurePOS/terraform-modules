@@ -44,4 +44,4 @@ module "grafana_alert_payment_gateway" {
 }
 ```
 
-`interval` default is `300` (Datadog `last_5m`). Grafana provider (`url` / `auth`) is minted by `fgr tf` / `auth-terraform-providers`.
+`interval` is the lookback window in seconds (default `300` = 5m). Rules evaluate every 2m, pending 2m, `KeepLast` on query error. Error-rate and latency are separate rule groups. Grafana provider (`url` / `auth`) is minted by `fgr tf` / `auth-terraform-providers`.
