@@ -20,6 +20,7 @@ locals {
     ${local.where_clauses}
     | bucket to 1m using interpolate_delta_histogram(${local.percentile})
     | map / 1000
+    | align using avg
   EOT
 
   error_rate_query = <<-EOT
@@ -38,5 +39,6 @@ locals {
     )
     | compute error_pct using /
     | map * 100
+    | align using avg
   EOT
 }

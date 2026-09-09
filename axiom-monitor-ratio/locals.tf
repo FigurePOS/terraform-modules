@@ -26,6 +26,7 @@ locals {
     )
     | compute ratio_pct using /
     | map * 100
+    | align using avg
   EOT
 
   summary = var.summary != null ? var.summary : var.name

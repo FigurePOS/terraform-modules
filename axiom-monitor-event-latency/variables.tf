@@ -15,8 +15,8 @@ variable "event_type" {
 
 variable "interval" {
   type        = number
-  default     = 300
-  description = "Lookback window in seconds (Axiom range_minutes). Default 5m, same as grafana-alert-event-latency."
+  default     = 600
+  description = "Lookback window in seconds (Axiom range_minutes). Default 10m."
 }
 
 variable "latency_percentile" {

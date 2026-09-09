@@ -23,4 +23,4 @@ module "axiom_monitor_endpoint_post_payment" {
 }
 ```
 
-Needs the Axiom provider in the service root (`api_token`). Eval every 2m over a 5m lookback (`interval` seconds, default `300`); fires after 2 consecutive runs.
+Needs the Axiom provider in the service root (`api_token`). Eval every 2m over a 10m lookback (`interval` seconds, default `600`). Query is a window average, not “any 1m point”. Fires after 2 consecutive evals.
