@@ -5,7 +5,6 @@ locals {
   interval_m    = max(floor(var.interval / 60), 1)
   percentile    = tonumber(trimprefix(var.latency_percentile, "p")) / 100
 
-  # Same cadence as grafana-alert-*: 2m eval, 2 consecutive runs (~ Grafana for = 2m).
   eval_interval_minutes = 2
   trigger_from_n_runs   = 2
   notifier_ids          = var.notifier_ids != null ? var.notifier_ids : [data.aws_ssm_parameter.axiom_platform_warnings_notifier_id[0].value]
@@ -30,6 +29,7 @@ locals {
     )
     | compute error_pct using /
     | map * 100
+    | align using avg
   EOT
 
   latency_query = <<-EOT
@@ -37,5 +37,6 @@ locals {
     | where `service.name` == "${var.service_name}"
     | where `resource.name` == "${local.resource_name}"
     | bucket to 1m using interpolate_delta_histogram(${local.percentile})
+    | align using avg
   EOT
 }

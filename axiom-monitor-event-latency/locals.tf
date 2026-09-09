@@ -14,5 +14,6 @@ locals {
     | where `service.name` == "${var.service_name}"
     | where `resource.name` == "${var.event_type}"
     | bucket to 1m using interpolate_delta_histogram(${local.percentile})
+    | align using avg
   EOT
 }

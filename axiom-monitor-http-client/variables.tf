@@ -27,8 +27,8 @@ variable "filters" {
 
 variable "interval" {
   type        = number
-  default     = 300
-  description = "Lookback window in seconds (Axiom range_minutes). Default 5m, same as grafana-alert-http-client."
+  default     = 600
+  description = "Lookback window in seconds (Axiom range_minutes). Default 10m."
 }
 
 variable "latency_percentile" {
