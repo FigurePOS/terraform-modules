@@ -29,4 +29,4 @@ module "axiom_monitor_delivery_provider_error_rate" {
 }
 ```
 
-Needs the Axiom provider in the service root (`api_token`). Eval every 2m over a 10m lookback (Datadog `avg(last_10m)`). Query is a window average, not “any 1m point”. Fires after 2 consecutive evals.
+Needs the Axiom provider in the service root (`api_token`). Eval every 2m over a 10m lookback. Query is a window average, not “any 1m point”. Fires after 2 consecutive evals.
