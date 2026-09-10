@@ -32,11 +32,12 @@ locals {
     | align using avg
   EOT
 
+  # Omit `to <window>` so the histogram is over the full monitor range (one value).
+  # `bucket to 1m` + range_minutes=10 is rejected by Axiom: "range too short for the bin size".
   latency_query = <<-EOT
     `${local.dataset}`:`fgr.http.server.request.duration`
     | where `service.name` == "${var.service_name}"
     | where `resource.name` == "${local.resource_name}"
-    | bucket to 1m using interpolate_delta_histogram(${local.percentile})
-    | align using avg
+    | bucket using interpolate_delta_histogram(${local.percentile})
   EOT
 }
