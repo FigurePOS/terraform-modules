@@ -9,11 +9,12 @@ locals {
 
   latency_summary = "${var.latency_percentile} latency for ${var.event_type} is over ${var.latency_target}s (${var.env})"
 
+  # Omit `to <window>` so the histogram is over the full monitor range (one value).
+  # `bucket to 1m` + range_minutes=10 is rejected by Axiom: "range too short for the bin size".
   latency_query = <<-EOT
     `${local.dataset}`:`fgr.message.consumer.duration`
     | where `service.name` == "${var.service_name}"
     | where `resource.name` == "${var.event_type}"
-    | bucket to 1m using interpolate_delta_histogram(${local.percentile})
-    | align using avg
+    | bucket using interpolate_delta_histogram(${local.percentile})
   EOT
 }

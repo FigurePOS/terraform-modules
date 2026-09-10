@@ -38,4 +38,4 @@ module "axiom_monitor_payment_gateway" {
 }
 ```
 
-Needs the Axiom provider in the service root (`api_token`). Eval every 2m over a 10m lookback. Query is a window average, not “any 1m point”. Fires after 2 consecutive evals.
+Needs the Axiom provider in the service root (`api_token`). Eval every 2m over a 10m lookback. Latency is p95 over the full lookback (no per-minute binning — Axiom rejects `bucket to 1m` at this range). Fires after 2 consecutive evals.
