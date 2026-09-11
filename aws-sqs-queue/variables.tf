@@ -48,10 +48,15 @@ variable "dlq_name" {
 
 variable "dlq_renotify_interval_minutes" {
   type        = number
-  description = "Minutes the DLQ must stay above threshold before Datadog sends the first reminder, and between subsequent reminders (minutes)."
+  description = "Minutes the DLQ must stay above threshold before Grafana sends the first reminder (Grafana `for`). Slack re-notify uses monitoring policy matchers destination=slack-platform-warnings and repeat=24h."
   default     = 24 * 60
 }
 
+variable "grafana_folder_uid" {
+  type        = string
+  default     = "general"
+  description = "Grafana folder UID for the DLQ reminder rule group. Default is the built-in General folder."
+}
 
 variable "env" {
   type        = string

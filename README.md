@@ -31,6 +31,8 @@ Creates S3 bucket.
 
 Creates SQS queue with its DeadLetterQueue.
 
+CloudWatch alarms cover the initial DLQ Slack alert (and increasing-rate paging). Grafana sends the 24h "still has messages" reminder (`destination=slack-platform-warnings`, `repeat=24h`); Slack re-notify interval is the monitoring notification policy in `infrastructure/aws/monitoring`. Requires the Grafana provider (`url` / `auth` minted by `fgr tf`).
+
 ## axiom-monitor-event-latency
 
 Axiom-native twin of `grafana-alert-event-latency`. Same MPL on `fgr.message.consumer.duration`. Slack via `/axiom/platform_warnings_notifier_id`.
