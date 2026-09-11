@@ -22,7 +22,7 @@ output "queue_url" {
   value = aws_sqs_queue.queue.url
 }
 
-output "datadog_dlq_messages_monitor_id" {
-  description = "Datadog monitor ID for DLQ message count re-notifications."
-  value       = datadog_monitor.dlq_messages_count.id
+output "grafana_dlq_messages_rule_group_id" {
+  description = "Grafana rule group ID for DLQ message count reminders."
+  value       = grafana_rule_group.dlq_messages_count.id
 }

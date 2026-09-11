@@ -5,9 +5,9 @@ terraform {
       version = "~> 6.0"
     }
 
-    datadog = {
-      source  = "datadog/datadog"
-      version = "~> 4.13"
+    grafana = {
+      source  = "grafana/grafana"
+      version = "~> 4.0"
     }
   }
 }

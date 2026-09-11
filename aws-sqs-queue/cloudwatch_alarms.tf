@@ -1,6 +1,6 @@
 # CloudWatch alarms for SQS queues.
 # Warning thresholds notify Slack only; critical thresholds also page on-call via Rootly.
-# DLQ message count: CloudWatch for the initial Slack alert; Datadog re-notifies after the queue
+# DLQ message count: CloudWatch for the initial Slack alert; Grafana re-notifies after the queue
 # has stayed above threshold for dlq_renotify_interval_minutes (default 24h).
 
 # CloudWatch alarm for dead letter queue message count (warning)
