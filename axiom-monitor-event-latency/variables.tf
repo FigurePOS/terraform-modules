@@ -15,8 +15,13 @@ variable "event_type" {
 
 variable "interval" {
   type        = number
-  default     = 600
-  description = "Lookback window in seconds (Axiom range_minutes). Default 10m."
+  default     = 900
+  description = "Lookback window in seconds (Axiom range_minutes). Default 15m. Axiom rejects histogram `bucket to 1m` below that."
+
+  validation {
+    condition     = var.interval >= 900 && var.interval % 60 == 0
+    error_message = "interval must be a multiple of 60 and at least 900 (15m)."
+  }
 }
 
 variable "latency_percentile" {

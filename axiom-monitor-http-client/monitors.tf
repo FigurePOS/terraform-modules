@@ -4,7 +4,7 @@ resource "axiom_monitor" "error_rate" {
   description         = local.error_rate_summary
   mpl_query           = local.error_rate_query
   interval_minutes    = local.eval_interval_minutes
-  range_minutes       = local.interval_m
+  range_minutes       = local.interval_minutes
   operator            = "Above"
   threshold           = var.error_rate_target
   notifier_ids        = local.notifier_ids
@@ -19,7 +19,7 @@ resource "axiom_monitor" "latency" {
   description         = local.latency_summary
   mpl_query           = local.latency_query
   interval_minutes    = local.eval_interval_minutes
-  range_minutes       = local.interval_m
+  range_minutes       = local.interval_minutes
   operator            = "Above"
   threshold           = var.latency_target
   notifier_ids        = local.notifier_ids
