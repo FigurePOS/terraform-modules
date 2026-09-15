@@ -2,7 +2,7 @@ locals {
   method_upper  = upper(var.method)
   resource_name = "${local.method_upper} /${var.api_path_prefix}${var.route}"
   dataset       = var.env == "development" ? "node-js-metrics-dev" : "node-js-metrics-prod"
-  interval_m    = max(floor(var.interval / 60), 1)
+  interval_minutes = var.interval / 60
   percentile    = tonumber(trimprefix(var.latency_percentile, "p")) / 100
 
   eval_interval_minutes = 2
@@ -32,12 +32,12 @@ locals {
     | align using avg
   EOT
 
-  # Omit `to <window>` so the histogram is over the full monitor range (one value).
-  # `bucket to 1m` + range_minutes=10 is rejected by Axiom: "range too short for the bin size".
+  # avg(last_Xm):p95 — 1m p95s, then average (Datadog twin). Not p95 of the whole window.
   latency_query = <<-EOT
     `${local.dataset}`:`fgr.http.server.request.duration`
     | where `service.name` == "${var.service_name}"
     | where `resource.name` == "${local.resource_name}"
-    | bucket using interpolate_delta_histogram(${local.percentile})
+    | bucket to 1m using interpolate_delta_histogram(${local.percentile})
+    | align using avg
   EOT
 }
