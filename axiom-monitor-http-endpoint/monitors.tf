@@ -3,8 +3,8 @@ resource "axiom_monitor" "error_rate" {
   name                = "${var.service_name} – HTTP - ${local.method_upper} ${var.route} - Error rate (${var.env})"
   description         = local.error_rate_summary
   mpl_query           = local.error_rate_query
-  interval_minutes    = local.eval_interval_minutes
-  range_minutes       = local.interval_minutes
+  interval_minutes    = var.interval_minutes
+  range_minutes       = local.range_minutes
   operator            = "Above"
   threshold           = var.error_rate_target
   notifier_ids        = local.notifier_ids
@@ -18,8 +18,8 @@ resource "axiom_monitor" "latency" {
   name                = "${var.service_name} – HTTP - ${local.method_upper} ${var.route} - Latency (${var.env})"
   description         = local.latency_summary
   mpl_query           = local.latency_query
-  interval_minutes    = local.eval_interval_minutes
-  range_minutes       = local.interval_minutes
+  interval_minutes    = var.interval_minutes
+  range_minutes       = local.range_minutes
   operator            = "Above"
   threshold           = var.latency_target
   notifier_ids        = local.notifier_ids
