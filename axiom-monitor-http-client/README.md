@@ -38,4 +38,4 @@ module "axiom_monitor_payment_gateway" {
 }
 ```
 
-Needs the Axiom provider in the service root (`api_token`). Eval every 2m over a 15m lookback (`interval` default `900`; min 15m because Axiom rejects `bucket to 1m` below that). Latency is `avg` of 1m p95s (Datadog `avg(last_Xm):p95`), not p95 of the whole window. Fires after 2 consecutive evals.
+Needs the Axiom provider in the service root (`api_token`). Eval every 2m (`interval_minutes`) over a 15m lookback (`range_minutes`, default 15). Latency is a clock-aligned average of 1m p95s over `range_minutes - 5` (10m at default; Datadog `avg(last_10m):p95`). Fires after 2 consecutive evals.

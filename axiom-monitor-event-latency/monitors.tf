@@ -3,8 +3,8 @@ resource "axiom_monitor" "latency" {
   name                = "${var.service_name} – Events - ${var.event_type} – Latency (${var.env})"
   description         = local.latency_summary
   mpl_query           = local.latency_query
-  interval_minutes    = local.eval_interval_minutes
-  range_minutes       = local.interval_minutes
+  interval_minutes    = var.interval_minutes
+  range_minutes       = local.range_minutes
   operator            = "Above"
   threshold           = var.latency_target
   notifier_ids        = local.notifier_ids
