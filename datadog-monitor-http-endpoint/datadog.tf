@@ -13,9 +13,9 @@ locals {
     "resource.name:${lower(var.method)}_${local.http_path}",
     "service:${var.service_name}",
   ])
-  metric_errors       = "sum:fgr.http.server.request.errors{${local.monitor_dimensions}}.as_rate().rollup(sum,60)"
-  metric_hits         = "sum:fgr.http.server.request.count{${local.monitor_dimensions}}.as_rate().rollup(sum,60)"
-  metric_latency      = "${var.latency_percentile}:fgr.http.server.request.duration{${local.monitor_dimensions}}"
+  metric_errors  = "sum:fgr.http.server.request.errors{${local.monitor_dimensions}}.as_rate().rollup(sum,60)"
+  metric_hits    = "sum:fgr.http.server.request.count{${local.monitor_dimensions}}.as_rate().rollup(sum,60)"
+  metric_latency = "${var.latency_percentile}:fgr.http.server.request.duration{${local.monitor_dimensions}}"
 
   monitor_tags = concat(["env:${var.env}", "service:${var.service_name}"], var.tags)
 }

@@ -36,12 +36,12 @@ variable "attributes" {
 
 variable "global_secondary_indexes" {
   type = list(object({
-    name            = string
-    hash_key        = string
-    range_key       = optional(string)
-    projection_type = string
-    read_capacity   = optional(number)
-    write_capacity  = optional(number)
+    name               = string
+    hash_key           = string
+    range_key          = optional(string)
+    projection_type    = string
+    read_capacity      = optional(number)
+    write_capacity     = optional(number)
     non_key_attributes = optional(list(string))
   }))
   description = "List of global secondary indexes to create on the DynamoDB table"

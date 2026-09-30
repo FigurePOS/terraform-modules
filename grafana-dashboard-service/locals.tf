@@ -125,13 +125,13 @@ locals {
   red_field_config = {
     defaults = {
       custom = {
-        drawStyle     = "bars"
-        barAlignment  = 0
-        lineWidth     = 1
-        fillOpacity   = 50
-        spanNulls     = false
-        showPoints    = "never"
-        stacking      = { mode = "none", group = "A" }
+        drawStyle    = "bars"
+        barAlignment = 0
+        lineWidth    = 1
+        fillOpacity  = 50
+        spanNulls    = false
+        showPoints   = "never"
+        stacking     = { mode = "none", group = "A" }
       }
     }
     overrides = [
