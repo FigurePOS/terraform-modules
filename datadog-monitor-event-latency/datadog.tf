@@ -14,10 +14,6 @@ locals {
   monitor_tags = concat(["env:${var.env}", "service:${var.service_name}"], var.tags)
 }
 
-data "datadog_role" "admin_role" {
-  filter = "Admin"
-}
-
 resource "datadog_monitor" "event_monitor_latency" {
   name           = "${var.service_name} – Events - ${var.event_type} – Latency"
   type           = "metric alert"

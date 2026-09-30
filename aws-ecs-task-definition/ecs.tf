@@ -38,11 +38,11 @@ locals {
     },
     {
       name  = "OTEL_SERVICE_NAME",
-      value = "${var.service_name}"
+      value = var.service_name
     },
     {
       name  = "OTEL_SERVICE_VERSION",
-      value = "${var.deployment_tag}"
+      value = var.deployment_tag
     },
     {
       name  = "PORT",

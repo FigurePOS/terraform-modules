@@ -23,7 +23,7 @@ locals {
     tsconfig            = fileexists("${var.source_dir}/tsconfig.json") ? file("${var.source_dir}/tsconfig.json") : ""
     esbuild_config      = fileexists("${var.source_dir}/esbuild.config.mjs") ? file("${var.source_dir}/esbuild.config.mjs") : ""
     # Sort source files for consistent hash across machines
-    source_files = join("", [for f in sort(fileset("${var.source_dir}", "src/**/*.ts")) : file("${var.source_dir}/${f}")])
+    source_files = join("", [for f in sort(fileset(var.source_dir, "src/**/*.ts")) : file("${var.source_dir}/${f}")])
   }
 
   # Create a stable hash that's consistent across machines and file systems
@@ -34,9 +34,7 @@ locals {
   }))
 
   # Build directories - use module-relative paths for consistency across machines
-  build_dir        = "${path.module}/.build/${var.function_name}"
-  build_output_dir = "${local.build_dir}/dist"
-  zip_output_path  = "${path.module}/.build/${var.function_name}.zip"
+  zip_output_path = "${path.module}/.build/${var.function_name}.zip"
 
   # OpenTelemetry: OTLP/HTTP to Axiom (https://axiom.co/docs/send-data/opentelemetry)
   default_node_options = "--enable-source-maps --require @figurepos/lib-observability/lambda/register"
