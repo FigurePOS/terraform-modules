@@ -5,6 +5,10 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+  packages: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -15,123 +19,163 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: "validate aws-dynamodb-table"
-        run: |
-          cd aws-dynamodb-table
-          terraform init
-          terraform validate
-      - name: "validate aws-ecs-autoscaling"
-        run: |
-          cd aws-ecs-autoscaling
-          terraform init
-          terraform validate
-      - name: "validate aws-ecs-service"
-        run: |
-          cd aws-ecs-service
-          terraform init
-          terraform validate
-      - name: "validate aws-ecs-task-definition"
-        run: |
-          cd aws-ecs-task-definition
-          terraform init
-          terraform validate
-      - name: "validate aws-lambda-function"
-        run: |
-          cd aws-lambda-function
-          terraform init
-          terraform validate
-      - name: "validate aws-s3-bucket"
-        run: |
-          cd aws-s3-bucket
-          terraform init
-          terraform validate
-      - name: "validate aws-sqs-queue"
-        run: |
-          cd aws-sqs-queue
-          terraform init
-          terraform validate
-      - name: "validate axiom-monitor-event-latency"
-        run: |
-          cd axiom-monitor-event-latency
-          terraform init
-          terraform validate
-      - name: "validate axiom-monitor-http-client"
-        run: |
-          cd axiom-monitor-http-client
-          terraform init
-          terraform validate
-      - name: "validate axiom-monitor-http-endpoint"
-        run: |
-          cd axiom-monitor-http-endpoint
-          terraform init
-          terraform validate
-      - name: "validate axiom-monitor-ratio"
-        run: |
-          cd axiom-monitor-ratio
-          terraform init
-          terraform validate
-      - name: "validate axiom-monitor-redis"
-        run: |
-          cd axiom-monitor-redis
-          terraform init
-          terraform validate
-      - name: "validate datadog-dashboard-service"
-        run: |
-          cd datadog-dashboard-service
-          terraform init
-          terraform validate
-      - name: "validate datadog-monitor-event-latency"
-        run: |
-          cd datadog-monitor-event-latency
-          terraform init
-          terraform validate
-      - name: "validate datadog-monitor-http-endpoint"
-        run: |
-          cd datadog-monitor-http-endpoint
-          terraform init
-          terraform validate
-      - name: "validate datadog-monitor-metric"
-        run: |
-          cd datadog-monitor-metric
-          terraform init
-          terraform validate
-      - name: "validate datadog-monitor-metric-slo"
-        run: |
-          cd datadog-monitor-metric-slo
-          terraform init
-          terraform validate
-      - name: "validate grafana-alert-event-latency"
-        run: |
-          cd grafana-alert-event-latency
-          terraform init
-          terraform validate
-      - name: "validate grafana-alert-http-client"
-        run: |
-          cd grafana-alert-http-client
-          terraform init
-          terraform validate
-      - name: "validate grafana-alert-http-endpoint"
-        run: |
-          cd grafana-alert-http-endpoint
-          terraform init
-          terraform validate
-      - name: "validate grafana-alert-ratio"
-        run: |
-          cd grafana-alert-ratio
-          terraform init
-          terraform validate
-      - name: "validate grafana-dashboard-service"
-        run: |
-          cd grafana-dashboard-service
-          terraform init
-          terraform validate
 
-      - name: "scan for misconfigurations with Checkov"
-        id: checkov
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: "@figurepos"
+
+      - name: Install platform-tooling
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: npm install --global @figurepos/platform-tooling
+
+      - name: Copy lint config
+        run: |
+          root="$(npm root -g)/@figurepos/platform-tooling/resources/terraform"
+          mkdir -p .ci
+          cp "$root/.tflint.hcl" "$root/.checkov.yaml" .ci/
+          # python-hcl2 treats `for` as a keyword, so Grafana alert rules fail to parse.
+          # #checkov:skip is never read. These files only contain that resource.
+          cat >> .ci/.checkov.yaml << 'EOF'
+          skip-path:
+              - grafana-alert-event-latency/grafana.tf
+              - grafana-alert-http-endpoint/grafana.tf
+              - grafana-alert-http-client/grafana.tf
+              - grafana-alert-ratio/grafana.tf
+              - aws-sqs-queue/grafana.tf
+          EOF
+
+      - uses: opentofu/setup-opentofu@v2
+        with:
+          tofu_version: ~1.13.0
+
+      - name: tofu fmt
+        run: tofu fmt -check -recursive -diff
+
+      - name: Set up tflint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: tflint
+        run: tflint --config .ci/.tflint.hcl --recursive
+
+      - name: scan for misconfigurations with Checkov
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: .
           quiet: true
           framework: terraform
           output_format: cli
-          skip_check: CKV_AWS_119,CKV_AWS_144,CKV_AWS_145,CKV_AWS_158,CKV_AWS_336,CKV_AWS_378,CKV2_AWS_62
+          config_file: .ci/.checkov.yaml
+
+      - name: validate aws-dynamodb-table
+        uses: ./.github/actions/validate-module
+        with:
+          directory: aws-dynamodb-table
+
+      - name: validate aws-ecs-autoscaling
+        uses: ./.github/actions/validate-module
+        with:
+          directory: aws-ecs-autoscaling
+
+      - name: validate aws-ecs-service
+        uses: ./.github/actions/validate-module
+        with:
+          directory: aws-ecs-service
+
+      - name: validate aws-ecs-task-definition
+        uses: ./.github/actions/validate-module
+        with:
+          directory: aws-ecs-task-definition
+
+      - name: validate aws-lambda-function
+        uses: ./.github/actions/validate-module
+        with:
+          directory: aws-lambda-function
+
+      - name: validate aws-s3-bucket
+        uses: ./.github/actions/validate-module
+        with:
+          directory: aws-s3-bucket
+
+      - name: validate aws-sqs-queue
+        uses: ./.github/actions/validate-module
+        with:
+          directory: aws-sqs-queue
+
+      - name: validate axiom-monitor-event-latency
+        uses: ./.github/actions/validate-module
+        with:
+          directory: axiom-monitor-event-latency
+
+      - name: validate axiom-monitor-http-client
+        uses: ./.github/actions/validate-module
+        with:
+          directory: axiom-monitor-http-client
+
+      - name: validate axiom-monitor-http-endpoint
+        uses: ./.github/actions/validate-module
+        with:
+          directory: axiom-monitor-http-endpoint
+
+      - name: validate axiom-monitor-ratio
+        uses: ./.github/actions/validate-module
+        with:
+          directory: axiom-monitor-ratio
+
+      - name: validate axiom-monitor-redis
+        uses: ./.github/actions/validate-module
+        with:
+          directory: axiom-monitor-redis
+
+      - name: validate datadog-dashboard-service
+        uses: ./.github/actions/validate-module
+        with:
+          directory: datadog-dashboard-service
+
+      - name: validate datadog-monitor-event-latency
+        uses: ./.github/actions/validate-module
+        with:
+          directory: datadog-monitor-event-latency
+
+      - name: validate datadog-monitor-http-endpoint
+        uses: ./.github/actions/validate-module
+        with:
+          directory: datadog-monitor-http-endpoint
+
+      - name: validate datadog-monitor-metric
+        uses: ./.github/actions/validate-module
+        with:
+          directory: datadog-monitor-metric
+
+      - name: validate datadog-monitor-metric-slo
+        uses: ./.github/actions/validate-module
+        with:
+          directory: datadog-monitor-metric-slo
+
+      - name: validate grafana-alert-event-latency
+        uses: ./.github/actions/validate-module
+        with:
+          directory: grafana-alert-event-latency
+
+      - name: validate grafana-alert-http-client
+        uses: ./.github/actions/validate-module
+        with:
+          directory: grafana-alert-http-client
+
+      - name: validate grafana-alert-http-endpoint
+        uses: ./.github/actions/validate-module
+        with:
+          directory: grafana-alert-http-endpoint
+
+      - name: validate grafana-alert-ratio
+        uses: ./.github/actions/validate-module
+        with:
+          directory: grafana-alert-ratio
+
+      - name: validate grafana-dashboard-service
+        uses: ./.github/actions/validate-module
+        with:
+          directory: grafana-dashboard-service

@@ -1,0 +1,17 @@
+name: Validate Terraform module
+description: tofu init and validate in one module directory. Uses the job checkout. Does not check out again.
+
+inputs:
+  directory:
+    description: Module directory relative to the repository root
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Init and validate
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+      run: |
+        tofu init -input=false
+        tofu validate -no-color
