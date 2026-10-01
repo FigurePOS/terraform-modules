@@ -38,7 +38,6 @@ resource "aws_s3_object" "lambda_package" {
 
 # CloudWatch Log Group for Lambda
 resource "aws_cloudwatch_log_group" "lambda" {
-  //checkov:skip=CKV_AWS_338: "Ensure CloudWatch log groups retains logs for at least 1 year" - Short platform retention; long-term log archival is handled separately.
   name              = "${local.lambda_log_group_prefix}/${var.function_name}"
   retention_in_days = 3
   tags              = var.tags
@@ -46,7 +45,6 @@ resource "aws_cloudwatch_log_group" "lambda" {
 
 # Lambda Function
 resource "aws_lambda_function" "this" {
-  //checkov:skip=CKV_AWS_50: "X-Ray tracing is enabled for Lambda"
   //checkov:skip=CKV_AWS_115: "Ensure that AWS Lambda function is configured for function-level concurrent execution limit"
   //checkov:skip=CKV_AWS_116: "Ensure that AWS Lambda function is configured for a Dead Letter Queue(DLQ)"
   //checkov:skip=CKV_AWS_173: "Check encryption settings for Lambda environmental variable"

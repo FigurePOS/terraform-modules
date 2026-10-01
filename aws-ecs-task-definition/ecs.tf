@@ -38,11 +38,11 @@ locals {
     },
     {
       name  = "OTEL_SERVICE_NAME",
-      value = "${var.service_name}"
+      value = var.service_name
     },
     {
       name  = "OTEL_SERVICE_VERSION",
-      value = "${var.deployment_tag}"
+      value = var.deployment_tag
     },
     {
       name  = "PORT",
@@ -109,9 +109,8 @@ locals {
 }
 
 module "app_container_definition" {
-  # checkov:skip=CKV_TF_1: "Ensure Terraform module sources use a commit hash"
-  source  = "cloudposse/ecs-container-definition/aws"
-  version = "0.61.2"
+  # https://github.com/cloudposse/terraform-aws-ecs-container-definition/releases/tag/v0.61.2
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=dc9c21a3a592e23703fa67f93187944e7fb0aac8"
 
   container_name  = var.service_name
   container_image = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.ecr_repository_uri}:${var.deployment_tag}"

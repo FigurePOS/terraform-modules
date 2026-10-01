@@ -1,5 +1,3 @@
-# checkov:skip=CKV_AWS_144:Cross-region replication should be enabled.
-# checkov:skip=CKV_AWS_145:KMS encryption by default.
 # checkov:skip=CKV2_AWS_62:Notifications should be enabled.
 resource "aws_s3_bucket" "bucket" {
   bucket = var.bucket_name
@@ -83,7 +81,7 @@ resource "aws_s3_bucket_cors_configuration" "cors" {
 }
 
 resource "aws_s3_bucket_acl" "acl" {
-  count = var.acl != null ? 1 : 0
+  count  = var.acl != null ? 1 : 0
   bucket = aws_s3_bucket.bucket.id
 
   acl = var.acl

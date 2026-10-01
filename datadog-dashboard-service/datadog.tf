@@ -18,9 +18,9 @@ locals {
 }
 
 resource "datadog_dashboard" "service_dashboard" {
-  title        = var.title
-  layout_type  = "ordered"
-  reflow_type  = "auto"
+  title       = var.title
+  layout_type = "ordered"
+  reflow_type = "auto"
 
   template_variable {
     name     = "env"

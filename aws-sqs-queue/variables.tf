@@ -1,9 +1,3 @@
-variable "aws_region" {
-  type        = string
-  description = "The AWS region to create the resources in."
-  default     = "us-east-1"
-}
-
 variable "cloudwatch_evaluation_periods" {
   type        = number
   description = "The number of consecutive evaluation periods that must breach before CloudWatch alarms."

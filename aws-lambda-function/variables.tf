@@ -37,12 +37,6 @@ variable "git_commit_hash" {
   default     = ""
 }
 
-variable "git_repository_url" {
-  description = "Git repository URL for tagging"
-  type        = string
-  default     = ""
-}
-
 variable "handler" {
   description = "Lambda function handler (e.g. 'index.handler')"
   type        = string

@@ -1,10 +1,6 @@
 # CloudWatch alarms for Lambda function monitoring.
 # Warning thresholds notify Slack only.
 
-locals {
-  lambda_alarm_tags = merge(var.tags, { Service = var.service_name })
-}
-
 # CloudWatch alarm for Lambda errors (warning)
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   count = local.cloudwatch_alarms_enabled
@@ -31,7 +27,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
-  tags = local.lambda_alarm_tags
+  tags = local.alarm_tags
 }
 
 # CloudWatch alarm for Lambda throttles (warning)
@@ -60,7 +56,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
   ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
-  tags = local.lambda_alarm_tags
+  tags = local.alarm_tags
 }
 
 # CloudWatch alarm for Lambda duration approaching timeout (warning)
@@ -89,7 +85,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
   ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
-  tags = local.lambda_alarm_tags
+  tags = local.alarm_tags
 }
 
 # CloudWatch alarm for Lambda concurrent executions (warning)
@@ -118,7 +114,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_concurrent_executions" {
   ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
-  tags = local.lambda_alarm_tags
+  tags = local.alarm_tags
 }
 
 # CloudWatch alarm for Lambda error rate (warning)
@@ -178,5 +174,5 @@ resource "aws_cloudwatch_metric_alarm" "lambda_error_rate" {
   ok_actions                = local.alerts_slack_sns_topic_arns
   insufficient_data_actions = []
 
-  tags = local.lambda_alarm_tags
+  tags = local.alarm_tags
 }

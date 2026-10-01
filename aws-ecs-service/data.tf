@@ -42,6 +42,6 @@ data "aws_vpc" "main" {
 
 data "aws_sns_topic" "rootly_oncall" {
   count = local.rootly_enabled ? 1 : 0
-  
-  name  = "alerts-to-rootly"
+
+  name = "alerts-to-rootly"
 }
