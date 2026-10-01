@@ -59,7 +59,7 @@ jobs:
         uses: terraform-linters/setup-tflint@v4
 
       - name: tflint
-        run: tflint --config .ci/.tflint.hcl --recursive
+        run: tflint --config "$GITHUB_WORKSPACE/.ci/.tflint.hcl" --recursive
 
       - name: scan for misconfigurations with Checkov
         uses: bridgecrewio/checkov-action@v12
