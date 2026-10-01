@@ -87,8 +87,9 @@ variable "task_cpu" {
 }
 
 variable "task_execution_policy" {
-  type    = any
-  default = null
+  type        = string
+  default     = null
+  description = "IAM policy JSON for the ECS task execution role. Pass aws_iam_policy_document.<name>.json."
 }
 
 variable "task_memory" {
@@ -97,8 +98,9 @@ variable "task_memory" {
 }
 
 variable "task_policy" {
-  type    = any
-  default = null
+  type        = string
+  default     = null
+  description = "IAM policy JSON for the ECS task role. Pass aws_iam_policy_document.<name>.json."
 }
 
 variable "ulimits" {
