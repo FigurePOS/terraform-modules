@@ -30,23 +30,20 @@ jobs:
       - name: Install platform-tooling
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
-        run: npm install --global @figurepos/platform-tooling
+        run: npm install --global @figurepos/platform-tooling@2.8.0
 
       - name: Copy lint config
         run: |
-          root="$(npm root -g)/@figurepos/platform-tooling/resources/terraform"
           mkdir -p .ci
-          cp "$root/.tflint.hcl" "$root/.checkov.yaml" .ci/
-          # python-hcl2 treats `for` as a keyword, so Grafana alert rules fail to parse.
-          # #checkov:skip is never read. These files only contain that resource.
-          cat >> .ci/.checkov.yaml << 'EOF'
-          skip-path:
-              - grafana-alert-event-latency/grafana.tf
-              - grafana-alert-http-endpoint/grafana.tf
-              - grafana-alert-http-client/grafana.tf
-              - grafana-alert-ratio/grafana.tf
-              - aws-sqs-queue/grafana.tf
-          EOF
+          fgr tf config tflint > .ci/.tflint.hcl
+          # python-hcl2 treats `for` as a keyword, so these Grafana alert files fail to parse.
+          fgr tf config checkov \
+            --skip-path grafana-alert-event-latency/grafana.tf \
+            --skip-path grafana-alert-http-endpoint/grafana.tf \
+            --skip-path grafana-alert-http-client/grafana.tf \
+            --skip-path grafana-alert-ratio/grafana.tf \
+            --skip-path aws-sqs-queue/grafana.tf \
+            > .ci/.checkov.yaml
 
       - uses: opentofu/setup-opentofu@v2
         with:
