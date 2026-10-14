@@ -304,7 +304,7 @@ locals {
             graphMode     = "none"
             justifyMode   = "center"
             textMode      = "value"
-            reduceOptions = { calcs = ["max"], fields = "", values = false }
+            reduceOptions = { calcs = ["lastNotNull"], fields = "", values = false }
           }
           fieldConfig = {
             defaults = {
