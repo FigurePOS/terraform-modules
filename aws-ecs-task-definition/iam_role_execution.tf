@@ -27,13 +27,21 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_default" {
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_custom" {
-  count      = var.task_execution_policy != null ? 1 : 0
   role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = aws_iam_policy.ecs_task_execution_role_custom[0].arn
+  policy_arn = aws_iam_policy.ecs_task_execution_role_custom.arn
 }
 
 resource "aws_iam_policy" "ecs_task_execution_role_custom" {
-  count  = var.task_execution_policy != null ? 1 : 0
   name   = "${var.service_name}__ecs_execution_custom"
-  policy = var.task_execution_policy
+  policy = coalesce(var.task_execution_policy, data.aws_iam_policy_document.noop.json)
+}
+
+moved {
+  from = aws_iam_policy.ecs_task_execution_role_custom[0]
+  to   = aws_iam_policy.ecs_task_execution_role_custom
+}
+
+moved {
+  from = aws_iam_role_policy_attachment.ecs_task_execution_role_custom[0]
+  to   = aws_iam_role_policy_attachment.ecs_task_execution_role_custom
 }
