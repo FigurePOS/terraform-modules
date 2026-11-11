@@ -488,8 +488,7 @@ locals {
               `$${env}`:`fgr.http.server.request.count`
               | where `service.name` == "${var.service}"
               | where `resource.name` ${ep.where_resource}
-              | map rate
-              | align to 1m using avg
+              | align to 1m using sum
               | group using sum
               | extend __label = "count"
             EOT
@@ -500,8 +499,7 @@ locals {
               `$${env}`:`fgr.http.server.request.errors`
               | where `service.name` == "${var.service}"
               | where `resource.name` ${ep.where_resource}
-              | map rate
-              | align to 1m using avg
+              | align to 1m using sum
               | group using sum
               | extend __label = "errors"
             EOT
