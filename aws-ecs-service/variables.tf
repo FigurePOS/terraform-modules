@@ -106,7 +106,7 @@ variable "register_service_connect" {
 variable "service_connect_idle_timeout_seconds" {
   description = "Idle connection timeout in seconds for the registered Service Connect HTTP endpoint. Null uses the AWS HTTP default of 300 seconds. Zero disables the idle timeout."
   type        = number
-  default     = null
+  default     = 300
 }
 
 variable "service_connect_per_request_timeout_seconds" {
