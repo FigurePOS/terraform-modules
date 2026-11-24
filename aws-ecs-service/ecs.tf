@@ -52,6 +52,12 @@ resource "aws_ecs_service" "service" {
           port     = var.service_port
           dns_name = var.service_name
         }
+        dynamic "timeout" {
+          for_each = var.service_connect_per_request_timeout_seconds == null ? [] : [var.service_connect_per_request_timeout_seconds]
+          content {
+            per_request_timeout_seconds = timeout.value
+          }
+        }
       }
     }
   }

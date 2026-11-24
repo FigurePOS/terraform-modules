@@ -103,6 +103,12 @@ variable "register_service_connect" {
   default = false
 }
 
+variable "service_connect_per_request_timeout_seconds" {
+  description = "Per-request timeout in seconds for the registered Service Connect HTTP endpoint. Null uses the AWS default. Zero disables the timeout."
+  type        = number
+  default     = null
+}
+
 variable "service_name" {
   type = string
 }
