@@ -53,9 +53,11 @@ resource "aws_ecs_service" "service" {
           dns_name = var.service_name
         }
         dynamic "timeout" {
-          for_each = var.service_connect_per_request_timeout_seconds == null ? [] : [var.service_connect_per_request_timeout_seconds]
+          for_each = var.service_connect_per_request_timeout_seconds != null || var.service_connect_idle_timeout_seconds != null ? [1] : []
           content {
-            per_request_timeout_seconds = timeout.value
+            # The AWS provider sends zero for an omitted timeout field in this block.
+            idle_timeout_seconds        = coalesce(var.service_connect_idle_timeout_seconds, 300)
+            per_request_timeout_seconds = coalesce(var.service_connect_per_request_timeout_seconds, 15)
           }
         }
       }
